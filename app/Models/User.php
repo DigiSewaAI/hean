@@ -2,56 +2,80 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role',
+        'phone',
+        'citizenship_number',
+        'pan',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    // ============================================================
+    // RELATIONSHIPS (for Owner Dashboard)
+    // ============================================================
+
+    public function hostels()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'role' => 'string',   // 🔥 role कास्ट थपियो
-        ];
+        return $this->hasMany(Hostel::class, 'owner_id');
     }
 
-    /**
-     * Check if user has admin role.
-     */
-    public function isAdmin(): bool
+    public function registrations()
+    {
+        return $this->hasMany(Registration::class, 'owner_id');
+    }
+
+    // Documents through registrations (or directly if you have a user_documents table, but we use registration)
+    public function documents()
+    {
+        return $this->hasManyThrough(Document::class, Registration::class, 'owner_id', 'registration_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasManyThrough(Payment::class, Registration::class, 'owner_id', 'registration_id');
+    }
+
+    public function invoices()
+    {
+        return $this->hasManyThrough(Invoice::class, Registration::class, 'owner_id', 'registration_id');
+    }
+
+    public function certificates()
+    {
+        return $this->hasManyThrough(Certificate::class, Registration::class, 'owner_id', 'registration_id');
+    }
+
+    // ============================================================
+    // HELPER METHODS
+    // ============================================================
+
+    public function isAdmin()
     {
         return $this->role === 'admin';
     }
 
-    /**
-     * Check if user has committee role.
-     */
-    public function isCommittee(): bool
+    public function isOwner()
     {
-        return $this->role === 'committee';
-    }
-
-    /**
-     * Check if user has viewer role.
-     */
-    public function isViewer(): bool
-    {
-        return $this->role === 'viewer';
+        return $this->role === 'owner';
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\PublicRegistrationController; // ✅ New single-page registration
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\RegistrationController;
@@ -17,6 +18,9 @@ use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\CertificateController;
+use App\Http\Controllers\Admin\CMSController;
+use App\Http\Controllers\Admin\ImportController;
+use App\Http\Controllers\Admin\InvoiceController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +51,14 @@ Route::get('/notices/{notice}', [NoticeController::class, 'show'])->name('notice
 Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index');
 
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+
+// =============================================
+// PUBLIC REGISTRATION (Single page – accessed via QR)
+// =============================================
+Route::get('/register-hostel', [PublicRegistrationController::class, 'create'])->name('register.hostel');
+Route::post('/register-hostel', [PublicRegistrationController::class, 'store'])->name('register.hostel.store');
+Route::get('/registration-success/{id}', [PublicRegistrationController::class, 'success'])->name('registration.success');
 
 // =============================================
 // DASHBOARD REDIRECT (Login पछि यहाँ redirect हुन्छ)
@@ -66,10 +78,16 @@ Route::middleware(['auth', 'admin'])
         // Dashboard
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Registrations
+        // Registrations (Full Resource except destroy)
         Route::resource('registrations', RegistrationController::class)->except(['destroy']);
+
+        // Approve / Reject
         Route::post('registrations/{registration}/approve', [RegistrationController::class, 'approve'])->name('registrations.approve');
         Route::post('registrations/{registration}/reject', [RegistrationController::class, 'reject'])->name('registrations.reject');
+
+        // Duplicate Review
+        Route::get('duplicate-reviews', [RegistrationController::class, 'duplicateReviews'])->name('duplicate.reviews');
+        Route::post('duplicate/{registration}/review', [RegistrationController::class, 'reviewDuplicate'])->name('duplicate.review');
 
         // Inspections
         Route::get('inspections/{registration}', [InspectionController::class, 'create'])->name('inspections.create');
@@ -97,9 +115,29 @@ Route::middleware(['auth', 'admin'])
         // Reports
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
 
-        // Certificate
+        // Certificate (list & generate)
         Route::get('certificate', [CertificateController::class, 'index'])->name('certificate.index');
         Route::post('certificate/generate', [CertificateController::class, 'generate'])->name('certificate.generate');
+
+        // Invoice Generation
+        Route::post('invoices/generate', [InvoiceController::class, 'generate'])->name('invoices.generate');
+
+        // CMS (Homepage editable)
+        Route::get('cms', [CMSController::class, 'index'])->name('cms.index');
+        Route::post('cms', [CMSController::class, 'update'])->name('cms.update');
+
+        // Import Preparation
+        Route::get('import', [ImportController::class, 'index'])->name('import.index');
+        Route::post('import/prepare', [ImportController::class, 'prepare'])->name('import.prepare');
+
+        // Document download (admin)
+        Route::get('documents/{document}/download', [RegistrationController::class, 'downloadDocument'])->name('documents.download');
+
+        // Invoice download (admin)
+        Route::get('invoices/{invoice}/download', [RegistrationController::class, 'downloadInvoice'])->name('invoices.download');
+
+        // Certificate download (admin)
+        Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])->name('certificates.download');
     });
 
 // =============================================

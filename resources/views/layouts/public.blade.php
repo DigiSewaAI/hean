@@ -50,7 +50,7 @@
             align-items: center;
         }
 
-        /* Logo - increased by ~10% (45px → 50px) */
+        /* Logo */
         .navbar-brand a {
             display: inline-block;
         }
@@ -82,7 +82,7 @@
         }
         .nav-links li a:hover,
         .nav-links li a.active {
-            color: #0EA5E9; /* Sky Blue */
+            color: #0EA5E9;
         }
 
         /* Actions */
@@ -93,7 +93,6 @@
             flex-shrink: 0;
         }
 
-        /* Auth links (Login / Register) */
         .auth-links {
             display: flex;
             align-items: center;
@@ -208,7 +207,6 @@
             .navbar-toggle {
                 display: block;
             }
-            /* Mobile मा logo size adjust */
             .navbar-brand img {
                 height: 40px;
             }
@@ -259,6 +257,70 @@
             width: 0%;
             transition: width 0.1s;
         }
+
+        /* ====== FOOTER STYLES ====== */
+        .footer a {
+            transition: color 0.3s;
+        }
+        .footer a:hover {
+            color: #0EA5E9 !important;
+        }
+
+        /* Footer bottom row: copyright left, tech partner right */
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.85rem;
+        }
+
+        .footer-bottom .copyright {
+            color: #94a3b8;
+            text-align: left;
+        }
+
+        .footer-bottom .copyright a {
+            color: #94a3b8;
+            text-decoration: none;
+        }
+        .footer-bottom .copyright a:hover {
+            color: #0EA5E9;
+        }
+
+        .footer-bottom .tech-partner {
+            color: #94a3b8;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .footer-bottom .tech-partner a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .footer-bottom .tech-partner a:hover {
+            color: #0EA5E9;
+        }
+
+        @media (max-width: 768px) {
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+            .footer-bottom .copyright {
+                text-align: center;
+            }
+            .footer-bottom .tech-partner {
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -277,7 +339,6 @@
         <div class="container">
             <div class="navbar-brand">
                 <a href="{{ route('home') }}">
-                    <!-- ✅ Header Logo: height 50px (10% increase from 45px) -->
                     <img src="{{ asset('images/logo.png') }}" alt="HEAN" style="height:50px; width:auto;">
                 </a>
             </div>
@@ -290,19 +351,21 @@
                     <li><a href="{{ route('committee.index') }}" class="{{ request()->routeIs('committee.*') ? 'active' : '' }}">@lang('messages.committee')</a></li>
                     <li><a href="{{ route('notices.index') }}" class="{{ request()->routeIs('notices.*') ? 'active' : '' }}">@lang('messages.notices')</a></li>
                     <li><a href="{{ route('gallery.index') }}" class="{{ request()->routeIs('gallery.*') ? 'active' : '' }}">@lang('messages.gallery')</a></li>
-                    <li><a href="#contact" class="contact-btn">@lang('messages.contact')</a></li>
+                    <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">@lang('messages.contact')</a></li>
                 </ul>
 
                 <div class="navbar-actions">
                     <div class="auth-links">
                         @guest
-                            <a href="{{ route('login') }}">Login</a>
-                            <a href="{{ route('register') }}" class="register-link">Register</a>
+                            <a href="{{ route('login') }}">@lang('messages.login')</a>
+                            {{-- Register link removed as per specification --}}
                         @else
-                            <a href="{{ route('admin.dashboard') }}" style="color:#0EA5E9;">Dashboard</a>
+                            @if(auth()->user()->role == 'admin')
+                                <a href="{{ route('admin.dashboard') }}" style="color:#0EA5E9;">@lang('messages.admin_dashboard')</a>
+                            @endif
                             <form action="{{ route('logout') }}" method="POST" style="display:inline;">
                                 @csrf
-                                <button type="submit" style="background:none; border:none; color:#1e293b; font-weight:500; cursor:pointer; font-size:0.9rem; padding:6px 12px;">Logout</button>
+                                <button type="submit" style="background:none; border:none; color:#1e293b; font-weight:500; cursor:pointer; font-size:0.9rem; padding:6px 12px;">@lang('messages.logout')</button>
                             </form>
                         @endguest
                     </div>
@@ -313,7 +376,7 @@
                         <a href="{{ route('lang.switch', 'ne') }}" class="{{ app()->getLocale() == 'ne' ? 'active' : '' }}">नेपाली</a>
                     </div>
 
-                    <a href="{{ route('register') }}" class="btn-primary-sm">@lang('messages.become_member')</a>
+                    {{-- Become Member button removed – registration only via QR --}}
                 </div>
             </div>
 
@@ -331,12 +394,12 @@
     <!-- ====== FOOTER ====== -->
     <footer class="footer" style="background:#0f172a; color:#94a3b8; padding:60px 0 30px; margin-top:0;">
         <div class="container">
+
+            <!-- Footer Grid -->
             <div class="footer-grid" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px;">
+                <!-- Brand Column -->
                 <div>
-                    <!-- ✅ Footer Logo: height 80px (100% increase from 40px) -->
-                    <div style="display:flex; align-items:center;">
-                        <img src="{{ asset('images/logo.png') }}" alt="HEAN" style="height:80px; width:auto;">
-                    </div>
+                    <div style="font-size:2rem; font-weight:800; color:#fff;">HEAN<span style="color:#0EA5E9;">.</span></div>
                     <p style="margin-top:12px; font-size:0.95rem; line-height:1.7;">@lang('messages.footer_about')</p>
                     <div style="display:flex; gap:14px; margin-top:20px;">
                         <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-facebook-f"></i></a>
@@ -345,6 +408,8 @@
                         <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
+
+                <!-- Quick Links -->
                 <div>
                     <h4 style="color:#f8fafc; font-weight:600; margin-bottom:20px;">@lang('messages.footer_quick_links')</h4>
                     <ul style="list-style:none; padding:0;">
@@ -356,6 +421,8 @@
                         <li style="margin-bottom:10px;"><a href="{{ route('gallery.index') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.gallery')</a></li>
                     </ul>
                 </div>
+
+                <!-- Contact -->
                 <div>
                     <h4 style="color:#f8fafc; font-weight:600; margin-bottom:20px;">@lang('messages.footer_contact')</h4>
                     <ul style="list-style:none; padding:0;">
@@ -365,26 +432,38 @@
                         <li style="margin-bottom:10px;"><i class="fas fa-clock" style="color:#0EA5E9; width:20px;"></i> @lang('messages.footer_office_hours')</li>
                     </ul>
                 </div>
+
+                <!-- Newsletter Column -->
                 <div>
-                    <h4 style="color:#f8fafc; font-weight:600; margin-bottom:20px;">Newsletter</h4>
-                    <p style="font-size:0.9rem; margin-bottom:15px;">Subscribe to get updates.</p>
+                    <h4 style="color:#f8fafc; font-weight:600; margin-bottom:20px;">@lang('messages.footer_newsletter')</h4>
+                    <p style="font-size:0.9rem; margin-bottom:15px;">@lang('messages.footer_newsletter_desc')</p>
                     <form>
-                        <input type="email" placeholder="Your email" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; margin-bottom:10px;">
-                        <button type="submit" style="background:#0EA5E9; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer;">Subscribe</button>
+                        <input type="email" placeholder="@lang('messages.footer_newsletter_placeholder')" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; margin-bottom:10px;">
+                        <button type="submit" style="background:#0EA5E9; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer;">@lang('messages.footer_newsletter_button')</button>
                     </form>
-                    <p style="margin-top:20px; font-size:0.85rem; color:#64748b;">Technology Partner: <strong style="color:#f8fafc;">HostelHub Nepal</strong></p>
                 </div>
             </div>
-            <div style="margin-top:40px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.06); text-align:center; font-size:0.85rem;">
-                <p>
+
+            <!-- ====== FOOTER BOTTOM ROW ====== -->
+            <!-- Copyright (left) | Technology Partner (right, white) -->
+            <div class="footer-bottom">
+                <div class="copyright">
                     @php $year = date('Y'); @endphp
                     @lang('messages.footer_copyright', ['year' => $year])
                     &nbsp;|&nbsp;
-                    <a href="#" style="color:#94a3b8; text-decoration:none;">@lang('messages.footer_privacy')</a>
+                    <a href="#">@lang('messages.footer_privacy')</a>
                     &nbsp;|&nbsp;
-                    <a href="#" style="color:#94a3b8; text-decoration:none;">@lang('messages.footer_terms')</a>
-                </p>
+                    <a href="#">@lang('messages.footer_terms')</a>
+                </div>
+
+                <div class="tech-partner">
+                    @lang('messages.footer_tech_partner')
+                    <a href="https://www.hostelhubnepal.com" target="_blank" rel="noopener">
+                        🏨 {{ __('messages.footer_tech_partner_name') }}
+                    </a>
+                </div>
             </div>
+
         </div>
     </footer>
 

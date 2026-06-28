@@ -20,11 +20,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // ✅ Middleware aliases – only `admin` and `setlocale` now (owner removed)
         $middleware->alias([
             'admin' => AdminMiddleware::class,
             'setlocale' => SetLocaleMiddleware::class,
         ]);
 
+        // Global middleware
         $middleware->use([
             TrustProxies::class,
             HandleCors::class,
@@ -34,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ConvertEmptyStringsToNull::class,
         ]);
 
+        // Web middleware group मा SetLocaleMiddleware थप्नुहोस्
         $middleware->web(append: [
             SetLocaleMiddleware::class,
         ]);

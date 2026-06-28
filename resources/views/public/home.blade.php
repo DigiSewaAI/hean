@@ -11,8 +11,8 @@
             <h1 style="font-size:3.8rem; font-weight:800; line-height:1.2; color:#0f172a; max-width:700px;">{!! __('messages.hero_title') !!}</h1>
             <p style="font-size:1.2rem; color:#475569; max-width:540px; margin:20px 0 30px; line-height:1.7;">{{ __('messages.hero_desc') }}</p>
             <div class="hero-buttons" style="display:flex; gap:16px; flex-wrap:wrap;">
-                <a href="#" class="btn btn-primary btn-glow" style="padding:14px 34px; border-radius:50px; font-weight:600; background:linear-gradient(135deg,#0EA5E9,#0284C7); color:#fff; text-decoration:none; box-shadow:0 8px 25px rgba(14,165,233,0.35); transition:0.3s;">{{ __('messages.become_member') }}</a>
-                <a href="#" class="btn btn-outline" style="padding:14px 34px; border-radius:50px; font-weight:600; border:2px solid #cbd5e1; color:#1e293b; text-decoration:none; transition:0.3s;">{{ __('messages.explore_network') }}</a>
+                {{-- REMOVED: Become Member button --}}
+                <a href="{{ route('hostels.index') }}" class="btn btn-outline" style="padding:14px 34px; border-radius:50px; font-weight:600; border:2px solid #cbd5e1; color:#1e293b; text-decoration:none; transition:0.3s;">{{ __('messages.explore_network') }}</a>
             </div>
         </div>
         <div class="hero-dashboard" style="display:grid; grid-template-columns:1fr 1fr; gap:24px; background:rgba(255,255,255,0.7); backdrop-filter:blur(10px); padding:30px; border-radius:20px; border:1px solid rgba(255,255,255,0.5);">
@@ -48,10 +48,18 @@
                 <h2 style="font-size:2.5rem; font-weight:700; color:#0f172a; margin-bottom:20px;">{{ __('messages.about_title') }}</h2>
                 <p style="color:#475569; line-height:1.8; margin-bottom:20px;">{{ __('messages.about_desc') }}</p>
                 <div class="about-features" style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:25px;">
-                    <div class="item" style="display:flex; align-items:center; gap:12px; font-weight:500; color:#1e293b;"><span style="color:#0EA5E9; font-size:1.2rem;">✅</span> {{ __('messages.about_feature_1') }}</div>
-                    <div class="item" style="display:flex; align-items:center; gap:12px; font-weight:500; color:#1e293b;"><span style="color:#0EA5E9; font-size:1.2rem;">✅</span> {{ __('messages.about_feature_2') }}</div>
-                    <div class="item" style="display:flex; align-items:center; gap:12px; font-weight:500; color:#1e293b;"><span style="color:#0EA5E9; font-size:1.2rem;">✅</span> {{ __('messages.about_feature_3') }}</div>
-                    <div class="item" style="display:flex; align-items:center; gap:12px; font-weight:500; color:#1e293b;"><span style="color:#0EA5E9; font-size:1.2rem;">✅</span> {{ __('messages.about_feature_4') }}</div>
+                    <div class="item" style="display:flex; align-items:center; gap:12px; font-weight:500; color:#1e293b;">
+                        {!! __('messages.about_feature_1') !!}
+                    </div>
+                    <div class="item" style="display:flex; align-items:center; gap:12px; font-weight:500; color:#1e293b;">
+                        {!! __('messages.about_feature_2') !!}
+                    </div>
+                    <div class="item" style="display:flex; align-items:center; gap:12px; font-weight:500; color:#1e293b;">
+                        {!! __('messages.about_feature_3') !!}
+                    </div>
+                    <div class="item" style="display:flex; align-items:center; gap:12px; font-weight:500; color:#1e293b;">
+                        {!! __('messages.about_feature_4') !!}
+                    </div>
                 </div>
             </div>
         </div>
@@ -174,7 +182,9 @@
     <div class="container">
         <h2 style="font-size:2.5rem; font-weight:700; margin-bottom:15px;">{{ __('messages.cta_title') }}</h2>
         <p style="opacity:0.9; max-width:500px; margin:0 auto 30px;">{{ __('messages.cta_desc') }}</p>
-        <a href="#" class="btn btn-white" style="background:#fff; color:#0EA5E9; padding:14px 40px; border-radius:50px; font-weight:600; text-decoration:none; display:inline-block; transition:0.3s;">{{ __('messages.cta_button') }}</a>
+        {{-- REMOVED: Become Member button (CTA) --}}
+        {{-- Optionally add a link to the hostel list --}}
+        <a href="{{ route('hostels.index') }}" class="btn btn-white" style="background:#fff; color:#0EA5E9; padding:14px 40px; border-radius:50px; font-weight:600; text-decoration:none; display:inline-block; transition:0.3s;">{{ __('messages.explore_network') }}</a>
     </div>
 </section>
 @endsection
