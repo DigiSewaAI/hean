@@ -10,10 +10,14 @@ use App\Models\Invoice;
 use App\Models\Inspection;
 use App\Models\DuplicateReview;
 use App\Models\User;
+use App\Models\Province;
+use App\Models\District;
+use App\Models\Municipality;
 use App\Services\DuplicateDetectionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class RegistrationController extends Controller
 {
@@ -45,49 +49,110 @@ class RegistrationController extends Controller
      */
     public function create()
     {
-        // For simplicity, we might just redirect to public registration or create a form.
-        // Here we can show a form to select an existing user/owner, or create new.
-        // We'll assume we have a form.
         return view('admin.registrations.create');
     }
 
     /**
      * Store a new registration (admin manual).
+     * ✅ Complete fix with proper validation and field mapping
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'owner_id' => 'nullable|exists:users,id',
+        // ✅ 1. Validation – सबै fields मिलाउनुहोस्
+        $validator = Validator::make($request->all(), [
             'hostel_name' => 'required|string|max:255',
+            'hostel_name_english' => 'nullable|string|max:255',
             'hostel_type' => 'required|in:boys,girls,co-ed',
-            'capacity' => 'required|integer|min:1',
             'established_year' => 'required|integer|min:1900|max:' . date('Y'),
-            'contact_number' => 'required|string|max:20',
+            'pan' => 'nullable|string|max:50',
+            'capacity' => 'required|integer|min:1',
+            'rooms' => 'nullable|integer|min:0',
+            'operator_name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
+            'contact' => 'required|string|max:20',
             'website' => 'nullable|url|max:255',
-            'description' => 'nullable|string|max:1000',
-            'province' => 'required|string|max:100',
-            'district' => 'required|string|max:100',
-            'municipality' => 'required|string|max:100',
-            'ward' => 'required|string|max:10',
+            'province' => 'required|exists:provinces,id',
+            'district' => 'required|exists:districts,id',
+            'municipality' => 'required|exists:municipalities,id',
+            'ward' => 'required|integer|min:1|max:32',
             'street' => 'nullable|string|max:255',
             'landmark' => 'nullable|string|max:255',
-            'pan' => 'nullable|string|max:50',
-            'registration_number' => 'nullable|string|max:50',
+            'description' => 'nullable|string|max:1000',
+            // Documents – optional, फारममा required छ तर controller मा optional राख्न सकिन्छ
+            'documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            // Payment fields
+            'payment_status' => 'nullable|in:pending,submitted,verified,rejected',
+            'payment_method' => 'nullable|in:bank,qr,cash',
+            'payment_transaction_id' => 'nullable|string|max:255',
             'source' => 'sometimes|in:public,admin,import,renewal',
         ]);
 
-        // If owner_id is not provided, create a new owner? For admin, we may require owner_id.
-        // We'll set a default source.
-        $data['source'] = $data['source'] ?? 'admin';
-        $data['submitted_at'] = now();
-        $data['status'] = 'pending';
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
-        // Create registration
-        $registration = Registration::create($data);
+        DB::beginTransaction();
+        try {
+            // ✅ 2. Province/District/Municipality को नाम ID बाट fetch
+            $provinceName = Province::find($request->province)?->name;
+            $districtName = District::find($request->district)?->name;
+            $municipalityName = Municipality::find($request->municipality)?->name;
 
-        return redirect()->route('admin.registrations.index')
-            ->with('success', 'Registration created successfully.');
+            // ✅ 3. Registration create – सही columns मात्र
+            $registration = Registration::create([
+                'source' => $request->source ?? 'admin',
+                'submitted_at' => now(),
+                'status' => 'pending',
+                'hostel_name' => $request->hostel_name,
+                'hostel_name_english' => $request->hostel_name_english,
+                'hostel_type' => $request->hostel_type,
+                'established_year' => $request->established_year,
+                'pan' => $request->pan,
+                'capacity' => $request->capacity,
+                'rooms' => $request->rooms,
+                'operator_name' => $request->operator_name,
+                'contact' => $request->contact,
+                'email' => $request->email,
+                'website' => $request->website,
+                'description' => $request->description,
+                'province' => $provinceName,
+                'district' => $districtName,
+                'municipality' => $municipalityName,
+                'ward' => $request->ward,
+                'street' => $request->street,
+                'landmark' => $request->landmark,
+            ]);
+
+            // ✅ 4. Documents upload – documents table मा save
+            if ($request->hasFile('documents')) {
+                foreach ($request->file('documents') as $type => $file) {
+                    // $type = 'pan', 'citizenship', 'license', etc.
+                    $path = $file->store('public/documents/' . $registration->id, 'public');
+                    Document::create([
+                        'registration_id' => $registration->id,
+                        'type' => $type,
+                        'file_path' => $path,
+                        'uploaded_at' => now(),
+                    ]);
+                }
+            }
+
+            // ✅ 5. Payment (यदि payment_method भरिएको छ भने)
+            if ($request->filled('payment_method')) {
+                // मानौं Payment model छ र payment create गर्नुहोस्
+                // (तपाईंको आवश्यकता अनुसार)
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.registrations.index')
+                ->with('success', 'Registration created successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Admin registration failed: ' . $e->getMessage());
+            return back()->withErrors(['general' => 'Error: ' . $e->getMessage()])->withInput();
+        }
     }
 
     /**
@@ -105,10 +170,11 @@ class RegistrationController extends Controller
     {
         $data = $request->validate([
             'hostel_name' => 'required|string|max:255',
+            'hostel_name_english' => 'nullable|string|max:255',
             'hostel_type' => 'required|in:boys,girls,co-ed',
             'capacity' => 'required|integer|min:1',
             'established_year' => 'required|integer|min:1900|max:' . date('Y'),
-            'contact_number' => 'required|string|max:20',
+            'contact' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
             'website' => 'nullable|url|max:255',
             'description' => 'nullable|string|max:1000',
@@ -134,78 +200,58 @@ class RegistrationController extends Controller
      */
     public function approve(Registration $registration)
     {
-        // Prevent duplicate approval
         if ($registration->status === 'approved') {
             return back()->with('error', 'Registration is already approved.');
         }
 
         DB::beginTransaction();
         try {
-            // Update registration
             $registration->update([
                 'status' => 'approved',
                 'approved_at' => now(),
             ]);
 
-            // Create or update the associated hostel
+            $hostelData = [
+                'name_nepali'    => $registration->hostel_name ?? 'N/A',
+                'name_english'   => $registration->hostel_name_english ?? $registration->hostel_name ?? 'N/A',
+                'operator_name'  => optional($registration->owner)->name ?? $registration->operator_name ?? 'N/A',
+                'contact'        => $registration->contact ?? 'N/A',
+                'description'    => $registration->description ?? null,
+                'province'       => $registration->province ?? null,
+                'district'       => $registration->district ?? 'Unknown',
+                'municipality'   => $registration->municipality ?? 'Unknown',
+                'ward'           => $registration->ward ?? '0',
+                'street'         => $registration->street ?? null,
+                'landmark'       => $registration->landmark ?? null,
+                'type'           => $registration->hostel_type ?? null,
+                'capacity'       => $registration->capacity ?? 0,
+                'rooms'          => $registration->rooms ?? $registration->capacity ?? 0,
+                'established_year' => $registration->established_year ?? null,
+                'email'          => $registration->email ?? null,
+                'website'        => $registration->website ?? null,
+                'approved'       => true,
+                'visible'        => true,
+                'featured'       => false,
+                'owner_id'       => $registration->owner_id ?? null,
+            ];
+
             if ($registration->hostel_id) {
                 $hostel = Hostel::find($registration->hostel_id);
                 if ($hostel) {
-                    $hostel->update([
-                        'name' => $registration->hostel_name,
-                        'type' => $registration->hostel_type,
-                        'capacity' => $registration->capacity,
-                        'established_year' => $registration->established_year,
-                        'contact_number' => $registration->contact_number,
-                        'email' => $registration->email,
-                        'website' => $registration->website,
-                        'description' => $registration->description,
-                        'province' => $registration->province,
-                        'district' => $registration->district,
-                        'municipality' => $registration->municipality,
-                        'ward' => $registration->ward,
-                        'street' => $registration->street,
-                        'landmark' => $registration->landmark,
-                        'approved' => true,
-                        'visible' => true,
-                    ]);
+                    $hostel->update($hostelData);
+                } else {
+                    $hostel = Hostel::create($hostelData);
+                    $registration->update(['hostel_id' => $hostel->id]);
                 }
             } else {
-                // Create new hostel from registration data
-                $hostel = Hostel::create([
-                    'name' => $registration->hostel_name,
-                    'type' => $registration->hostel_type,
-                    'capacity' => $registration->capacity,
-                    'established_year' => $registration->established_year,
-                    'contact_number' => $registration->contact_number,
-                    'email' => $registration->email,
-                    'website' => $registration->website,
-                    'description' => $registration->description,
-                    'province' => $registration->province,
-                    'district' => $registration->district,
-                    'municipality' => $registration->municipality,
-                    'ward' => $registration->ward,
-                    'street' => $registration->street,
-                    'landmark' => $registration->landmark,
-                    'owner_id' => $registration->owner_id,
-                    'approved' => true,
-                    'visible' => true,
-                ]);
+                $hostel = Hostel::create($hostelData);
                 $registration->update(['hostel_id' => $hostel->id]);
-            }
-
-            // Check for duplicates (optional)
-            $duplicateService = new DuplicateDetectionService();
-            if ($duplicateService->check($registration)) {
-                // Mark as potential duplicate for review
-                // But we already approved; we can flag it.
-                // We'll just log or notify.
             }
 
             DB::commit();
 
             return redirect()->route('admin.registrations.index')
-                ->with('success', 'Registration approved and hostel created/updated.');
+                ->with('success', 'Registration approved and hostel created/updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Failed to approve: ' . $e->getMessage());
@@ -231,37 +277,34 @@ class RegistrationController extends Controller
      * Assign an inspector to a registration.
      */
     public function assignInspector(Request $request, Registration $registration)
-    {
-        $request->validate([
-            'inspector_id' => 'required|exists:users,id',
-            'scheduled_date' => 'required|date|after_or_equal:today',
-            'remarks' => 'nullable|string|max:500',
-        ]);
+{
+    $request->validate([
+        'inspector_id' => 'required|exists:users,id',
+        'scheduled_date' => 'required|date|after_or_equal:today',
+        'remarks' => 'nullable|string|max:500',
+    ]);
 
-        // Check if inspection already exists for this registration
-        if ($registration->inspections()->where('status', 'pending')->exists()) {
-            return back()->with('error', 'An inspection is already pending for this registration.');
-        }
-
-        $inspection = Inspection::create([
-            'registration_id' => $registration->id,
-            'inspector_id' => $request->inspector_id,
-            'scheduled_date' => $request->scheduled_date,
-            'remarks' => $request->remarks,
-            'status' => 'scheduled',
-        ]);
-
-        return back()->with('success', 'Inspector assigned and inspection scheduled.');
+    // पहिले नै पेन्डिङ inspection छ कि छैन check गर्नुहोस्
+    if ($registration->inspections()->where('status', 'scheduled')->exists()) {
+        return back()->with('error', 'An inspection is already scheduled for this registration.');
     }
+
+    $inspection = Inspection::create([
+        'registration_id' => $registration->id,
+        'inspector_id' => $request->inspector_id,
+        'scheduled_date' => $request->scheduled_date,
+        'remarks' => $request->remarks,
+        'status' => 'scheduled',
+    ]);
+
+    return back()->with('success', 'Inspector assigned and inspection scheduled.');
+}
 
     /**
      * List registrations that need duplicate review.
      */
     public function duplicateReviews()
     {
-        // Get registrations that are approved but have not been reviewed for duplicates
-        // Or we can get all registrations pending duplicate review.
-        // For simplicity, we'll get all registrations with status = 'approved' and no duplicate review.
         $registrations = Registration::where('status', 'approved')
             ->whereDoesntHave('duplicateReviews')
             ->with('owner', 'hostel')
@@ -285,7 +328,6 @@ class RegistrationController extends Controller
         $service->markReviewed($registration, $request->is_duplicate, $request->notes);
 
         if ($request->is_duplicate) {
-            // Optionally mark registration as duplicate or take action
             $registration->update(['status' => 'duplicate']);
         }
 

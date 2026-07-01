@@ -1,590 +1,522 @@
 @extends('layouts.admin')
 
-@section('title', 'Registration #' . $registration->id . ' - HEAN Admin')
+@section('title', __('messages.registration_title') . ' #' . $registration->id . ' - HEAN Admin')
 
 @section('content')
-<div class="container-fluid py-4">
 
-    <!-- Header -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="display-6 fw-bold mb-0" style="color: #0f172a;">
-                <i class="fas fa-file-alt text-primary me-2" style="color: #0EA5E9 !important;"></i>
-                Registration #{{ $registration->id }}
-            </h1>
-            <span class="text-muted">
-                <i class="far fa-calendar-alt me-1"></i>
-                {{ $registration->created_at ? $registration->created_at->format('M d, Y') : 'N/A' }}
+{{-- ===== HEADER ===== --}}
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:24px;">
+    <div>
+        <h2 style="font-size:1.5rem; font-weight:700; color:#0f172a; margin:0; display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-file-alt" style="color:#0EA5E9;"></i>
+            {{ __('messages.registration') }} #{{ $registration->id }}
+            <span style="font-size:0.8rem; font-weight:400; color:#64748b; margin-left:8px;">
+                {{ $registration->created_at ? $registration->created_at->format('M d, Y') : __('messages.not_available') }}
             </span>
+        </h2>
+    </div>
+    <div>
+        <a href="{{ route('admin.registrations.index') }}" style="display:inline-flex; align-items:center; gap:6px; background:#e2e8f0; color:#1e293b; padding:8px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem; transition:0.3s;">
+            <i class="fas fa-arrow-left"></i> {{ __('messages.back_to_list') }}
+        </a>
+    </div>
+</div>
+
+{{-- ===== FLASH MESSAGES ===== --}}
+@if(session('success'))
+    <div style="background:#f0fdf4; border-left:4px solid #16a34a; padding:12px 18px; border-radius:8px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">
+        <i class="fas fa-check-circle" style="color:#16a34a;"></i>
+        <span style="color:#14532d;">{{ session('success') }}</span>
+        <button onclick="this.parentElement.style.display='none'" style="margin-left:auto; background:none; border:none; color:#94a3b8; cursor:pointer; font-size:1.2rem;">&times;</button>
+    </div>
+@endif
+@if(session('error'))
+    <div style="background:#fef2f2; border-left:4px solid #dc2626; padding:12px 18px; border-radius:8px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">
+        <i class="fas fa-exclamation-circle" style="color:#dc2626;"></i>
+        <span style="color:#7f1d1d;">{{ session('error') }}</span>
+        <button onclick="this.parentElement.style.display='none'" style="margin-left:auto; background:none; border:none; color:#94a3b8; cursor:pointer; font-size:1.2rem;">&times;</button>
+    </div>
+@endif
+
+{{-- ===== STATUS BAR ===== --}}
+<div style="background:#fff; border-radius:12px; padding:16px 20px; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-bottom:24px; display:flex; flex-wrap:wrap; align-items:center; gap:16px; border:1px solid #e2e8f0;">
+    <span style="display:inline-flex; align-items:center; gap:8px; padding:6px 18px; border-radius:50px; font-weight:600; font-size:0.85rem;
+        @if($registration->status == 'approved') background:#dcfce7; color:#166534;
+        @elseif($registration->status == 'rejected') background:#fee2e2; color:#991b1b;
+        @elseif($registration->status == 'inspection') background:#fef3c7; color:#92400e;
+        @else background:#e2e8f0; color:#475569; @endif">
+        <span style="width:8px; height:8px; border-radius:50%; display:inline-block;
+            @if($registration->status == 'approved') background:#22c55e;
+            @elseif($registration->status == 'rejected') background:#ef4444;
+            @elseif($registration->status == 'inspection') background:#f59e0b;
+            @else background:#94a3b8; @endif">
+        </span>
+        {{ __('messages.status_' . $registration->status) }}
+    </span>
+    <span style="color:#64748b; font-size:0.85rem;">
+        <i class="far fa-clock"></i> {{ $registration->submitted_at ? $registration->submitted_at->diffForHumans() : __('messages.not_submitted') }}
+    </span>
+    <span style="color:#94a3b8;">|</span>
+    <span style="color:#64748b; font-size:0.85rem;">
+        <i class="fas fa-tag"></i> {{ __('messages.source') }}: <strong>{{ ucfirst($registration->source ?? __('messages.not_available')) }}</strong>
+    </span>
+</div>
+
+{{-- ===== MAIN CONTENT: 2-COLUMN LAYOUT ===== --}}
+<div style="display:grid; grid-template-columns:2fr 1fr; gap:24px;">
+
+    {{-- ===== LEFT COLUMN ===== --}}
+    <div>
+
+        {{-- Registration Details --}}
+        <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden; margin-bottom:24px;">
+            <div style="background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; padding:14px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-info-circle"></i> {{ __('messages.registration_details') }}
+            </div>
+            <div style="padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.hostel_name') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->hostel_name ?? __('messages.not_available') }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.hostel_type') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ ucfirst($registration->hostel_type ?? __('messages.not_available')) }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.capacity') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->capacity ?? __('messages.not_available') }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.established_year') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->established_year ?? __('messages.not_available') }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.contact_number') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->contact ?? $registration->contact_number ?? __('messages.not_available') }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.email') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->email ?? __('messages.not_available') }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.pan_number') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->pan ?? __('messages.not_available') }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.registration_number') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->registration_number ?? __('messages.not_available') }}</p></div>
+                @if($registration->description)
+                    <div style="grid-column:1/-1;">
+                        <label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.description') }}</label>
+                        <p style="color:#475569; margin:2px 0 0;">{{ $registration->description }}</p>
+                    </div>
+                @endif
+            </div>
         </div>
-        <div>
-            <a href="{{ route('admin.registrations.index') }}" class="btn btn-outline-secondary rounded-pill px-4">
-                <i class="fas fa-arrow-left me-2"></i> Back to List
-            </a>
+
+        {{-- Address Details --}}
+        <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden; margin-bottom:24px;">
+            <div style="background:linear-gradient(135deg, #64748B, #475569); color:#fff; padding:14px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-map-marker-alt"></i> {{ __('messages.address_details') }}
+            </div>
+            <div style="padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.province') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->province ?? __('messages.not_available') }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.district') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->district ?? __('messages.not_available') }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.municipality') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->municipality ?? __('messages.not_available') }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.ward') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->ward ?? __('messages.not_available') }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.street') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->street ?? __('messages.not_available') }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.landmark') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->landmark ?? __('messages.not_available') }}</p></div>
+            </div>
         </div>
+
     </div>
 
-    <!-- Flash Messages -->
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
-            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i> {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+    {{-- ===== RIGHT COLUMN (Sidebar) ===== --}}
+    <div>
 
-    <!-- Status Badge -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body py-3">
-                    <div class="d-flex flex-wrap align-items-center gap-3">
-                        <span class="badge rounded-pill px-3 py-2 fs-6
-                            @if($registration->status == 'approved') bg-success
-                            @elseif($registration->status == 'rejected') bg-danger
-                            @elseif($registration->status == 'inspection') bg-warning text-dark
-                            @else bg-secondary @endif">
-                            <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
-                            {{ ucfirst($registration->status) }}
-                        </span>
-                        <span class="text-muted">
-                            <i class="far fa-clock me-1"></i>
-                            {{ $registration->submitted_at ? $registration->submitted_at->diffForHumans() : 'Not submitted' }}
-                        </span>
-                        <span class="text-muted">|</span>
-                        <span class="text-muted">
-                            <i class="fas fa-tag me-1"></i>
-                            Source: <span class="fw-semibold">{{ ucfirst($registration->source ?? 'N/A') }}</span>
-                        </span>
-                    </div>
-                </div>
+        {{-- Owner Details --}}
+        <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden; margin-bottom:24px;">
+            <div style="background:linear-gradient(135deg, #22C55E, #16A34A); color:#fff; padding:14px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-user-circle"></i> {{ __('messages.owner_details') }}
             </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-
-        <!-- ===== LEFT COLUMN ===== -->
-        <div class="col-lg-7">
-
-            <!-- Registration Details -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white py-3" style="background: linear-gradient(135deg, #0EA5E9, #3B82F6) !important;">
-                    <i class="fas fa-info-circle me-2"></i> Registration Details
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Hostel Name</label>
-                                <p class="fw-semibold mb-0 fs-5">{{ $registration->hostel_name ?? $registration->hostel->name ?? 'N/A' }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Capacity</label>
-                                <p class="mb-0">{{ $registration->capacity ?? 'N/A' }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Contact Number</label>
-                                <p class="mb-0">{{ $registration->contact_number ?? $registration->contact ?? 'N/A' }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">PAN Number</label>
-                                <p class="mb-0">{{ $registration->pan ?? 'N/A' }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Hostel Type</label>
-                                <p class="mb-0">{{ ucfirst($registration->hostel_type ?? 'N/A') }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Established Year</label>
-                                <p class="mb-0">{{ $registration->established_year ?? 'N/A' }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Email Address</label>
-                                <p class="mb-0">{{ $registration->email ?? 'N/A' }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Registration #</label>
-                                <p class="mb-0">{{ $registration->registration_number ?? 'N/A' }}</p>
-                            </div>
-                        </div>
+            <div style="padding:20px; text-align:center;">
+                @if($registration->owner)
+                    <div style="width:70px; height:70px; border-radius:50%; background:#0EA5E9; color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; margin:0 auto 12px;">
+                        {{ substr($registration->owner->name, 0, 1) }}
                     </div>
-                    @if($registration->description)
-                        <div class="mt-3">
-                            <label class="text-muted text-uppercase small fw-bold d-block">Description</label>
-                            <p class="mb-0">{{ $registration->description }}</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Address Details -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-secondary text-white py-3" style="background: linear-gradient(135deg, #64748B, #475569) !important;">
-                    <i class="fas fa-map-marker-alt me-2"></i> Address Details
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Province</label>
-                                <p class="mb-0">{{ $registration->province ?? 'N/A' }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">District</label>
-                                <p class="mb-0 fw-semibold">{{ $registration->district ?? 'N/A' }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Municipality</label>
-                                <p class="mb-0">{{ $registration->municipality ?? 'N/A' }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Ward Number</label>
-                                <p class="mb-0">{{ $registration->ward ?? 'N/A' }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Street / Tole</label>
-                                <p class="mb-0">{{ $registration->street ?? 'N/A' }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Landmark</label>
-                                <p class="mb-0">{{ $registration->landmark ?? 'N/A' }}</p>
-                            </div>
-                        </div>
+                    <p style="font-weight:700; color:#0f172a; margin:0;">{{ $registration->owner->name }}</p>
+                    <p style="color:#64748b; font-size:0.85rem; margin:2px 0 12px;">
+                        <a href="mailto:{{ $registration->owner->email }}" style="color:#0EA5E9; text-decoration:none;">{{ $registration->owner->email }}</a>
+                    </p>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; text-align:left; font-size:0.85rem; background:#f8fafc; padding:12px; border-radius:8px;">
+                        <div><span style="color:#94a3b8; font-size:0.7rem; text-transform:uppercase;">{{ __('messages.phone') }}</span><br><strong>{{ $registration->owner->phone ?? __('messages.not_available') }}</strong></div>
+                        <div><span style="color:#94a3b8; font-size:0.7rem; text-transform:uppercase;">{{ __('messages.citizenship') }}</span><br><strong>{{ $registration->owner->citizenship_number ?? __('messages.not_available') }}</strong></div>
+                        <div style="grid-column:1/-1;"><span style="color:#94a3b8; font-size:0.7rem; text-transform:uppercase;">{{ __('messages.pan') }}</span><br><strong>{{ $registration->owner->pan ?? __('messages.not_available') }}</strong></div>
                     </div>
-                </div>
+                @else
+                    <div style="padding:20px;">
+                        <i class="fas fa-user-slash" style="font-size:3rem; color:#cbd5e1;"></i>
+                        <p style="color:#94a3b8;">{{ __('messages.no_owner_linked') }}</p>
+                    </div>
+                @endif
             </div>
         </div>
 
-        <!-- ===== RIGHT COLUMN ===== -->
-        <div class="col-lg-5">
-
-            <!-- Owner Details -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-success text-white py-3" style="background: linear-gradient(135deg, #22C55E, #16A34A) !important;">
-                    <i class="fas fa-user-circle me-2"></i> Owner Details
-                </div>
-                <div class="card-body text-center">
-                    @if($registration->owner)
-                        <div class="mb-3">
-                            <div class="avatar-circle bg-primary text-white mx-auto" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; background: #0EA5E9 !important;">
-                                {{ substr($registration->owner->name, 0, 1) }}
-                            </div>
-                        </div>
-                        <div class="text-start">
-                            <div class="mb-2">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Full Name</label>
-                                <p class="fw-semibold mb-0 fs-5">{{ $registration->owner->name }}</p>
-                            </div>
-                            <div class="mb-2">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Email Address</label>
-                                <p class="mb-0"><a href="mailto:{{ $registration->owner->email }}" class="text-decoration-none">{{ $registration->owner->email }}</a></p>
-                            </div>
-                            <div class="mb-2">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Contact Number</label>
-                                <p class="mb-0">{{ $registration->owner->phone ?? 'N/A' }}</p>
-                            </div>
-                            <div class="mb-2">
-                                <label class="text-muted text-uppercase small fw-bold d-block">Citizenship Number</label>
-                                <p class="mb-0">{{ $registration->owner->citizenship_number ?? 'N/A' }}</p>
-                            </div>
-                            <div class="mb-0">
-                                <label class="text-muted text-uppercase small fw-bold d-block">PAN Number</label>
-                                <p class="mb-0">{{ $registration->owner->pan ?? 'N/A' }}</p>
-                            </div>
-                        </div>
-                    @else
-                        <div class="py-4">
-                            <i class="fas fa-user-slash fa-4x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">No owner linked to this registration.</p>
-                        </div>
-                    @endif
-                </div>
+        {{-- Quick Stats --}}
+        <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
+            <div style="background:linear-gradient(135deg, #06B6D4, #0891B2); color:#fff; padding:14px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-chart-simple"></i> {{ __('messages.quick_stats') }}
             </div>
-
-            <!-- Quick Stats -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-info text-white py-3" style="background: linear-gradient(135deg, #06B6D4, #0891B2) !important;">
-                    <i class="fas fa-chart-simple me-2"></i> Quick Stats
+            <div style="padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div style="text-align:center; background:#f8fafc; padding:14px; border-radius:8px;">
+                    <i class="fas fa-file-alt" style="color:#0EA5E9; font-size:1.3rem;"></i>
+                    <div style="font-weight:700; font-size:1.3rem; color:#0f172a;">{{ $registration->documents?->count() ?? 0 }}</div>
+                    <span style="font-size:0.7rem; color:#94a3b8; text-transform:uppercase;">{{ __('messages.documents') }}</span>
                 </div>
-                <div class="card-body">
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <div class="p-3 bg-light rounded text-center">
-                                <i class="fas fa-file-alt text-primary fs-2"></i>
-                                <div class="fw-bold fs-4">{{ $registration->documents?->count() ?? 0 }}</div>
-                                <small class="text-muted">Documents</small>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="p-3 bg-light rounded text-center">
-                                <i class="fas fa-credit-card text-success fs-2"></i>
-                                <div class="fw-bold fs-4">{{ $registration->payments?->count() ?? 0 }}</div>
-                                <small class="text-muted">Payments</small>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="p-3 bg-light rounded text-center">
-                                <i class="fas fa-receipt text-warning fs-2"></i>
-                                <div class="fw-bold fs-4">{{ $registration->invoices?->count() ?? 0 }}</div>
-                                <small class="text-muted">Invoices</small>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="p-3 bg-light rounded text-center">
-                                <i class="fas fa-certificate text-danger fs-2"></i>
-                                <div class="fw-bold fs-4">{{ $registration->certificates?->count() ?? 0 }}</div>
-                                <small class="text-muted">Certificates</small>
-                            </div>
-                        </div>
-                    </div>
+                <div style="text-align:center; background:#f8fafc; padding:14px; border-radius:8px;">
+                    <i class="fas fa-credit-card" style="color:#22C55E; font-size:1.3rem;"></i>
+                    <div style="font-weight:700; font-size:1.3rem; color:#0f172a;">{{ $registration->payments?->count() ?? 0 }}</div>
+                    <span style="font-size:0.7rem; color:#94a3b8; text-transform:uppercase;">{{ __('messages.payments') }}</span>
+                </div>
+                <div style="text-align:center; background:#f8fafc; padding:14px; border-radius:8px;">
+                    <i class="fas fa-receipt" style="color:#F59E0B; font-size:1.3rem;"></i>
+                    <div style="font-weight:700; font-size:1.3rem; color:#0f172a;">{{ $registration->invoices?->count() ?? 0 }}</div>
+                    <span style="font-size:0.7rem; color:#94a3b8; text-transform:uppercase;">{{ __('messages.invoices') }}</span>
+                </div>
+                <div style="text-align:center; background:#f8fafc; padding:14px; border-radius:8px;">
+                    <i class="fas fa-certificate" style="color:#EF4444; font-size:1.3rem;"></i>
+                    <div style="font-weight:700; font-size:1.3rem; color:#0f172a;">{{ $registration->certificates?->count() ?? 0 }}</div>
+                    <span style="font-size:0.7rem; color:#94a3b8; text-transform:uppercase;">{{ __('messages.certificates') }}</span>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- ===== ACTIONS SECTION ===== -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-dark text-white py-3" style="background: linear-gradient(135deg, #1E293B, #0F172A) !important;">
-                    <i class="fas fa-tools me-2"></i> Actions
-                </div>
-                <div class="card-body">
-                    <div class="d-flex flex-wrap gap-3">
-                        @if($registration->status == 'pending')
-                            <form action="{{ route('admin.registrations.approve', $registration) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-success rounded-pill px-4">
-                                    <i class="fas fa-check-circle me-2"></i> Approve
-                                </button>
-                            </form>
-                            <form action="{{ route('admin.registrations.reject', $registration) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-danger rounded-pill px-4">
-                                    <i class="fas fa-times-circle me-2"></i> Reject
-                                </button>
-                            </form>
-                        @endif
-
-                        <button type="button" class="btn btn-info rounded-pill px-4" data-bs-toggle="collapse" data-bs-target="#inspectorForm">
-                            <i class="fas fa-user-check me-2"></i> Assign Inspector
+{{-- ===== ACTIONS SECTION ===== --}}
+<div style="margin-top:24px;">
+    <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
+        <div style="background:linear-gradient(135deg, #1E293B, #0F172A); color:#fff; padding:14px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-tools"></i> {{ __('messages.actions') }}
+        </div>
+        <div style="padding:20px;">
+            <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                @if($registration->status == 'pending')
+                    <form action="{{ route('admin.registrations.approve', $registration) }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="submit" style="background:linear-gradient(135deg, #22C55E, #16A34A); color:#fff; border:none; padding:10px 24px; border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(34,197,94,0.3);">
+                            <i class="fas fa-check-circle"></i> {{ __('messages.approve') }}
                         </button>
+                    </form>
+                    <form action="{{ route('admin.registrations.reject', $registration) }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="submit" style="background:linear-gradient(135deg, #EF4444, #DC2626); color:#fff; border:none; padding:10px 24px; border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(239,68,68,0.3);">
+                            <i class="fas fa-times-circle"></i> {{ __('messages.reject') }}
+                        </button>
+                    </form>
+                @endif
 
-                        <button type="button" class="btn btn-warning rounded-pill px-4" data-bs-toggle="collapse" data-bs-target="#invoiceForm">
-                            <i class="fas fa-file-invoice me-2"></i> Generate Invoice
+                {{-- Toggle for Assign Inspector Form --}}
+                <button type="button" onclick="document.getElementById('inspectorForm').style.display=document.getElementById('inspectorForm').style.display=='none'?'block':'none'" style="background:linear-gradient(135deg, #06B6D4, #0891B2); color:#fff; border:none; padding:10px 24px; border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(6,182,212,0.3);">
+                    <i class="fas fa-user-check"></i> {{ __('messages.assign_inspector') }}
+                </button>
+
+                {{-- Link to Start Inspection --}}
+                <a href="{{ route('admin.inspections.create', $registration) }}" style="display:inline-flex; align-items:center; gap:8px; background:#8B5CF6; color:#fff; padding:8px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem; transition:0.3s;">
+                    <i class="fas fa-clipboard-list"></i> {{ __('messages.start_inspection') }}
+                </a>
+
+                <button type="button" onclick="document.getElementById('invoiceForm').style.display=document.getElementById('invoiceForm').style.display=='none'?'block':'none'" style="background:linear-gradient(135deg, #8B5CF6, #7C3AED); color:#fff; border:none; padding:10px 24px; border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(139,92,246,0.3);">
+                    <i class="fas fa-file-invoice"></i> {{ __('messages.generate_invoice') }}
+                </button>
+            </div>
+
+            {{-- Inspector Form --}}
+            <div id="inspectorForm" style="display:none; background:#f8fafc; border-radius:12px; padding:20px; margin-bottom:12px;">
+                <form action="{{ route('admin.registrations.assignInspector', $registration) }}" method="POST">
+                    @csrf
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+                        <div>
+                            <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.inspector') }} <span style="color:#dc2626;">*</span></label>
+                            <select name="inspector_id" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;">
+                                <option value="">{{ __('messages.select_inspector') }}</option>
+                                @foreach($inspectors ?? [] as $inspector)
+                                    <option value="{{ $inspector->id }}">{{ $inspector->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.scheduled_date') }} <span style="color:#dc2626;">*</span></label>
+                            <input type="date" name="scheduled_date" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                        </div>
+                        <div>
+                            <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.remarks_optional') }}</label>
+                            <input type="text" name="remarks" placeholder="{{ __('messages.remarks_placeholder_schedule') }}" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                        </div>
+                    </div>
+                    <div style="margin-top:12px; text-align:right;">
+                        <button type="submit" style="background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; border:none; padding:10px 30px; border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(14,165,233,0.3);">
+                            <i class="fas fa-calendar-plus"></i> {{ __('messages.assign_and_schedule') }}
                         </button>
                     </div>
+                </form>
+            </div>
 
-                    <!-- Inspector Assignment Form -->
-                    <div class="collapse mt-4" id="inspectorForm">
-                        <div class="card card-body border-0 bg-light">
-                            <form action="{{ route('admin.inspections.store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="registration_id" value="{{ $registration->id }}">
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label for="inspector_id" class="form-label fw-bold">Inspector</label>
-                                        <select name="inspector_id" id="inspector_id" class="form-select" required>
-                                            <option value="">Select Inspector</option>
-                                            @foreach($inspectors ?? [] as $inspector)
-                                                <option value="{{ $inspector->id }}">{{ $inspector->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="scheduled_date" class="form-label fw-bold">Scheduled Date</label>
-                                        <input type="date" name="scheduled_date" id="scheduled_date" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-4 d-flex align-items-end">
-                                        <button type="submit" class="btn btn-primary w-100 rounded-pill">
-                                            <i class="fas fa-calendar-plus me-2"></i> Assign & Schedule
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
+            {{-- Invoice Form --}}
+            <div id="invoiceForm" style="display:none; background:#f8fafc; border-radius:12px; padding:20px;">
+                <form action="{{ route('admin.invoices.generate') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="registration_id" value="{{ $registration->id }}">
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+                        <div>
+                            <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.invoice_type') }} <span style="color:#dc2626;">*</span></label>
+                            <select name="invoice_type" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;">
+                                <option value="">{{ __('messages.select_type') }}</option>
+                                <option value="new_registration">{{ __('messages.invoice_type_new_registration') }}</option>
+                                <option value="renewal">{{ __('messages.invoice_type_renewal') }}</option>
+                                <option value="membership_fee">{{ __('messages.invoice_type_membership_fee') }}</option>
+                                <option value="inspection_fee">{{ __('messages.invoice_type_inspection_fee') }}</option>
+                                <option value="certificate_fee">{{ __('messages.invoice_type_certificate_fee') }}</option>
+                                <option value="penalty">{{ __('messages.invoice_type_penalty') }}</option>
+                                <option value="other">{{ __('messages.invoice_type_other') }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.amount_npr') }} <span style="color:#dc2626;">*</span></label>
+                            <input type="number" name="amount" step="0.01" required placeholder="{{ __('messages.placeholder_amount') }}" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                        </div>
+                        <div>
+                            <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.due_date') }}</label>
+                            <input type="date" name="due_date" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
                         </div>
                     </div>
+                    <div style="margin-top:12px; text-align:right;">
+                        <button type="submit" style="background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; border:none; padding:10px 24px; border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(245,158,11,0.3);">
+                            <i class="fas fa-file-invoice"></i> {{ __('messages.generate_invoice') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-                    <!-- Invoice Generation Form -->
-                    <div class="collapse mt-4" id="invoiceForm">
-                        <div class="card card-body border-0 bg-light">
-                            <form action="{{ route('admin.invoices.generate') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="registration_id" value="{{ $registration->id }}">
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label for="amount" class="form-label fw-bold">Amount (NPR)</label>
-                                        <input type="number" name="amount" id="amount" class="form-control" step="0.01" required placeholder="e.g. 1500">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="due_date" class="form-label fw-bold">Due Date</label>
-                                        <input type="date" name="due_date" id="due_date" class="form-control">
-                                    </div>
-                                    <div class="col-md-4 d-flex align-items-end">
-                                        <button type="submit" class="btn btn-warning w-100 rounded-pill">
-                                            <i class="fas fa-file-invoice me-2"></i> Generate Invoice
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+{{-- ============================================================ --}}
+{{-- ✅ NEW: FINANCIAL SUMMARY --}}
+{{-- ============================================================ --}}
+<div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px; margin-top:24px;">
+    <h4 style="margin:0 0 16px 0; display:flex; align-items:center; gap:10px;">
+        <i class="fas fa-chart-pie" style="color:#0EA5E9;"></i> {{ __('messages.financial_summary') }}
+    </h4>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px;">
+        <div style="text-align:center; background:#f8fafc; padding:14px; border-radius:8px;">
+            <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase;">{{ __('messages.total_invoiced') }}</div>
+            <div style="font-weight:700; font-size:1.3rem; color:#0f172a;">NPR {{ number_format($registration->total_invoiced, 2) }}</div>
+        </div>
+        <div style="text-align:center; background:#f8fafc; padding:14px; border-radius:8px;">
+            <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase;">{{ __('messages.total_paid') }}</div>
+            <div style="font-weight:700; font-size:1.3rem; color:#22C55E;">NPR {{ number_format($registration->total_paid, 2) }}</div>
+        </div>
+        <div style="text-align:center; background:#f8fafc; padding:14px; border-radius:8px;">
+            <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase;">{{ __('messages.outstanding') }}</div>
+            <div style="font-weight:700; font-size:1.3rem; color:#EF4444;">NPR {{ number_format($registration->outstanding, 2) }}</div>
+        </div>
+        <div style="text-align:center; background:#f8fafc; padding:14px; border-radius:8px;">
+            <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase;">{{ __('messages.latest_receipt') }}</div>
+            @if($registration->latest_receipt)
+                <a href="{{ route('admin.receipts.download', $registration->latest_receipt) }}" style="font-weight:700; color:#0EA5E9; text-decoration:none;">
+                    {{ $registration->latest_receipt->receipt_number }}
+                </a>
+            @else
+                <span style="color:#94a3b8;">{{ __('messages.none') }}</span>
+            @endif
+        </div>
+    </div>
+</div>
+
+{{-- ============================================================ --}}
+{{-- ✅ NEW: INVOICES, PAYMENTS, RECEIPTS GRID --}}
+{{-- ============================================================ --}}
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px;">
+
+    {{-- Invoices --}}
+    <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
+        <div style="background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; padding:14px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-file-invoice"></i> {{ __('messages.invoices') }}
+        </div>
+        <div style="padding:16px;">
+            @if($registration->invoices->count())
+                @foreach($registration->invoices as $invoice)
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #e2e8f0;">
+                    <div>
+                        <span style="font-weight:500;">{{ $invoice->invoice_number }}</span>
+                        <br><span style="font-size:0.75rem; color:#94a3b8;">{{ __('messages.type') }}: {{ __('messages.invoice_type_'.$invoice->invoice_type) }}</span>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-weight:700;">NPR {{ number_format($invoice->amount, 2) }}</span>
+                        <br><span style="font-size:0.75rem; padding:2px 8px; border-radius:50px; 
+                            @if($invoice->status == 'paid') background:#dcfce7; color:#166534;
+                            @elseif($invoice->status == 'partial') background:#fef3c7; color:#92400e;
+                            @else background:#fee2e2; color:#991b1b; @endif">
+                            {{ __('messages.status_'.$invoice->status) }}
+                        </span>
                     </div>
                 </div>
+                @endforeach
+            @else
+                <div style="text-align:center; padding:20px; color:#94a3b8;">{{ __('messages.no_invoices') }}</div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Payments --}}
+    <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
+        <div style="background:linear-gradient(135deg, #22C55E, #16A34A); color:#fff; padding:14px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-credit-card"></i> {{ __('messages.payments') }}
+        </div>
+        <div style="padding:16px;">
+            @if($registration->payments->count())
+                @foreach($registration->payments as $payment)
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #e2e8f0;">
+                    <div>
+                        <span style="font-weight:500;">{{ ucfirst($payment->method) }}</span>
+                        <br><span style="font-size:0.75rem; color:#94a3b8;">{{ $payment->transaction_id ?? 'N/A' }}</span>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-weight:700;">NPR {{ number_format($payment->amount, 2) }}</span>
+                        <br><span style="font-size:0.75rem; padding:2px 8px; border-radius:50px; 
+                            @if($payment->status == 'verified') background:#dcfce7; color:#166534;
+                            @elseif($payment->status == 'pending') background:#fef3c7; color:#92400e;
+                            @else background:#fee2e2; color:#991b1b; @endif">
+                            {{ __('messages.status_'.$payment->status) }}
+                        </span>
+                    </div>
+                </div>
+                @endforeach
+            @else
+                <div style="text-align:center; padding:20px; color:#94a3b8;">{{ __('messages.no_payments_recorded') }}</div>
+            @endif
+            <div style="margin-top:12px;">
+                <a href="{{ route('admin.payments.create', ['registration_id' => $registration->id]) }}" style="display:inline-block; background:#22C55E; color:#fff; padding:6px 16px; border-radius:50px; text-decoration:none; font-size:0.8rem;">
+                    <i class="fas fa-plus"></i> {{ __('messages.add_payment') }}
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- ===== DOCUMENTS, PAYMENTS, INSPECTIONS, DUPLICATE ===== -->
-    <div class="row mt-4 g-4">
-
-        <!-- Documents -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header py-3" style="background: linear-gradient(135deg, #0EA5E9, #3B82F6) !important; color: white;">
-                    <i class="fas fa-file-pdf me-2"></i> Documents
-                </div>
-                <div class="card-body">
-                    @if($registration->documents?->count())
-                        <div class="list-group list-group-flush">
-                            @foreach($registration->documents as $doc)
-                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <i class="fas fa-file text-primary me-2"></i>
-                                        <span class="fw-semibold">{{ ucfirst(str_replace('_', ' ', $doc->type)) }}</span>
-                                        <br>
-                                        <small class="text-muted">
-                                            <i class="far fa-clock me-1"></i> {{ $doc->created_at->format('M d, Y') }}
-                                        </small>
-                                    </div>
-                                    <a href="{{ route('admin.documents.download', $doc->id) }}" class="btn btn-sm btn-primary rounded-pill px-3">
-                                        <i class="fas fa-download me-1"></i> Download
-                                    </a>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="text-center py-5">
-                            <i class="fas fa-file-alt fa-4x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">No documents uploaded.</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
+    {{-- Receipts (full width) --}}
+    <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden; grid-column:1/-1;">
+        <div style="background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; padding:14px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-receipt"></i> {{ __('messages.receipts') }}
         </div>
-
-        <!-- Payments -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header py-3" style="background: linear-gradient(135deg, #22C55E, #16A34A) !important; color: white;">
-                    <i class="fas fa-credit-card me-2"></i> Payments
-                </div>
-                <div class="card-body">
-                    @if($registration->payments?->count())
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Method</th>
-                                        <th>Transaction</th>
-                                        <th class="text-end">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($registration->payments as $payment)
-                                        <tr>
-                                            <td><span class="badge bg-info">{{ ucfirst($payment->method) }}</span></td>
-                                            <td>{{ $payment->transaction_id }}</td>
-                                            <td class="text-end fw-bold">NPR {{ number_format($payment->amount, 2) }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-5">
-                            <i class="fas fa-credit-card fa-4x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">No payments recorded.</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <!-- Inspections -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header py-3" style="background: linear-gradient(135deg, #F59E0B, #D97706) !important; color: white;">
-                    <i class="fas fa-clipboard-check me-2"></i> Inspections
-                </div>
-                <div class="card-body">
-                    @if($registration->inspections?->count())
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Scheduled</th>
-                                        <th>Status</th>
-                                        <th>Remarks</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($registration->inspections as $inspection)
-                                        <tr>
-                                            <td>{{ $inspection->scheduled_date }}</td>
-                                            <td>
-                                                <span class="badge bg-{{ $inspection->status == 'completed' ? 'success' : 'warning' }}">
-                                                    {{ ucfirst($inspection->status) }}
-                                                </span>
-                                            </td>
-                                            <td>{{ $inspection->remarks ?? '-' }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-5">
-                            <i class="fas fa-clipboard-list fa-4x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">No inspections scheduled.</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <!-- Duplicate Reviews -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header py-3" style="background: linear-gradient(135deg, #EF4444, #DC2626) !important; color: white;">
-                    <i class="fas fa-copy me-2"></i> Duplicate Reviews
-                </div>
-                <div class="card-body">
-                    @if($registration->duplicateReviews?->count())
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Reviewed By</th>
-                                        <th>Duplicate?</th>
-                                        <th>Notes</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($registration->duplicateReviews as $review)
-                                        <tr>
-                                            <td>{{ $review->reviewedBy->name ?? 'N/A' }}</td>
-                                            <td>
-                                                <span class="badge bg-{{ $review->is_duplicate ? 'danger' : 'success' }}">
-                                                    {{ $review->is_duplicate ? 'Yes' : 'No' }}
-                                                </span>
-                                            </td>
-                                            <td>{{ $review->notes ?? '-' }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-5">
-                            <i class="fas fa-copy fa-4x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">Not reviewed for duplicates.</p>
-                        </div>
-                    @endif
-
-                    <div class="mt-3 d-flex gap-2">
-                        <form action="{{ route('admin.duplicate.review', $registration) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="is_duplicate" value="0">
-                            <button type="submit" class="btn btn-success rounded-pill px-4">
-                                <i class="fas fa-check me-2"></i> Not Duplicate
-                            </button>
-                        </form>
-                        <form action="{{ route('admin.duplicate.review', $registration) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="is_duplicate" value="1">
-                            <button type="submit" class="btn btn-danger rounded-pill px-4">
-                                <i class="fas fa-exclamation-triangle me-2"></i> Mark as Duplicate
-                            </button>
-                        </form>
+        <div style="padding:16px;">
+            @if($registration->receipts->count())
+                @foreach($registration->receipts as $receipt)
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #e2e8f0;">
+                    <div>
+                        <span style="font-weight:500;">{{ $receipt->receipt_number }}</span>
+                        <br><span style="font-size:0.75rem; color:#94a3b8;">{{ $receipt->issued_date->format('Y-m-d') }}</span>
+                    </div>
+                    <div>
+                        <span style="font-weight:700;">NPR {{ number_format($receipt->amount, 2) }}</span>
+                        <a href="{{ route('admin.receipts.download', $receipt) }}" style="margin-left:12px; background:#0EA5E9; color:#fff; padding:2px 12px; border-radius:50px; text-decoration:none; font-size:0.75rem;">
+                            <i class="fas fa-download"></i> {{ __('messages.download') }}
+                        </a>
                     </div>
                 </div>
+                @endforeach
+            @else
+                <div style="text-align:center; padding:20px; color:#94a3b8;">{{ __('messages.no_receipts') }}</div>
+            @endif
+        </div>
+    </div>
+</div>
+
+{{-- ============================================================ --}}
+{{-- BOTTOM SECTIONS: Documents, Inspections, Duplicate Reviews --}}
+{{-- (पहिलेको Payments खण्ड हटाइयो, किनभने माथि छुट्टै ग्रिड छ) --}}
+{{-- ============================================================ --}}
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px;">
+
+    {{-- Documents --}}
+    <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
+        <div style="background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; padding:14px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-file-pdf"></i> {{ __('messages.documents') }}
+        </div>
+        <div style="padding:16px;">
+            @if($registration->documents?->count())
+                @foreach($registration->documents as $doc)
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #e2e8f0;">
+                        <div>
+                            <span style="font-weight:500;">{{ ucfirst(str_replace('_', ' ', $doc->type)) }}</span>
+                            <br><span style="font-size:0.75rem; color:#94a3b8;">{{ $doc->created_at->format('M d, Y') }}</span>
+                        </div>
+                        <a href="{{ route('admin.documents.download', $doc->id) }}" style="background:#0EA5E9; color:#fff; padding:4px 14px; border-radius:50px; text-decoration:none; font-size:0.75rem; font-weight:600;">
+                            <i class="fas fa-download"></i> {{ __('messages.download') }}
+                        </a>
+                    </div>
+                @endforeach
+            @else
+                <div style="text-align:center; padding:30px;">
+                    <i class="fas fa-file-alt" style="font-size:2.5rem; color:#cbd5e1;"></i>
+                    <p style="color:#94a3b8; margin-top:8px;">{{ __('messages.no_documents_uploaded') }}</p>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Inspections --}}
+    <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
+        <div style="background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; padding:14px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-clipboard-check"></i> {{ __('messages.inspections') }}
+        </div>
+        <div style="padding:16px;">
+            @if($registration->inspections?->count())
+                @foreach($registration->inspections as $inspection)
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #e2e8f0;">
+                        <div>
+                            <span style="font-weight:500;">{{ $inspection->scheduled_date }}</span>
+                            <br><span style="font-size:0.75rem; color:#94a3b8;">{{ $inspection->remarks ?? __('messages.no_remarks') }}</span>
+                        </div>
+                        <span style="padding:2px 12px; border-radius:50px; font-size:0.7rem; font-weight:600; 
+                            @if($inspection->status == 'completed') background:#dcfce7; color:#166534;
+                            @else background:#fef3c7; color:#92400e; @endif">
+                            {{ __('messages.status_' . $inspection->status) }}
+                        </span>
+                    </div>
+                @endforeach
+            @else
+                <div style="text-align:center; padding:30px;">
+                    <i class="fas fa-clipboard-list" style="font-size:2.5rem; color:#cbd5e1;"></i>
+                    <p style="color:#94a3b8; margin-top:8px;">{{ __('messages.no_inspections_scheduled') }}</p>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Duplicate Reviews (full width) --}}
+    <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden; grid-column:1/-1;">
+        <div style="background:linear-gradient(135deg, #EF4444, #DC2626); color:#fff; padding:14px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-copy"></i> {{ __('messages.duplicate_reviews') }}
+        </div>
+        <div style="padding:16px;">
+            @if($registration->duplicateReviews?->count())
+                @foreach($registration->duplicateReviews as $review)
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #e2e8f0;">
+                        <div>
+                            <span style="font-weight:500;">{{ $review->reviewedBy->name ?? __('messages.not_available') }}</span>
+                            <br><span style="font-size:0.75rem; color:#94a3b8;">{{ $review->notes ?? __('messages.no_notes') }}</span>
+                        </div>
+                        <span style="padding:2px 12px; border-radius:50px; font-size:0.7rem; font-weight:600; 
+                            @if($review->is_duplicate) background:#fee2e2; color:#991b1b;
+                            @else background:#dcfce7; color:#166534; @endif">
+                            {{ $review->is_duplicate ? __('messages.yes') : __('messages.no') }}
+                        </span>
+                    </div>
+                @endforeach
+            @else
+                <div style="text-align:center; padding:30px;">
+                    <i class="fas fa-copy" style="font-size:2.5rem; color:#cbd5e1;"></i>
+                    <p style="color:#94a3b8; margin-top:8px;">{{ __('messages.no_duplicate_reviews') }}</p>
+                </div>
+            @endif
+
+            <div style="margin-top:12px; display:flex; gap:8px;">
+                <form action="{{ route('admin.duplicate.review', $registration) }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="is_duplicate" value="0">
+                    <button type="submit" style="background:#22C55E; color:#fff; border:none; padding:6px 18px; border-radius:50px; font-weight:600; font-size:0.8rem; cursor:pointer; transition:0.3s;">
+                        <i class="fas fa-check"></i> {{ __('messages.not_duplicate') }}
+                    </button>
+                </form>
+                <form action="{{ route('admin.duplicate.review', $registration) }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="is_duplicate" value="1">
+                    <button type="submit" style="background:#EF4444; color:#fff; border:none; padding:6px 18px; border-radius:50px; font-weight:600; font-size:0.8rem; cursor:pointer; transition:0.3s;">
+                        <i class="fas fa-exclamation-triangle"></i> {{ __('messages.mark_as_duplicate') }}
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 
 </div>
 
-<!-- Inline Styles for Polish -->
-<style>
-    .card {
-        border-radius: 16px;
-        overflow: hidden;
-        transition: transform 0.2s ease;
-    }
-    .card:hover {
-        transform: translateY(-2px);
-    }
-    .card-header {
-        border-bottom: none;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-    }
-    .card-body {
-        background: #ffffff;
-    }
-    .avatar-circle {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 32px;
-        font-weight: bold;
-        margin: 0 auto;
-        background: #0EA5E9 !important;
-        color: white !important;
-    }
-    .list-group-item {
-        border-left: none;
-        border-right: none;
-        padding: 12px 0;
-    }
-    .list-group-item:first-child {
-        border-top: none;
-    }
-    .list-group-item:last-child {
-        border-bottom: none;
-    }
-    .btn {
-        transition: all 0.2s ease;
-    }
-    .btn:hover {
-        transform: scale(1.02);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    .badge {
-        font-weight: 500;
-        padding: 0.4rem 0.8rem;
-    }
-    .bg-light {
-        background-color: #f8fafc !important;
-    }
-    .text-muted {
-        color: #64748b !important;
-    }
-    .fs-5 { font-size: 1.25rem; }
-    .fs-4 { font-size: 1.5rem; }
-    .fs-6 { font-size: 1rem; }
-</style>
 @endsection

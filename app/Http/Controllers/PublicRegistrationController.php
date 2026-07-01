@@ -6,6 +6,9 @@ use App\Models\Hostel;
 use App\Models\Registration;
 use App\Models\Document;
 use App\Models\Payment;
+use App\Models\Province;
+use App\Models\District;
+use App\Models\Municipality;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -13,17 +16,11 @@ use Illuminate\Support\Facades\Validator;
 
 class PublicRegistrationController extends Controller
 {
-    /**
-     * Show the single registration form.
-     */
     public function create()
     {
         return view('public.register-hostel');
     }
 
-    /**
-     * Store the registration.
-     */
     public function store(Request $request)
     {
         $validator = $this->validateForm($request);
@@ -33,39 +30,43 @@ class PublicRegistrationController extends Controller
                 ->withInput();
         }
 
+        // Get names from IDs
+        $provinceName = Province::find($request->province)?->name;
+        $districtName = District::find($request->district)?->name;
+        $municipalityName = Municipality::find($request->municipality)?->name;
+
         DB::beginTransaction();
         try {
-            // 1. Create Registration (without user account)
             $registration = Registration::create([
                 'source' => 'public',
                 'submitted_at' => now(),
                 'status' => 'pending',
                 // Hostel details
                 'hostel_name' => $request->hostel_name,
+                    'hostel_name_english' => $request->hostel_name_english,
                 'hostel_type' => $request->hostel_type,
                 'capacity' => $request->capacity,
+                'rooms' => $request->rooms,
                 'established_year' => $request->established_year,
                 'contact' => $request->contact_number,
                 'email' => $request->email,
                 'website' => $request->website,
                 'description' => $request->description,
-                // Owner details
+                // Owner
                 'operator_name' => $request->owner_name,
-                // Address
-                'province' => $request->province,
-                'district' => $request->district,
-                'municipality' => $request->municipality,
+                // Address (store names from dropdown)
+                'province' => $provinceName,
+                'district' => $districtName,
+                'municipality' => $municipalityName,
                 'ward' => $request->ward,
                 'street' => $request->street,
                 'landmark' => $request->landmark,
-                // Additional
                 'pan' => $request->pan,
                 'registration_number' => $request->registration_number,
-                // No owner_id – we don't create a user
             ]);
 
-            // 2. Save Documents
-            $docTypes = ['registration_certificate', 'citizenship_copy', 'pan_certificate', 'other_documents'];
+            // Documents
+            $docTypes = ['registration_certificate', 'citizenship_copy', 'pan_certificate', 'signboard', 'other_documents'];
             foreach ($docTypes as $type) {
                 if ($request->hasFile("documents.{$type}")) {
                     $file = $request->file("documents.{$type}");
@@ -79,7 +80,7 @@ class PublicRegistrationController extends Controller
                 }
             }
 
-            // 3. Save Payment (if any)
+            // Payment
             if ($request->filled('payment_method')) {
                 Payment::create([
                     'registration_id' => $registration->id,
@@ -104,48 +105,39 @@ class PublicRegistrationController extends Controller
         }
     }
 
-    /**
-     * Show success page.
-     */
     public function success($id)
     {
         $registration = Registration::with('documents')->findOrFail($id);
         return view('public.registration-success', compact('registration'));
     }
 
-    /**
-     * Validate the form.
-     */
     protected function validateForm(Request $request)
     {
         $rules = [
-            // Hostel
             'hostel_name' => 'required|string|max:255',
+            'hostel_name_english' => 'required|string|max:255',
             'hostel_type' => 'required|in:boys,girls,co-ed',
             'capacity' => 'required|integer|min:1',
+            'rooms' => 'required|integer|min:1',
             'established_year' => 'required|integer|min:1900|max:' . date('Y'),
             'contact_number' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'email' => 'required|email|max:255',
             'website' => 'nullable|url|max:255',
             'description' => 'nullable|string|max:1000',
-            // Owner
             'owner_name' => 'required|string|max:255',
-            // Address
-            'province' => 'required|string|max:100',
-            'district' => 'required|string|max:100',
-            'municipality' => 'required|string|max:100',
-            'ward' => 'required|string|max:10',
-            'street' => 'nullable|string|max:255',
+            'province' => 'required|exists:provinces,id',
+            'district' => 'required|exists:districts,id',
+            'municipality' => 'required|exists:municipalities,id',
+            'ward' => 'required|integer|min:1|max:32',
+            'street' => 'required|string|max:255',
             'landmark' => 'nullable|string|max:255',
-            // PAN & reg number (for duplicate checks)
-            'pan' => 'nullable|string|max:50',
+            'pan' => 'required|string|max:50',
             'registration_number' => 'nullable|string|max:50',
-            // Documents
             'documents.registration_certificate' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'documents.citizenship_copy' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'documents.pan_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'documents.pan_certificate' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'documents.signboard' => 'required|file|mimes:jpg,jpeg,png|max:2048',
             'documents.other_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            // Payment (optional)
             'payment_method' => 'nullable|in:bank,esewa,khalti',
             'transaction_id' => 'nullable|string|max:255',
             'payment_amount' => 'nullable|numeric|min:0',

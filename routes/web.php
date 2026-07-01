@@ -6,7 +6,7 @@ use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\PublicRegistrationController; // ✅ New single-page registration
+use App\Http\Controllers\PublicRegistrationController;
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\RegistrationController;
@@ -21,6 +21,11 @@ use App\Http\Controllers\Admin\CertificateController;
 use App\Http\Controllers\Admin\CMSController;
 use App\Http\Controllers\Admin\ImportController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\BulkHostelController;
+
+// ✅ NEW: Payment and Receipt controllers
+use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\ReceiptController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -75,7 +80,7 @@ Route::middleware(['auth', 'admin'])
     ->as('admin.')
     ->group(function () {
 
-        // Dashboard
+        // ✅ Dashboard
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         // Registrations (Full Resource except destroy)
@@ -89,7 +94,12 @@ Route::middleware(['auth', 'admin'])
         Route::get('duplicate-reviews', [RegistrationController::class, 'duplicateReviews'])->name('duplicate.reviews');
         Route::post('duplicate/{registration}/review', [RegistrationController::class, 'reviewDuplicate'])->name('duplicate.review');
 
+        // Assign Inspector
+        Route::post('registrations/{registration}/assign-inspector', [RegistrationController::class, 'assignInspector'])->name('registrations.assignInspector');
+
         // Inspections
+        Route::get('inspections', [InspectionController::class, 'index'])->name('inspections.index');
+        Route::get('inspections/select', [InspectionController::class, 'select'])->name('inspections.select');
         Route::get('inspections/{registration}', [InspectionController::class, 'create'])->name('inspections.create');
         Route::post('inspections', [InspectionController::class, 'store'])->name('inspections.store');
 
@@ -98,6 +108,9 @@ Route::middleware(['auth', 'admin'])
         Route::post('hostels/{hostel}/approve', [AdminHostelController::class, 'approve'])->name('hostels.approve');
         Route::post('hostels/{hostel}/feature', [AdminHostelController::class, 'feature'])->name('hostels.feature');
         Route::post('hostels/{hostel}/hide', [AdminHostelController::class, 'hide'])->name('hostels.hide');
+
+        // ✅ Bulk Action – admin group भित्र, resource पछि
+        Route::post('hostels/bulk-action', [AdminHostelController::class, 'bulkAction'])->name('hostels.bulk.action');
 
         // Committee
         Route::resource('committee', AdminCommitteeController::class);
@@ -118,6 +131,7 @@ Route::middleware(['auth', 'admin'])
         // Certificate (list & generate)
         Route::get('certificate', [CertificateController::class, 'index'])->name('certificate.index');
         Route::post('certificate/generate', [CertificateController::class, 'generate'])->name('certificate.generate');
+        Route::get('certificates/{id}/preview', [CertificateController::class, 'show'])->name('certificates.preview');
 
         // Invoice Generation
         Route::post('invoices/generate', [InvoiceController::class, 'generate'])->name('invoices.generate');
@@ -138,6 +152,22 @@ Route::middleware(['auth', 'admin'])
 
         // Certificate download (admin)
         Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])->name('certificates.download');
+
+        // ============================================================
+        // ✅ NEW: PAYMENT ROUTES
+        // ============================================================
+        Route::resource('payments', PaymentController::class);
+        Route::post('payments/{payment}/verify', [PaymentController::class, 'verify'])->name('payments.verify');
+        Route::post('payments/{payment}/reject', [PaymentController::class, 'reject'])->name('payments.reject');
+        Route::post('payments/{payment}/refund', [PaymentController::class, 'refund'])->name('payments.refund');
+
+        // ============================================================
+        // ✅ NEW: RECEIPT ROUTES
+        // ============================================================
+        Route::get('receipts', [ReceiptController::class, 'index'])->name('receipts.index');
+        Route::get('receipts/{receipt}', [ReceiptController::class, 'show'])->name('receipts.show');
+        Route::post('receipts/generate/{payment}', [ReceiptController::class, 'generate'])->name('receipts.generate');
+        Route::get('receipts/{receipt}/download', [ReceiptController::class, 'download'])->name('receipts.download');
     });
 
 // =============================================

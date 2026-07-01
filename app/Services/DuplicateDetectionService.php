@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Registration;
+use App\Models\DuplicateReview;
 
 class DuplicateDetectionService
 {

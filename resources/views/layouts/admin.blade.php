@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ne">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -70,6 +70,37 @@
             color: #b0c4d8;
             margin-top: 8px;
         }
+
+        /* Language Switcher styling */
+        .language-switcher {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-right: 20px;
+        }
+        .language-switcher a {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .language-switcher a:hover {
+            opacity: 0.7;
+        }
+        .language-switcher .divider {
+            color: #e2e8f0;
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .topbar .left-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
     </style>
 </head>
 <body class="dashboard-body">
@@ -80,75 +111,85 @@
         <nav>
 
             <!-- ===== COMMON DASHBOARD LINK ===== -->
-            <div class="nav-section">Main</div>
+            <div class="nav-section">{{ __('messages.main') }}</div>
             @if(auth()->user()->role == 'admin')
                 <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <i class="fas fa-chart-pie"></i> <span>ड्यासबोर्ड</span>
+                    <i class="fas fa-chart-pie"></i> <span>{{ __('messages.dashboard') }}</span>
                 </a>
             @elseif(auth()->user()->role == 'owner')
                 <a href="{{ route('owner.dashboard') }}" class="nav-item {{ request()->routeIs('owner.dashboard') ? 'active' : '' }}">
-                    <i class="fas fa-chart-pie"></i> <span>ड्यासबोर्ड</span>
+                    <i class="fas fa-chart-pie"></i> <span>{{ __('messages.dashboard') }}</span>
                 </a>
             @endif
 
             <!-- ===== ADMIN-ONLY LINKS ===== -->
             @if(auth()->user()->role == 'admin')
                 <a href="{{ route('admin.registrations.index') }}" class="nav-item {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }}">
-                    <i class="fas fa-file-alt"></i> <span>आवेदनहरू</span>
+                    <i class="fas fa-file-alt"></i> <span>{{ __('messages.applications') }}</span>
+                </a>
+                <!-- ✅ नयाँ निरीक्षण लिङ्क -->
+                <a href="{{ route('admin.inspections.index') }}" class="nav-item {{ request()->routeIs('admin.inspections.*') ? 'active' : '' }}">
+                    <i class="fas fa-clipboard-list"></i> <span>{{ __('messages.inspections') }}</span>
                 </a>
                 <a href="{{ route('admin.hostels.index') }}" class="nav-item {{ request()->routeIs('admin.hostels.*') ? 'active' : '' }}">
-                    <i class="fas fa-hotel"></i> <span>होस्टेलहरू</span>
+                    <i class="fas fa-hotel"></i> <span>{{ __('messages.hostels') }}</span>
                 </a>
                 <a href="{{ route('admin.committee.index') }}" class="nav-item {{ request()->routeIs('admin.committee.*') ? 'active' : '' }}">
-                    <i class="fas fa-users"></i> <span>समिति</span>
+                    <i class="fas fa-users"></i> <span>{{ __('messages.committee') }}</span>
                 </a>
                 <a href="{{ route('admin.notices.index') }}" class="nav-item {{ request()->routeIs('admin.notices.*') ? 'active' : '' }}">
-                    <i class="fas fa-bullhorn"></i> <span>सूचनाहरू</span>
+                    <i class="fas fa-bullhorn"></i> <span>{{ __('messages.notices') }}</span>
                 </a>
                 <a href="{{ route('admin.gallery.index') }}" class="nav-item {{ request()->routeIs('admin.gallery.*') ? 'active' : '' }}">
-                    <i class="fas fa-images"></i> <span>ग्यालरी</span>
+                    <i class="fas fa-images"></i> <span>{{ __('messages.gallery') }}</span>
                 </a>
-                <div class="nav-section">Settings</div>
+                <a href="{{ route('admin.payments.index') }}" class="nav-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
+    <i class="fas fa-credit-card"></i> <span>{{ __('messages.payments') }}</span>
+</a>
+<a href="{{ route('admin.receipts.index') }}" class="nav-item {{ request()->routeIs('admin.receipts.*') ? 'active' : '' }}">
+    <i class="fas fa-receipt"></i> <span>{{ __('messages.receipts') }}</span>
+</a>
+                <div class="nav-section">{{ __('messages.settings_section') }}</div>
                 <a href="{{ route('admin.settings.index') }}" class="nav-item {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
-                    <i class="fas fa-cog"></i> <span>सेटिङ</span>
+                    <i class="fas fa-cog"></i> <span>{{ __('messages.settings') }}</span>
                 </a>
                 <a href="{{ route('admin.reports.index') }}" class="nav-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
-                    <i class="fas fa-chart-bar"></i> <span>रिपोर्ट</span>
+                    <i class="fas fa-chart-bar"></i> <span>{{ __('messages.reports') }}</span>
                 </a>
                 <a href="{{ route('admin.certificate.index') }}" class="nav-item {{ request()->routeIs('admin.certificate.*') ? 'active' : '' }}">
-                    <i class="fas fa-certificate"></i> <span>प्रमाणपत्र</span>
+                    <i class="fas fa-certificate"></i> <span>{{ __('messages.certificate') }}</span>
                 </a>
                 <a href="{{ route('admin.cms.index') }}" class="nav-item {{ request()->routeIs('admin.cms.*') ? 'active' : '' }}">
-                    <i class="fas fa-edit"></i> <span>CMS</span>
+                    <i class="fas fa-edit"></i> <span>{{ __('messages.cms') }}</span>
                 </a>
                 <a href="{{ route('admin.import.index') }}" class="nav-item {{ request()->routeIs('admin.import.*') ? 'active' : '' }}">
-                    <i class="fas fa-upload"></i> <span>Import</span>
+                    <i class="fas fa-upload"></i> <span>{{ __('messages.import') }}</span>
                 </a>
             @endif
 
             <!-- ===== OWNER-ONLY LINKS ===== -->
             @if(auth()->user()->role == 'owner')
-                <div class="nav-section">My Account</div>
+                <div class="nav-section">{{ __('messages.my_account') }}</div>
                 <a href="{{ route('owner.profile') }}" class="nav-item {{ request()->routeIs('owner.profile') ? 'active' : '' }}">
-                    <i class="fas fa-user"></i> <span>प्रोफाइल</span>
+                    <i class="fas fa-user"></i> <span>{{ __('messages.profile') }}</span>
                 </a>
                 <a href="{{ route('owner.registrations') }}" class="nav-item {{ request()->routeIs('owner.registrations') ? 'active' : '' }}">
-                    <i class="fas fa-file-alt"></i> <span>मेरा आवेदनहरू</span>
+                    <i class="fas fa-file-alt"></i> <span>{{ __('messages.my_applications') }}</span>
                 </a>
                 <a href="{{ route('owner.documents') }}" class="nav-item {{ request()->routeIs('owner.documents') ? 'active' : '' }}">
-                    <i class="fas fa-file-pdf"></i> <span>मेरा कागजात</span>
+                    <i class="fas fa-file-pdf"></i> <span>{{ __('messages.my_documents') }}</span>
                 </a>
                 <a href="{{ route('owner.payments') }}" class="nav-item {{ request()->routeIs('owner.payments') ? 'active' : '' }}">
-                    <i class="fas fa-credit-card"></i> <span>मेरा भुक्तानी</span>
+                    <i class="fas fa-credit-card"></i> <span>{{ __('messages.my_payments') }}</span>
                 </a>
                 <a href="{{ route('owner.invoices') }}" class="nav-item {{ request()->routeIs('owner.invoices') ? 'active' : '' }}">
-                    <i class="fas fa-receipt"></i> <span>मेरा इनभ्वाइस</span>
+                    <i class="fas fa-receipt"></i> <span>{{ __('messages.my_invoices') }}</span>
                 </a>
                 <a href="{{ route('owner.certificates') }}" class="nav-item {{ request()->routeIs('owner.certificates') ? 'active' : '' }}">
-                    <i class="fas fa-certificate"></i> <span>मेरा प्रमाणपत्र</span>
+                    <i class="fas fa-certificate"></i> <span>{{ __('messages.my_certificates') }}</span>
                 </a>
                 <a href="{{ route('owner.renew') }}" class="nav-item {{ request()->routeIs('owner.renew') ? 'active' : '' }}">
-                    <i class="fas fa-sync"></i> <span>सदस्यता नवीकरण</span>
+                    <i class="fas fa-sync"></i> <span>{{ __('messages.renew_subscription') }}</span>
                 </a>
             @endif
 
@@ -157,7 +198,7 @@
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="nav-item" style="background:none; border:none; width:100%; text-align:left; cursor:pointer !important;">
-                        <i class="fas fa-sign-out-alt"></i> <span>लगआउट</span>
+                        <i class="fas fa-sign-out-alt"></i> <span>{{ __('messages.logout') }}</span>
                     </button>
                 </form>
             </div>
@@ -167,7 +208,15 @@
 
     <div class="main-content">
         <div class="topbar">
-            <div class="page-title">@yield('title')</div>
+            <div class="left-section">
+                <div class="page-title">@yield('title')</div>
+                <!-- ✅ Language Switcher -->
+                <div class="language-switcher">
+                    <a href="{{ route('lang.switch', 'en') }}" style="color:{{ session('locale') == 'en' ? '#0EA5E9' : '#64748b' }};">EN</a>
+                    <span class="divider">|</span>
+                    <a href="{{ route('lang.switch', 'ne') }}" style="color:{{ session('locale') == 'ne' ? '#0EA5E9' : '#64748b' }};">नेपाली</a>
+                </div>
+            </div>
             <div class="user-info">
                 <span class="name">{{ auth()->user()->name }}</span>
                 <span class="role">{{ ucfirst(auth()->user()->role) }}</span>
@@ -183,16 +232,16 @@
             <div class="brand-line">
                 <strong style="color:#0b2b4a;">HEAN</strong>
                 <span style="color:#6a7e96; font-weight:300;">·</span>
-                <span style="color:#4a6a8b;">व्यवस्थापन</span>
+                <span style="color:#4a6a8b;">{{ __('messages.management') }}</span>
             </div>
             <div class="tech-partner">
-                प्राविधिक साझेदार (Technology Partner) ·
+                {{ __('messages.tech_partner') }} ·
                 <a href="https://www.hostelhubnepal.com" target="_blank" rel="noopener">
                     🏨 HostelHub Nepal
                 </a>
             </div>
             <div class="copyright">
-                © {{ date('Y') }} HEAN · सबै अधिकार सुरक्षित
+                © {{ date('Y') }} HEAN · {{ __('messages.all_rights_reserved') }}
             </div>
         </footer>
 

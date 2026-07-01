@@ -134,16 +134,35 @@
             </div>
         </div>
 
+        {{-- ===== ✅ QR CODE SECTION – सही ठाउँमा ===== --}}
+        <div style="text-align:center; margin-top:60px; padding:40px 30px; background:#f8fafc; border-radius:16px; border:2px dashed #0EA5E9;">
+            <div style="display:inline-block; background:#0EA5E9; color:#fff; padding:6px 20px; border-radius:50px; font-size:0.85rem; font-weight:600; margin-bottom:15px;">
+                <i class="fas fa-qrcode me-2"></i> होस्टेल दर्ताको लागि QR Code
+            </div>
+            <h4 style="font-weight:700; color:#0f172a; margin-bottom:10px;">
+                स्क्यान गर्नुहोस् र दर्ता गर्नुहोस्
+            </h4>
+            <p style="color:#64748b; font-size:0.95rem; max-width:400px; margin:0 auto 20px;">
+                तपाईंको होस्टेल HEAN मा दर्ता गर्न मोबाइलको क्यामेरा प्रयोग गर्नुहोस्।
+            </p>
+            <div style="display:inline-block; background:#fff; padding:15px; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+                <img src="{{ asset('images/qrcode.png') }}" alt="QR Code for Registration" style="width:180px; height:180px; display:block; margin:0 auto;">
+            </div>
+            <p style="color:#94a3b8; font-size:0.8rem; margin-top:12px;">
+                <i class="fas fa-camera me-1"></i> QR स्क्यान गरेपछि दर्ता फारम खुल्नेछ
+            </p>
+        </div>
+
     </div>
 </section>
 
-<!-- ===== CTA ===== -->
+<!-- ===== CTA – बटन परिवर्तन गरियो ===== -->
 <section style="padding:60px 0; background:linear-gradient(135deg, #0EA5E9, #10B981); color:#fff; text-align:center;">
     <div class="container">
         <h2 style="font-size:2.2rem; font-weight:700; margin-bottom:12px;">{{ __('messages.cta_title') }}</h2>
         <p style="opacity:0.9; max-width:500px; margin:0 auto 25px;">{{ __('messages.cta_desc') }}</p>
-        <a href="{{ route('membership.step', 1) }}" class="btn btn-white" style="background:#fff; color:#0EA5E9; padding:14px 40px; border-radius:50px; font-weight:600; text-decoration:none; display:inline-block; transition:0.3s;">
-            {{ __('messages.cta_button') }}
+        <a href="{{ route('hostels.index') }}" class="btn btn-white" style="background:#fff; color:#0EA5E9; padding:14px 40px; border-radius:50px; font-weight:600; text-decoration:none; display:inline-block; transition:0.3s; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+            <i class="fas fa-hotel me-2"></i> {{ __('messages.explore_network') }}
         </a>
     </div>
 </section>
@@ -159,5 +178,10 @@
         font-weight: 600;
         margin-bottom: 15px;
     }
+    .btn-white:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
 </style>
+
 @endsection

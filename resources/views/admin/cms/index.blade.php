@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Content Management - HEAN Admin')
+@section('title', __('messages.content_management') . ' - HEAN Admin')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -9,11 +9,11 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <h1 class="display-6 fw-bold mb-0" style="color: #0f172a;">
             <i class="fas fa-edit text-primary me-2" style="color: #0EA5E9 !important;"></i>
-            Content Management
+            {{ __('messages.content_management') }}
         </h1>
         <span class="text-muted">
             <i class="far fa-clock me-1"></i>
-            Last updated: {{ now()->format('M d, Y H:i') }}
+            {{ __('messages.last_updated') }}: {{ now()->format('M d, Y H:i') }}
         </span>
     </div>
 
@@ -21,14 +21,14 @@
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
             <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('messages.close') }}"></button>
         </div>
     @endif
 
     <!-- Main Form -->
     <div class="card border-0 shadow-sm">
         <div class="card-header py-3" style="background: linear-gradient(135deg, #0EA5E9, #3B82F6) !important; color: white;">
-            <i class="fas fa-sliders-h me-2"></i> Homepage Content Settings
+            <i class="fas fa-sliders-h me-2"></i> {{ __('messages.homepage_content_settings') }}
         </div>
         <div class="card-body">
             <form action="{{ route('admin.cms.update') }}" method="POST">
@@ -37,34 +37,34 @@
                 <!-- ===== Hero Section ===== -->
                 <div class="mb-4">
                     <h5 class="fw-bold mb-3" style="color: #0EA5E9;">
-                        <i class="fas fa-star me-2"></i> Hero Section
+                        <i class="fas fa-star me-2"></i> {{ __('messages.hero_section') }}
                     </h5>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="hero_title" class="form-label fw-semibold text-muted text-uppercase small">
-                                    <i class="fas fa-heading me-1"></i> Hero Title
+                                    <i class="fas fa-heading me-1"></i> {{ __('messages.cms_hero_title') }}
                                 </label>
                                 <input type="text" class="form-control form-control-lg" id="hero_title" name="hero_title"
-                                       value="{{ $settings['hero_title'] ?? '' }}" placeholder="e.g. Empowering Nepal's Hostel Ecosystem">
+                                       value="{{ $settings['hero_title'] ?? '' }}" placeholder="{{ __('messages.placeholder_hero_title') }}">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="hero_badge" class="form-label fw-semibold text-muted text-uppercase small">
-                                    <i class="fas fa-tag me-1"></i> Hero Badge
+                                    <i class="fas fa-tag me-1"></i> {{ __('messages.cms_hero_badge') }}
                                 </label>
                                 <input type="text" class="form-control form-control-lg" id="hero_badge" name="hero_badge"
-                                       value="{{ $settings['hero_badge'] ?? '' }}" placeholder="e.g. Welcome to HEAN">
+                                       value="{{ $settings['hero_badge'] ?? '' }}" placeholder="{{ __('messages.placeholder_hero_badge') }}">
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-group">
                                 <label for="hero_subtitle" class="form-label fw-semibold text-muted text-uppercase small">
-                                    <i class="fas fa-align-left me-1"></i> Hero Subtitle
+                                    <i class="fas fa-align-left me-1"></i> {{ __('messages.cms_hero_subtitle') }}
                                 </label>
                                 <textarea class="form-control" id="hero_subtitle" name="hero_subtitle" rows="3"
-                                          placeholder="Describe the mission or tagline">{{ $settings['hero_subtitle'] ?? '' }}</textarea>
+                                          placeholder="{{ __('messages.placeholder_hero_subtitle') }}">{{ $settings['hero_subtitle'] ?? '' }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -75,25 +75,25 @@
                 <!-- ===== About Section ===== -->
                 <div class="mb-4">
                     <h5 class="fw-bold mb-3" style="color: #22C55E;">
-                        <i class="fas fa-info-circle me-2"></i> About Section
+                        <i class="fas fa-info-circle me-2"></i> {{ __('messages.about_section') }}
                     </h5>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="about_title" class="form-label fw-semibold text-muted text-uppercase small">
-                                    <i class="fas fa-heading me-1"></i> About Title
+                                    <i class="fas fa-heading me-1"></i> {{ __('messages.cms_about_title') }}
                                 </label>
                                 <input type="text" class="form-control form-control-lg" id="about_title" name="about_title"
-                                       value="{{ $settings['about_title'] ?? '' }}" placeholder="e.g. Who We Are">
+                                       value="{{ $settings['about_title'] ?? '' }}" placeholder="{{ __('messages.placeholder_about_title') }}">
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-group">
                                 <label for="about_content" class="form-label fw-semibold text-muted text-uppercase small">
-                                    <i class="fas fa-align-left me-1"></i> About Content
+                                    <i class="fas fa-align-left me-1"></i> {{ __('messages.cms_about_content') }}
                                 </label>
                                 <textarea class="form-control" id="about_content" name="about_content" rows="5"
-                                          placeholder="Tell visitors about HEAN">{{ $settings['about_content'] ?? '' }}</textarea>
+                                          placeholder="{{ __('messages.placeholder_about_content') }}">{{ $settings['about_content'] ?? '' }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -104,25 +104,25 @@
                 <!-- ===== CTA Section ===== -->
                 <div class="mb-4">
                     <h5 class="fw-bold mb-3" style="color: #8B5CF6;">
-                        <i class="fas fa-bullhorn me-2"></i> Call to Action
+                        <i class="fas fa-bullhorn me-2"></i> {{ __('messages.call_to_action') }}
                     </h5>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="cta_title" class="form-label fw-semibold text-muted text-uppercase small">
-                                    <i class="fas fa-heading me-1"></i> CTA Title
+                                    <i class="fas fa-heading me-1"></i> {{ __('messages.cms_cta_title') }}
                                 </label>
                                 <input type="text" class="form-control form-control-lg" id="cta_title" name="cta_title"
-                                       value="{{ $settings['cta_title'] ?? '' }}" placeholder="e.g. Ready to Join HEAN?">
+                                       value="{{ $settings['cta_title'] ?? '' }}" placeholder="{{ __('messages.placeholder_cta_title') }}">
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-group">
                                 <label for="cta_content" class="form-label fw-semibold text-muted text-uppercase small">
-                                    <i class="fas fa-align-left me-1"></i> CTA Content
+                                    <i class="fas fa-align-left me-1"></i> {{ __('messages.cms_cta_content') }}
                                 </label>
                                 <textarea class="form-control" id="cta_content" name="cta_content" rows="3"
-                                          placeholder="Supporting text for the call to action">{{ $settings['cta_content'] ?? '' }}</textarea>
+                                          placeholder="{{ __('messages.placeholder_cta_content') }}">{{ $settings['cta_content'] ?? '' }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -134,10 +134,10 @@
                 <div class="d-flex gap-3 flex-wrap">
                     <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fs-6"
                             style="background: linear-gradient(135deg, #0EA5E9, #3B82F6); border: none; box-shadow: 0 4px 15px rgba(14,165,233,0.3); transition: 0.3s;">
-                        <i class="fas fa-save me-2"></i> Save Changes
+                        <i class="fas fa-save me-2"></i> {{ __('messages.cms_save') }}
                     </button>
                     <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary rounded-pill px-4">
-                        <i class="fas fa-times me-2"></i> Cancel
+                        <i class="fas fa-times me-2"></i> {{ __('messages.cancel') }}
                     </a>
                 </div>
 
@@ -151,9 +151,9 @@
             <div class="d-flex align-items-center">
                 <i class="fas fa-lightbulb text-warning fs-3 me-3"></i>
                 <div>
-                    <h6 class="fw-bold mb-1">💡 Quick Tip</h6>
+                    <h6 class="fw-bold mb-1">{{ __('messages.quick_tip') }}</h6>
                     <p class="text-muted mb-0" style="font-size: 0.9rem;">
-                        These settings control the main content on the homepage. Changes will appear immediately after saving.
+                        {{ __('messages.changes_appear_immediately') }}
                     </p>
                 </div>
             </div>

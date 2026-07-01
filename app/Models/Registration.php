@@ -20,11 +20,13 @@ class Registration extends Model
         'registration_number',
         'inspector_id',
 
-        // Registration form data (all columns after migration)
+        // Registration form data – सबै फिल्डहरू तालिका अनुसार
         'hostel_name',
+        'hostel_name_english',
         'operator_name',
         'hostel_type',
         'capacity',
+        'rooms',
         'established_year',
         'contact',
         'email',
@@ -36,18 +38,35 @@ class Registration extends Model
         'ward',
         'street',
         'landmark',
-
-        // Optional JSON field (if you still use it)
         'documents',
     ];
 
     protected $casts = [
-        'submitted_at' => 'datetime',
-        'approved_at' => 'datetime',
-        'capacity' => 'integer',
+        'submitted_at'   => 'datetime',
+        'approved_at'    => 'datetime',
+        'capacity'       => 'integer',
+        'rooms'          => 'integer',
         'established_year' => 'integer',
-        'documents' => 'array',  // if you keep this field
+        'documents'      => 'array',
     ];
+
+    // ============================================================
+    // BOOT METHOD - नयाँ रजिस्ट्रेसनमा स्वतः नम्बर सेट गर्न
+    // ============================================================
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($registration) {
+            // यदि registration_number पहिले नै सेट छैन भने मात्र जेनरेट गर
+            if (empty($registration->registration_number)) {
+                // हालको अधिकतम ID + 1 लिएर नम्बर बनाउँछ
+                $nextId = static::max('id') + 1;
+                $registration->registration_number = 'REG-' . date('Y') . '-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+            }
+        });
+    }
 
     // ============================================================
     // RELATIONSHIPS
@@ -98,6 +117,14 @@ class Registration extends Model
         return $this->hasMany(DuplicateReview::class);
     }
 
+    /**
+     * Get the receipts for this registration.
+     */
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(Receipt::class);
+    }
+
     // ============================================================
     // SCOPES
     // ============================================================
@@ -115,5 +142,41 @@ class Registration extends Model
     public function scopeRejected($query)
     {
         return $query->where('status', 'rejected');
+    }
+
+    // ============================================================
+    // FINANCIAL SUMMARY ACCESSORS
+    // ============================================================
+
+    /**
+     * Get the total invoiced amount for this registration.
+     */
+    public function getTotalInvoicedAttribute(): float
+    {
+        return $this->invoices()->sum('amount') ?? 0;
+    }
+
+    /**
+     * Get the total paid amount for this registration (only verified payments).
+     */
+    public function getTotalPaidAttribute(): float
+    {
+        return $this->payments()->where('status', 'verified')->sum('amount') ?? 0;
+    }
+
+    /**
+     * Get the outstanding balance for this registration.
+     */
+    public function getOutstandingAttribute(): float
+    {
+        return max(0, $this->total_invoiced - $this->total_paid);
+    }
+
+    /**
+     * Get the latest receipt for this registration.
+     */
+    public function getLatestReceiptAttribute()
+    {
+        return $this->receipts()->latest()->first();
     }
 }

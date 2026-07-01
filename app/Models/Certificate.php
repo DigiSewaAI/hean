@@ -10,11 +10,16 @@ class Certificate extends Model
     use HasFactory;
 
     protected $fillable = [
-        'registration_id',
-        'certificate_number',
-        'issued_date',
-        'pdf_path',
-    ];
+    'registration_id',
+    'certificate_number',
+    'issued_date',
+    'operator_name',
+    'address',
+    'contact',
+    'pan',
+    'pdf_path',
+];
+
 
     public function registration()
     {

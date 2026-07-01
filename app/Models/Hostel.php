@@ -9,26 +9,46 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Hostel extends Model
 {
     protected $fillable = [
+        // Core details
         'name_nepali',
         'name_english',
         'operator_name',
+        'contact',
+        'description',
+
+        // Address
+        'province',
         'district',
         'municipality',
         'ward',
         'street',
-        'contact',
-        'description',
+        'landmark',
+
+        // Facilities
+        'type',
+        'capacity',
+        'rooms',
+        'established_year',
+        'email',
+        'website',
+
+        // Status
         'approved',
         'featured',
         'visible',
+
+        // Relations
+        'owner_id',
         'image',
-        'owner_id',          // ✅ Added – foreign key to users table
     ];
 
     protected $casts = [
         'approved' => 'boolean',
         'visible' => 'boolean',
         'featured' => 'boolean',
+        'capacity' => 'integer',
+        'rooms' => 'integer',
+        'established_year' => 'integer',
     ];
 
     /**
