@@ -24,7 +24,6 @@
         button,
         [role="button"] { cursor: pointer !important; }
 
-        /* Footer styling */
         .admin-footer {
             text-align: center;
             padding: 1.5rem 2rem;
@@ -71,7 +70,6 @@
             margin-top: 8px;
         }
 
-        /* Language Switcher styling */
         .language-switcher {
             display: flex;
             gap: 10px;
@@ -110,7 +108,7 @@
         </div>
         <nav>
 
-            <!-- ===== COMMON DASHBOARD LINK ===== -->
+            <!-- ===== MAIN ===== -->
             <div class="nav-section">{{ __('messages.main') }}</div>
             @if(auth()->user()->role == 'admin')
                 <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -143,19 +141,25 @@
                     <i class="fas fa-images"></i> <span>{{ __('messages.gallery') }}</span>
                 </a>
 
-                <!-- ✅ Finance Section (नयाँ) -->
+                <!-- ===== FINANCE ===== -->
                 <div class="nav-section">{{ __('messages.finance') }}</div>
+
+                {{-- ✅ Invoices - Primary financial management --}}
                 <a href="{{ route('admin.invoices.index') }}" class="nav-item {{ request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
                     <i class="fas fa-file-invoice"></i> <span>{{ __('messages.invoices') }}</span>
                 </a>
+
+                {{-- ✅ Payments - View only (creation through invoice) --}}
                 <a href="{{ route('admin.payments.index') }}" class="nav-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
                     <i class="fas fa-credit-card"></i> <span>{{ __('messages.payments') }}</span>
                 </a>
+
+                {{-- ✅ Receipts - View only (auto-generated) --}}
                 <a href="{{ route('admin.receipts.index') }}" class="nav-item {{ request()->routeIs('admin.receipts.*') ? 'active' : '' }}">
                     <i class="fas fa-receipt"></i> <span>{{ __('messages.receipts') }}</span>
                 </a>
 
-                <!-- ===== Settings Section ===== -->
+                <!-- ===== SETTINGS ===== -->
                 <div class="nav-section">{{ __('messages.settings_section') }}</div>
                 <a href="{{ route('admin.settings.index') }}" class="nav-item {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
                     <i class="fas fa-cog"></i> <span>{{ __('messages.settings') }}</span>
@@ -200,7 +204,7 @@
                 </a>
             @endif
 
-            <!-- ===== LOGOUT (सबैको लागि) ===== -->
+            <!-- ===== LOGOUT ===== -->
             <div class="logout">
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
@@ -217,7 +221,6 @@
         <div class="topbar">
             <div class="left-section">
                 <div class="page-title">@yield('title')</div>
-                <!-- ✅ Language Switcher -->
                 <div class="language-switcher">
                     <a href="{{ route('lang.switch', 'en') }}" style="color:{{ session('locale') == 'en' ? '#0EA5E9' : '#64748b' }};">EN</a>
                     <span class="divider">|</span>
@@ -231,10 +234,8 @@
             </div>
         </div>
 
-        <!-- ✅ MAIN CONTENT -->
         @yield('content')
 
-        <!-- ✅ ADMIN FOOTER -->
         <footer class="admin-footer">
             <div class="brand-line">
                 <strong style="color:#0b2b4a;">HEAN</strong>
@@ -252,7 +253,7 @@
             </div>
         </footer>
 
-    </div> <!-- /.main-content -->
+    </div>
 
     @stack('scripts')
 </body>

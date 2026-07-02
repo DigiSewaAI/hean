@@ -6,20 +6,36 @@ use App\Events\PaymentVerified;
 use App\Services\RegistrationService;
 use App\Services\PaymentService;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 
 class ActivateRegistrationIfPaid implements ShouldQueue
 {
     public function handle(PaymentVerified $event)
     {
-        $payment = $event->payment;
-        $invoice = $payment->invoice;
-        // Invoice status update गर्ने
-        $paymentService = app(PaymentService::class);
-        $paymentService->updateInvoiceStatus($invoice);
+        Log::info('=== ActivateRegistrationIfPaid Listener Called ===');
+        Log::info('Payment ID: ' . $event->payment->id);
 
-        // यदि paid भयो भने activate
-        if ($invoice->status === 'paid') {
-            app(RegistrationService::class)->activateFromInvoice($invoice);
+        try {
+            $payment = $event->payment;
+            $invoice = $payment->invoice;
+
+            if (!$invoice) {
+                Log::warning('No invoice found for payment: ' . $payment->id);
+                return;
+            }
+
+            $paymentService = app(PaymentService::class);
+            $paymentService->updateInvoiceStatus($invoice);
+
+            if ($invoice->status === 'paid') {
+                app(RegistrationService::class)->activateFromInvoice($invoice);
+                Log::info('Registration activated for invoice: ' . $invoice->id);
+            } else {
+                Log::info('Invoice not fully paid, status: ' . $invoice->status);
+            }
+        } catch (\Exception $e) {
+            Log::error('ActivateRegistrationIfPaid failed: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
         }
     }
 }

@@ -86,6 +86,14 @@
         @endif
     </div>
 
+    {{-- ⚠️ यदि verified छ तर receipt छैन भने सूचना (auto generate भएको छैन भने) --}}
+    @if($payment->status == 'verified' && $payment->receipts->isEmpty())
+        <div style="background:#f0fdf4; border-left:4px solid #22C55E; padding:12px 16px; border-radius:8px; margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-info-circle" style="color:#22C55E;"></i>
+            <span style="color:#166534;">{{ __('messages.receipt_will_be_generated_automatically') }}</span>
+        </div>
+    @endif
+
     {{-- मुख्य विवरण --}}
     <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px; margin-bottom:24px;">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
@@ -129,9 +137,8 @@
         </div>
     </div>
 
-    {{-- कार्य बटनहरू (Verify, Reject, Refund, Generate Receipt) --}}
+    {{-- कार्य बटनहरू (Verify, Reject, Refund – Generate Receipt हटाइयो) --}}
     <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:24px;">
-        {{-- Verify – pending मा मात्र --}}
         @if($payment->status == 'pending')
             <form action="{{ route('admin.payments.verify', $payment) }}" method="POST">
                 @csrf
@@ -141,7 +148,6 @@
             </form>
         @endif
 
-        {{-- Reject – pending मा मात्र (verified मा reject गर्न मिल्दैन) --}}
         @if($payment->status == 'pending')
             <form action="{{ route('admin.payments.reject', $payment) }}" method="POST" onsubmit="return confirm('{{ __('messages.confirm_reject') }}');">
                 @csrf
@@ -151,7 +157,6 @@
             </form>
         @endif
 
-        {{-- Refund – verified मा मात्र --}}
         @if($payment->status == 'verified')
             <form action="{{ route('admin.payments.refund', $payment) }}" method="POST" onsubmit="return confirm('{{ __('messages.confirm_refund') }}');">
                 @csrf
@@ -160,19 +165,8 @@
                 </button>
             </form>
         @endif
-
-        {{-- Generate Receipt – verified भएको र receipt नभएको मा मात्र --}}
-        @if($payment->status == 'verified' && $payment->receipts->isEmpty())
-            <form action="{{ route('admin.receipts.generate', $payment) }}" method="POST">
-                @csrf
-                <button type="submit" style="background:linear-gradient(135deg, #8B5CF6, #7C3AED); color:#fff; padding:10px 24px; border:none; border-radius:50px; cursor:pointer; font-weight:600; box-shadow:0 4px 15px rgba(139,92,246,0.3);">
-                    <i class="fas fa-receipt"></i> {{ __('messages.generate_receipt') }}
-                </button>
-            </form>
-        @endif
     </div>
 
-    {{-- ⚠️ Payment Verified भएमा नोट --}}
     @if($payment->status == 'verified')
         <div style="background:#f0fdf4; border-left:4px solid #22C55E; padding:12px 16px; border-radius:8px; margin-bottom:24px; display:flex; align-items:center; gap:10px;">
             <i class="fas fa-check-circle" style="color:#22C55E;"></i>
@@ -180,9 +174,9 @@
         </div>
     @endif
 
-    {{-- रसिदहरूको सूची (payment मार्फत) --}}
+    {{-- रसिदहरूको सूची --}}
     @if($payment->receipts->isNotEmpty())
-        <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px;">
+        <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px; margin-bottom:24px;">
             <h4 style="margin:0 0 16px 0; display:flex; align-items:center; gap:10px;">
                 <i class="fas fa-receipt" style="color:#F59E0B;"></i>
                 {{ __('messages.receipts') }}
@@ -210,7 +204,7 @@
         </div>
     @endif
 
-    {{-- Invoice Summary (यदि invoice linked छ भने) --}}
+    {{-- Invoice Summary --}}
     @if($payment->invoice)
         <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px; margin-top:24px;">
             <h4 style="margin:0 0 12px 0; display:flex; align-items:center; gap:10px;">
@@ -247,7 +241,6 @@
         </div>
     @endif
 
-    {{-- रिफन्ड कारण देखाउने (यदि छ भने) --}}
     @if($payment->refund_reason)
         <div style="background:#fef3c7; border-left:4px solid #F59E0B; padding:12px 16px; border-radius:8px; margin-top:24px;">
             <strong><i class="fas fa-info-circle"></i> {{ __('messages.refund_reason') }}:</strong>
@@ -257,12 +250,3 @@
 
 </div>
 @endsection
-
-@push('styles')
-<style>
-    .btn-verify:hover { transform: translateY(-2px); transition: 0.3s; }
-    .btn-reject:hover { transform: translateY(-2px); transition: 0.3s; }
-    .btn-refund:hover { transform: translateY(-2px); transition: 0.3s; }
-    .btn-receipt:hover { transform: translateY(-2px); transition: 0.3s; }
-</style>
-@endpush

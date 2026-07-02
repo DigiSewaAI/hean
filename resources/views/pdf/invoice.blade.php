@@ -6,12 +6,12 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'notosansdevanagari', 'Arial', sans-serif;
+            font-family: 'notosansdevanagari', 'DejaVu Sans', sans-serif;  <!-- ✅ Explicit font for Nepali -->
             font-size: 13px;
             line-height: 1.6;
             color: #1e293b;
             padding: 30px;
-            background: #ffffff;
+            background: #f8fafc;
         }
         .invoice-wrapper {
             max-width: 900px;
@@ -19,17 +19,25 @@
             background: #ffffff;
             padding: 30px 35px;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            position: relative;
+            overflow: hidden;
         }
+
+        /* ===== WATERMARK ===== */
+        /* Removed - handled by controller */
 
         /* ===== HEADER ===== */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 3px solid #22C55E;
+            border-bottom: 4px solid #22C55E;
             padding-bottom: 20px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
         }
         .header-left {
             display: flex;
@@ -37,36 +45,55 @@
             gap: 15px;
         }
         .header-left .logo img {
-            height: 60px;
+            height: 65px;
             width: auto;
         }
-        .header-left .org .main-name {
-            font-size: 18px;
-            font-weight: 800;
+        .header-left .org .nepali-name {
+            font-size: 16px;
+            font-weight: 700;
             color: #0b2b4a;
+            letter-spacing: 0.5px;
+            /* inherits font-family */
+        }
+        .header-left .org .main-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e5f8e;
         }
         .header-left .org .sub-name {
             font-size: 13px;
             font-weight: 600;
-            color: #1e5f8e;
+            color: #0b2b4a;
+        }
+        .header-left .org .regd-no {
+            font-size: 11px;
+            font-weight: 500;
+            color: #475569;
+            margin-top: 2px;
         }
         .header-right {
             text-align: right;
         }
         .header-right .doc-type {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 900;
             color: #22C55E;
             letter-spacing: 3px;
         }
         .header-right .doc-meta {
-            margin-top: 6px;
-            font-size: 13px;
+            margin-top: 4px;
+            font-size: 12px;
             color: #475569;
             line-height: 1.8;
         }
         .header-right .doc-meta strong {
             color: #0f172a;
+        }
+        .header-right .org-details {
+            font-size: 11px;
+            color: #475569;
+            margin-top: 4px;
+            line-height: 1.5;
         }
 
         /* ===== DETAILS ===== */
@@ -76,11 +103,15 @@
             margin-bottom: 25px;
             padding: 15px 0;
             border-bottom: 1px solid #e2e8f0;
+            position: relative;
+            z-index: 1;
         }
         .details .left .label {
             font-weight: 700;
             font-size: 14px;
             color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .details .left .value {
             font-size: 16px;
@@ -106,6 +137,8 @@
         /* ===== TABLE ===== */
         .table-wrap {
             margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
         }
         table.items {
             width: 100%;
@@ -117,7 +150,7 @@
             color: #1e293b;
             font-weight: 700;
             text-transform: uppercase;
-            font-size: 12px;
+            font-size: 11px;
             letter-spacing: 0.5px;
             padding: 12px 15px;
             border-bottom: 2px solid #e2e8f0;
@@ -143,6 +176,8 @@
             justify-content: flex-end;
             padding-right: 15px;
             margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
         }
         .totals table {
             width: 320px;
@@ -171,6 +206,8 @@
             align-items: flex-end;
             font-size: 13px;
             color: #64748b;
+            position: relative;
+            z-index: 1;
         }
         .footer .thank {
             font-weight: 600;
@@ -182,24 +219,30 @@
             font-size: 13px;
             color: #475569;
         }
+        .footer .digital-note {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 6px;
+            font-style: italic;
+        }
         .footer .signature {
             text-align: right;
         }
         .footer .signature .title {
-            font-weight: 700;
+            font-weight: 600;
             color: #0f172a;
-            font-size: 14px;
+            font-size: 12px;
         }
         .footer .signature .line {
             width: 180px;
-            border-top: 2px solid #0f172a;
-            margin-top: 30px;
+            border-top: 1px solid #94a3b8;
+            margin-top: 8px;
             margin-left: auto;
         }
 
         @media print {
-            body { padding: 10px; }
-            .invoice-wrapper { border: none; padding: 15px; }
+            body { padding: 10px; background: #fff; }
+            .invoice-wrapper { border: none; box-shadow: none; padding: 15px; }
         }
     </style>
 </head>
@@ -213,8 +256,10 @@
                 <img src="{{ public_path('images/logo.png') }}" alt="HEAN Logo">
             </div>
             <div class="org">
+                <div class="nepali-name">होस्टल व्यवसायी संघ नेपाल</div>
                 <div class="main-name">Hostel Entrepreneurs Association Nepal</div>
                 <div class="sub-name">HEAN</div>
+                <div class="regd-no">Regd. No: 029/079/080 | PAN: 618525252</div>
             </div>
         </div>
         <div class="header-right">
@@ -222,6 +267,10 @@
             <div class="doc-meta">
                 <div><strong>Invoice #:</strong> {{ $invoiceNumber }}</div>
                 <div><strong>Date:</strong> {{ now()->format('Y-m-d') }}</div>
+            </div>
+            <div class="org-details">
+                New Baneshwor, Kathmandu<br>
+                Contact: 01-5921615 / 9864164805
             </div>
         </div>
     </div>
@@ -236,7 +285,7 @@
         <div class="right">
             <div><strong>Registration #:</strong> {{ $registration->registration_number ?? '#'.$registration->id }}</div>
             @if($request->due_date)
-                <div><strong>Due Date:</strong> {{ $request->due_date }}</div>
+                <div><strong>Due Date:</strong> {{ \Carbon\Carbon::parse($request->due_date)->format('Y-m-d') }}</div>
             @endif
         </div>
     </div>
@@ -246,7 +295,7 @@
         <table class="items">
             <thead>
                 <tr>
-                    <th style="width:8%;">#</th>
+                    <th style="width:8%;" class="text-center">#</th>
                     <th style="width:52%;">DESCRIPTION</th>
                     <th style="width:20%;" class="text-right">AMOUNT</th>
                 </tr>
@@ -280,10 +329,11 @@
         <div>
             <div class="thank">Thank you for being a member of HEAN.</div>
             <div class="org-name">Hostel Entrepreneurs Association Nepal</div>
+            <div class="digital-note">🔹 This is a digitally generated invoice. No signature required.</div>
         </div>
         <div class="signature">
-            <div class="title">Authorized Signature</div>
-            <div class="line"></div>
+            <div class="title">— — —</div>
+            <div style="font-size:11px; color:#94a3b8;">Machine Generated</div>
         </div>
     </div>
 

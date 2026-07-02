@@ -1,4 +1,5 @@
 <?php
+
 return [
     'mode' => 'utf-8',
     'format' => 'A4',
@@ -9,15 +10,33 @@ return [
     'margin_top' => 10,
     'margin_bottom' => 10,
     'orientation' => 'P',
-    'fontDir' => [public_path('fonts')],
+    
+    // ✅ फन्ट डाइरेक्ट्री – public/fonts लाई प्रयोग गर्ने
+    'fontDir' => [
+        public_path('fonts'),
+    ],
+    
+    // ✅ NotoSansDevanagari फन्ट दर्ता
     'fontdata' => [
         'notosansdevanagari' => [
             'R' => 'NotoSansDevanagari-Regular.ttf',
             'B' => 'NotoSansDevanagari-Bold.ttf',
-        ]
+            'I' => 'NotoSansDevanagari-Regular.ttf',
+            'BI' => 'NotoSansDevanagari-Bold.ttf',
+        ],
+        'dejavusans' => [
+            'R' => 'DejaVuSans.ttf',
+            'B' => 'DejaVuSans-Bold.ttf',
+            'I' => 'DejaVuSans.ttf',
+            'BI' => 'DejaVuSans-Bold.ttf',
+        ],
     ],
-    'font_cache' => storage_path('fonts'),
+    
+    // 🔥 यो सच्याउनुहोस् – mpdf को वास्तविक cache path
+    'font_cache' => storage_path('app/mpdf/mpdf/ttfontdata'),
+    
     'temp_dir' => storage_path('app/mpdf'),
     'autoScriptToLang' => true,
     'autoLangToFont' => true,
+    'useSubstitutions' => true,
 ];

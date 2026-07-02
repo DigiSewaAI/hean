@@ -8,17 +8,7 @@
         <i class="fas fa-credit-card" style="color:#0EA5E9;"></i>
         {{ __('messages.payments') }}
     </h2>
-    <a href="{{ route('admin.payments.create') }}" 
-       style="display:inline-flex; align-items:center; gap:8px; 
-              background:linear-gradient(135deg, #22C55E, #16A34A); 
-              color:#fff; padding:12px 28px; border-radius:50px; 
-              font-weight:600; font-size:1rem; text-decoration:none; 
-              box-shadow:0 4px 15px rgba(34,197,94,0.3); 
-              transition:all 0.3s ease; border:2px solid transparent;"
-       onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(34,197,94,0.4)';"
-       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(34,197,94,0.3)';">
-        <i class="fas fa-plus-circle" style="font-size:1.2rem;"></i> {{ __('messages.add_payment') }}
-    </a>
+    
 </div>
 
 {{-- Filters --}}

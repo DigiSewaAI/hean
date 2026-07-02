@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Registration extends Model
 {
@@ -69,7 +70,6 @@ class Registration extends Model
         'rooms'          => 'integer',
         'established_year' => 'integer',
         'documents'      => 'array',
-        // नयाँ casts
         'valid_from'     => 'date',
         'valid_until'    => 'date',
     ];
@@ -82,9 +82,7 @@ class Registration extends Model
         parent::boot();
 
         static::creating(function ($registration) {
-            // यदि registration_number पहिले नै सेट छैन भने मात्र जेनरेट गर
             if (empty($registration->registration_number)) {
-                // हालको अधिकतम ID + 1 लिएर नम्बर बनाउँछ
                 $nextId = static::max('id') + 1;
                 $registration->registration_number = 'REG-' . date('Y') . '-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
             }
@@ -140,15 +138,24 @@ class Registration extends Model
     }
 
     /**
-     * Get the receipts for this registration.
+     * ✅ FIXED: Get receipts via payments (hasManyThrough)
+     * Since receipts table no longer has registration_id,
+     * we go through the payments table.
      */
-    public function receipts(): HasMany
+    public function receipts(): HasManyThrough
     {
-        return $this->hasMany(Receipt::class);
+        return $this->hasManyThrough(
+            Receipt::class,        // Final model
+            Payment::class,        // Intermediate model
+            'registration_id',     // Foreign key on payments table
+            'payment_id',          // Foreign key on receipts table
+            'id',                  // Local key on registrations
+            'id'                   // Local key on payments
+        );
     }
 
     // ============================================================
-    // SCOPES (अवस्थित + नयाँ)
+    // SCOPES
     // ============================================================
     public function scopePending($query)
     {
@@ -165,9 +172,6 @@ class Registration extends Model
         return $query->where('status', 'rejected');
     }
 
-    /**
-     * Scope: only currently active registrations.
-     */
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE)
@@ -177,32 +181,23 @@ class Registration extends Model
     // ============================================================
     // FINANCIAL SUMMARY ACCESSORS
     // ============================================================
-    /**
-     * Get the total invoiced amount for this registration.
-     */
     public function getTotalInvoicedAttribute(): float
     {
         return $this->invoices()->sum('amount') ?? 0;
     }
 
-    /**
-     * Get the total paid amount for this registration (only verified payments).
-     */
     public function getTotalPaidAttribute(): float
     {
         return $this->payments()->where('status', 'verified')->sum('amount') ?? 0;
     }
 
-    /**
-     * Get the outstanding balance for this registration.
-     */
     public function getOutstandingAttribute(): float
     {
         return max(0, $this->total_invoiced - $this->total_paid);
     }
 
     /**
-     * Get the latest receipt for this registration.
+     * ✅ FIXED: Get latest receipt via new relationship
      */
     public function getLatestReceiptAttribute()
     {
@@ -210,12 +205,8 @@ class Registration extends Model
     }
 
     // ============================================================
-    // VALIDITY & STATUS HELPER METHODS (नयाँ)
+    // VALIDITY & STATUS HELPER METHODS
     // ============================================================
-
-    /**
-     * Check if this registration is currently active.
-     */
     public function isActive(): bool
     {
         return $this->status === self::STATUS_ACTIVE &&
@@ -223,9 +214,6 @@ class Registration extends Model
                $this->valid_until->isFuture();
     }
 
-    /**
-     * Activate this registration (set status and validity dates).
-     */
     public function activate(): void
     {
         $this->status = self::STATUS_ACTIVE;
@@ -234,10 +222,6 @@ class Registration extends Model
         $this->save();
     }
 
-    /**
-     * Mark registration as awaiting payment (after invoice generation).
-     * Only allowed if current status is 'approved'.
-     */
     public function markAwaitingPayment(): void
     {
         if ($this->status === self::STATUS_APPROVED) {

@@ -6,12 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\Registration;
 use App\Models\Invoice;
+use App\Models\Receipt;
+use App\Services\PaymentService;
+use App\Events\PaymentVerified;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-
-// ✅ नयाँ इभेन्ट इम्पोर्ट
-use App\Events\PaymentVerified;
 
 class PaymentController extends Controller
 {
@@ -42,9 +42,6 @@ class PaymentController extends Controller
         if ($request->filled('method')) {
             $query->where('method', $request->method);
         }
-        if ($request->filled('registration_id')) {
-            $query->where('registration_id', $request->registration_id);
-        }
 
         // Sorting
         $sort = $request->sort ?? 'latest';
@@ -67,94 +64,138 @@ class PaymentController extends Controller
         $pendingCount = Payment::where('status', 'pending')->count();
         $verifiedCount = Payment::where('status', 'verified')->count();
 
-        // Get registration list for filter dropdown
-        $registrations = Registration::select('id', 'hostel_name', 'registration_number')
-            ->orderBy('hostel_name')
-            ->get();
-
-        return view('admin.payments.index', compact('payments', 'totalPayments', 'pendingCount', 'verifiedCount', 'registrations'));
+        return view('admin.payments.index', compact('payments', 'totalPayments', 'pendingCount', 'verifiedCount'));
     }
 
     /**
      * Show form to create a new payment.
+     * ✅ FIXED: Preloads invoice when invoice_id is passed.
+     * ✅ Redirects if no invoice_id is provided.
      */
-    public function create()
-    {
-        $registrations = Registration::with('hostel')
-            ->whereIn('status', ['approved', 'pending'])
-            ->get();
-        // Only pending invoices can be paid
-        $invoices = Invoice::where('status', 'pending')->get();
+    public function create(Request $request)
+{
+    $invoiceId = $request->query('invoice_id');
+    $registrationId = $request->query('registration_id');
 
-        return view('admin.payments.create', compact('registrations', 'invoices'));
+    // If invoice_id is provided, use it
+    if ($invoiceId) {
+        $invoice = Invoice::with('registration')->findOrFail($invoiceId);
+        $selectedInvoice = $invoice;
+        $selectedRegistration = $invoice->registration;
+
+        // ✅ FIX: Only block if invoice is already paid
+        if ($invoice->status === 'paid') {
+            return redirect()->route('admin.invoices.show', $invoice)
+                ->with('error', 'This invoice is already fully paid.');
+        }
+
+        // Get the invoice's registration
+        $registration = $invoice->registration;
+        if (!$registration) {
+            abort(404, 'Registration not found for this invoice.');
+        }
+
+        return view('admin.payments.create', compact(
+            'selectedInvoice',
+            'selectedRegistration',
+            'invoice',
+            'registration'
+        ));
     }
+
+    // If registration_id is provided, use it
+    if ($registrationId) {
+        $registration = Registration::with('invoices')->findOrFail($registrationId);
+        $selectedRegistration = $registration;
+        $pendingInvoices = $registration->invoices()
+            ->whereIn('status', ['pending', 'partial', 'overdue']) // ✅ Include overdue
+            ->get();
+
+        if ($pendingInvoices->isEmpty()) {
+            return redirect()->route('admin.registrations.show', $registration)
+                ->with('error', 'No pending or partial invoices found for this registration.');
+        }
+
+        $selectedInvoice = $pendingInvoices->first();
+
+        return view('admin.payments.create', compact(
+            'selectedInvoice',
+            'selectedRegistration',
+            'registration'
+        ));
+    }
+
+    // No context provided - redirect to invoice list
+    return redirect()->route('admin.invoices.index')
+        ->with('error', 'Please select an invoice first.');
+}
 
     /**
      * Store a new payment.
-     * ✅ invoice_id required, registration_id validated against invoice.
-     * ✅ Prevent if invoice already paid.
+     * ✅ FIXED: Validates invoice_id and registration_id match.
+     * ✅ Updates invoice status.
      */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'invoice_id' => 'required|exists:invoices,id',
             'registration_id' => 'required|exists:registrations,id',
-            'invoice_id'      => 'required|exists:invoices,id',   // ✅ required
-            'method'          => 'required|string|in:bank,esewa,khalti,cash',
-            'amount'          => 'required|numeric|min:0.01',
-            'transaction_id'  => 'nullable|string|max:255',
-            'payment_date'    => 'required|date',
-            'bank_name'       => 'nullable|string|max:255',
-            'bank_account'    => 'nullable|string|max:255',
-            'status'          => 'required|in:pending,verified,rejected,refunded',
-            'remarks'         => 'nullable|string|max:500',
+            'method' => 'required|string|in:bank,esewa,khalti,cash',
+            'amount' => 'required|numeric|min:0.01',
+            'transaction_id' => 'nullable|string|max:255',
+            'payment_date' => 'required|date',
+            'bank_name' => 'nullable|string|max:255',
+            'bank_account' => 'nullable|string|max:255',
+            'remarks' => 'nullable|string|max:500',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        // ✅ Validate that registration_id matches the invoice's registration
+        $invoice = Invoice::with('registration')->find($request->invoice_id);
+        if (!$invoice) {
+            return back()->withErrors(['invoice_id' => 'Invoice not found.'])->withInput();
+        }
+
+        if ($invoice->registration_id != $request->registration_id) {
+            return back()->withErrors(['registration_id' => 'Registration does not match this invoice.'])->withInput();
+        }
+
+        // Check if invoice is already fully paid
+        $totalPaid = $invoice->payments()->where('status', 'verified')->sum('amount');
+        if ($totalPaid >= $invoice->amount) {
+            return back()->with('error', 'This invoice is already fully paid.')->withInput();
+        }
+
         DB::beginTransaction();
         try {
-            // ✅ इनभ्वाइस ल्याउने र registration_id मिलाउने
-            $invoice = Invoice::findOrFail($request->invoice_id);
-
-            // ✅ इनभ्वाइसको registration_id र request को registration_id मिल्नु पर्छ
-            if ($invoice->registration_id != $request->registration_id) {
-                return back()->withErrors(['registration_id' => 'Registration does not match the invoice.'])->withInput();
-            }
-
-            // ✅ इनभ्वाइस पहिले नै paid छ भने रोक्ने
-            if ($invoice->status === 'paid') {
-                return back()->with('error', 'Invoice is already fully paid.')->withInput();
-            }
-
             $payment = Payment::create([
-                'registration_id' => $invoice->registration_id, // ✅ इनभ्वाइसबाट नै लिने
-                'invoice_id'      => $invoice->id,
-                'method'          => $request->method,
-                'amount'          => $request->amount,
-                'transaction_id'  => $request->transaction_id,
-                'payment_date'    => $request->payment_date,
-                'bank_name'       => $request->bank_name,
-                'bank_account'    => $request->bank_account,
-                'status'          => $request->status,
-                'remarks'         => $request->remarks,
+                'registration_id' => $request->registration_id,
+                'invoice_id' => $request->invoice_id,
+                'method' => $request->method,
+                'amount' => $request->amount,
+                'transaction_id' => $request->transaction_id,
+                'payment_date' => $request->payment_date,
+                'bank_name' => $request->bank_name,
+                'bank_account' => $request->bank_account,
+                'status' => 'pending', // Always pending on creation
+                'remarks' => $request->remarks,
             ]);
 
-            // Update invoice status (partial/paid etc.)
-            if ($payment->invoice_id) {
-                $this->updateInvoicePaymentStatus($payment->invoice);
-            }
+            // ✅ Update invoice status after adding payment
+            app(PaymentService::class)->updateInvoiceStatus($invoice);
 
             DB::commit();
 
-            return redirect()->route('admin.payments.index')
-                ->with('success', __('messages.payment_created_successfully'));
+            return redirect()->route('admin.payments.show', $payment)
+                ->with('success', 'Payment created successfully. Please verify the payment to continue.');
 
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Payment creation failed: ' . $e->getMessage());
-            return back()->withErrors(['general' => $e->getMessage()])->withInput();
+            return back()->withErrors(['general' => 'Error: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -172,12 +213,14 @@ class PaymentController extends Controller
      */
     public function edit(Payment $payment)
     {
-        $registrations = Registration::with('hostel')->get();
+        if ($payment->status === 'verified') {
+            return redirect()->route('admin.payments.show', $payment)
+                ->with('error', 'Verified payments cannot be edited.');
+        }
 
+        $registrations = Registration::with('hostel')->get();
         $invoices = Invoice::where('status', 'pending')
-            ->when($payment->invoice_id, function ($query) use ($payment) {
-                return $query->orWhere('id', $payment->invoice_id);
-            })
+            ->orWhere('id', $payment->invoice_id)
             ->get();
 
         return view('admin.payments.edit', compact('payment', 'registrations', 'invoices'));
@@ -185,26 +228,25 @@ class PaymentController extends Controller
 
     /**
      * Update payment.
-     * ✅ Prevent update if payment is already verified.
      */
     public function update(Request $request, Payment $payment)
     {
-        // ✅ भेरिफाइड भएको payment edit गर्न नदिने
         if ($payment->status === 'verified') {
-            return back()->with('error', 'Verified payments cannot be edited.');
+            return redirect()->route('admin.payments.show', $payment)
+                ->with('error', 'Verified payments cannot be edited.');
         }
 
         $validator = Validator::make($request->all(), [
+            'invoice_id' => 'required|exists:invoices,id',
             'registration_id' => 'required|exists:registrations,id',
-            'invoice_id'      => 'nullable|exists:invoices,id',
-            'method'          => 'required|string|in:bank,esewa,khalti,cash',
-            'amount'          => 'required|numeric|min:0.01',
-            'transaction_id'  => 'nullable|string|max:255',
-            'payment_date'    => 'required|date',
-            'bank_name'       => 'nullable|string|max:255',
-            'bank_account'    => 'nullable|string|max:255',
-            'status'          => 'required|in:pending,verified,rejected,refunded',
-            'remarks'         => 'nullable|string|max:500',
+            'method' => 'required|string|in:bank,esewa,khalti,cash',
+            'amount' => 'required|numeric|min:0.01',
+            'transaction_id' => 'nullable|string|max:255',
+            'payment_date' => 'required|date',
+            'bank_name' => 'nullable|string|max:255',
+            'bank_account' => 'nullable|string|max:255',
+            'status' => 'required|in:pending,verified,rejected,refunded',
+            'remarks' => 'nullable|string|max:500',
         ]);
 
         if ($validator->fails()) {
@@ -217,32 +259,32 @@ class PaymentController extends Controller
 
             $payment->update([
                 'registration_id' => $request->registration_id,
-                'invoice_id'      => $request->invoice_id,
-                'method'          => $request->method,
-                'amount'          => $request->amount,
-                'transaction_id'  => $request->transaction_id,
-                'payment_date'    => $request->payment_date,
-                'bank_name'       => $request->bank_name,
-                'bank_account'    => $request->bank_account,
-                'status'          => $request->status,
-                'remarks'         => $request->remarks,
+                'invoice_id' => $request->invoice_id,
+                'method' => $request->method,
+                'amount' => $request->amount,
+                'transaction_id' => $request->transaction_id,
+                'payment_date' => $request->payment_date,
+                'bank_name' => $request->bank_name,
+                'bank_account' => $request->bank_account,
+                'status' => $request->status,
+                'remarks' => $request->remarks,
             ]);
 
             // Update invoice statuses for both old and new invoice
             if ($oldInvoiceId && $oldInvoiceId != $payment->invoice_id) {
                 $oldInvoice = Invoice::find($oldInvoiceId);
                 if ($oldInvoice) {
-                    $this->updateInvoicePaymentStatus($oldInvoice);
+                    app(PaymentService::class)->updateInvoiceStatus($oldInvoice);
                 }
             }
             if ($payment->invoice_id) {
-                $this->updateInvoicePaymentStatus($payment->invoice);
+                app(PaymentService::class)->updateInvoiceStatus($payment->invoice);
             }
 
             DB::commit();
 
             return redirect()->route('admin.payments.index')
-                ->with('success', __('messages.payment_updated_successfully'));
+                ->with('success', 'Payment updated successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -253,13 +295,12 @@ class PaymentController extends Controller
 
     /**
      * Delete payment.
-     * ✅ Prevent deletion if payment is verified.
      */
     public function destroy(Payment $payment)
     {
-        // ✅ verified payment मेट्न नदिने
         if ($payment->status === 'verified') {
-            return back()->with('error', 'Cannot delete verified payment.');
+            return redirect()->route('admin.payments.index')
+                ->with('error', 'Verified payments cannot be deleted.');
         }
 
         DB::beginTransaction();
@@ -270,13 +311,13 @@ class PaymentController extends Controller
             if ($invoiceId) {
                 $invoice = Invoice::find($invoiceId);
                 if ($invoice) {
-                    $this->updateInvoicePaymentStatus($invoice);
+                    app(PaymentService::class)->updateInvoiceStatus($invoice);
                 }
             }
 
             DB::commit();
             return redirect()->route('admin.payments.index')
-                ->with('success', __('messages.payment_deleted_successfully'));
+                ->with('success', 'Payment deleted successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Payment deletion failed: ' . $e->getMessage());
@@ -285,37 +326,46 @@ class PaymentController extends Controller
     }
 
     /**
-     * Verify a payment (change status to verified).
-     * ✅ Dispatches PaymentVerified event after successful verification.
+     * Verify a payment.
+     * ✅ Triggers PaymentVerified event → Receipt generation + Activation.
      */
-    public function verify(Payment $payment)
-    {
-        if ($payment->status === 'verified') {
-            return back()->with('error', __('messages.payment_already_verified'));
-        }
-
-        DB::beginTransaction();
-        try {
-            // Update payment status
-            $payment->update(['status' => 'verified']);
-
-            // ✅ Dispatch PaymentVerified event
-            event(new PaymentVerified($payment, auth()->id()));
-
-            // Update invoice status (partial/paid)
-            if ($payment->invoice_id) {
-                $this->updateInvoicePaymentStatus($payment->invoice);
-            }
-
-            DB::commit();
-
-            return back()->with('success', __('messages.payment_verified_successfully'));
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Payment verification failed: ' . $e->getMessage());
-            return back()->with('error', $e->getMessage());
-        }
+    /**
+ * Verify a payment.
+ */
+public function verify(Payment $payment)
+{
+    if ($payment->status === 'verified') {
+        return back()->with('error', 'Payment already verified.');
     }
+
+    if ($payment->status !== 'pending') {
+        return back()->with('error', 'Only pending payments can be verified.');
+    }
+
+    DB::beginTransaction();
+    try {
+        $payment->status = 'verified';
+        $payment->verified_at = now();
+        $payment->verified_by = auth()->id();
+        $payment->save();
+
+        if ($payment->invoice) {
+            app(PaymentService::class)->updateInvoiceStatus($payment->invoice);
+        }
+
+        // ✅ Dispatch event
+        event(new PaymentVerified($payment, auth()->id()));
+
+        DB::commit();
+
+        return back()->with('success', 'Payment verified successfully. Receipt and activation triggered.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Payment verification failed: ' . $e->getMessage());
+        return back()->with('error', 'Verification failed: ' . $e->getMessage());
+    }
+}
 
     /**
      * Reject a payment.
@@ -323,52 +373,40 @@ class PaymentController extends Controller
     public function reject(Payment $payment)
     {
         if ($payment->status === 'verified') {
-            return back()->with('error', __('messages.cannot_reject_verified_payment'));
+            return back()->with('error', 'Cannot reject a verified payment.');
         }
+
         $payment->update(['status' => 'rejected']);
         if ($payment->invoice_id) {
-            $this->updateInvoicePaymentStatus($payment->invoice);
+            app(PaymentService::class)->updateInvoiceStatus($payment->invoice);
         }
-        return back()->with('success', __('messages.payment_rejected_successfully'));
+        return back()->with('success', 'Payment rejected successfully.');
     }
 
     /**
      * Refund a payment.
      */
-    public function refund(Payment $payment)
+    public function refund(Request $request, Payment $payment)
     {
         if ($payment->status !== 'verified') {
-            return back()->with('error', __('messages.cannot_refund_unverified_payment'));
+            return back()->with('error', 'Cannot refund unverified payment.');
         }
-        $payment->update(['status' => 'refunded']);
+
+        $request->validate([
+            'refund_reason' => 'nullable|string|max:500',
+        ]);
+
+        $payment->update([
+            'status' => 'refunded',
+            'refunded_at' => now(),
+            'refunded_by' => auth()->id(),
+            'refund_reason' => $request->refund_reason,
+        ]);
+
         if ($payment->invoice_id) {
-            $this->updateInvoicePaymentStatus($payment->invoice);
-        }
-        return back()->with('success', __('messages.payment_refunded_successfully'));
-    }
-
-    /**
-     * Helper: Update invoice payment status based on total paid vs amount.
-     */
-    private function updateInvoicePaymentStatus(Invoice $invoice)
-    {
-        $totalPaid = $invoice->payments()
-            ->where('status', 'verified')
-            ->sum('amount');
-
-        if ($totalPaid >= $invoice->amount) {
-            $invoice->status = 'paid';
-        } elseif ($totalPaid > 0) {
-            $invoice->status = 'partial';
-        } else {
-            $invoice->status = 'pending';
+            app(PaymentService::class)->updateInvoiceStatus($payment->invoice);
         }
 
-        // Check due date for overdue
-        if ($invoice->due_date && $invoice->due_date < now() && $invoice->status !== 'paid') {
-            $invoice->status = 'overdue';
-        }
-
-        $invoice->save();
+        return back()->with('success', 'Payment refunded successfully.');
     }
 }

@@ -111,4 +111,47 @@ class InspectionController extends Controller
         ->get();
     return view('admin.inspections.select', compact('registrations'));
 }
+/**
+ * View a completed inspection report.
+ */
+public function view(Inspection $inspection)
+{
+    $inspection->load(['registration', 'inspector']);
+    
+    // ✅ Define checklist criteria labels (from language file or hardcoded)
+    $criteriaLabels = [
+        1 => __('messages.inspection_checklist_1'),
+        2 => __('messages.inspection_checklist_2'),
+        3 => __('messages.inspection_checklist_3'),
+        4 => __('messages.inspection_checklist_4'),
+        5 => __('messages.inspection_checklist_5'),
+        6 => __('messages.inspection_checklist_6'),
+        7 => __('messages.inspection_checklist_7'),
+        8 => __('messages.inspection_checklist_8'),
+        9 => __('messages.inspection_checklist_9'),
+        10 => __('messages.inspection_checklist_10'),
+        11 => __('messages.inspection_checklist_11'),
+    ];
+    
+    // ✅ Decode checklist JSON to array
+    $checklist = [];
+    $checklistRemarks = [];
+    if ($inspection->checklist) {
+        $decoded = json_decode($inspection->checklist, true);
+        if (is_array($decoded)) {
+            // Get items
+            if (isset($decoded['items']) && is_array($decoded['items'])) {
+                $checklist = $decoded['items'];
+            } else {
+                $checklist = $decoded;
+            }
+            // Get remarks
+            if (isset($decoded['remarks']) && is_array($decoded['remarks'])) {
+                $checklistRemarks = $decoded['remarks'];
+            }
+        }
+    }
+    
+    return view('admin.inspections.view', compact('inspection', 'checklist', 'checklistRemarks', 'criteriaLabels'));
+}
 }

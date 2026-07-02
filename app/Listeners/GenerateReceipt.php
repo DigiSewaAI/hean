@@ -6,6 +6,7 @@ use App\Events\PaymentVerified;
 use App\Services\PaymentService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 
 class GenerateReceipt implements ShouldQueue
 {
@@ -13,8 +14,16 @@ class GenerateReceipt implements ShouldQueue
 
     public function handle(PaymentVerified $event)
     {
-        // Service ले Receipt generate गर्छ
-        $paymentService = app(PaymentService::class);
-        $paymentService->generateReceipt($event->payment);
+        Log::info('=== GenerateReceipt Listener Called ===');
+        Log::info('Payment ID: ' . $event->payment->id);
+
+        try {
+            $paymentService = app(PaymentService::class);
+            $receipt = $paymentService->generateReceipt($event->payment);
+            Log::info('Receipt generated: ' . $receipt->receipt_number);
+        } catch (\Exception $e) {
+            Log::error('GenerateReceipt failed: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+        }
     }
 }

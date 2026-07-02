@@ -10,9 +10,6 @@ use App\Models\Invoice;
 use App\Models\Inspection;
 use App\Models\DuplicateReview;
 use App\Models\User;
-use App\Models\Province;
-use App\Models\District;
-use App\Models\Municipality;
 use App\Services\DuplicateDetectionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,13 +32,53 @@ class RegistrationController extends Controller
 
     /**
      * Show a single registration with all related data.
+     * ✅ FIXED: Loads all necessary relationships for clean UI.
      */
     public function show(Registration $registration)
     {
-        $registration->load('owner', 'hostel', 'documents', 'payments', 'invoices', 'certificates', 'inspections', 'duplicateReviews');
+        $registration->load([
+            'owner',
+            'hostel',
+            'documents',
+            'payments' => function($q) {
+                $q->latest();
+            },
+            'invoices' => function($q) {
+                $q->latest();
+            },
+            'certificates',
+            'inspections' => function($q) {
+                $q->latest();
+            },
+            'duplicateReviews' => function($q) {
+                $q->latest();
+            },
+            'receipts' => function($q) {
+                $q->latest();
+            }
+        ]);
+
+        // Get inspectors for assignment
         $inspectors = User::where('role', 'inspector')->get();
 
-        return view('admin.registrations.show', compact('registration', 'inspectors'));
+        // Calculate financial summary
+        $totalInvoiced = $registration->invoices->sum('amount');
+        $totalPaid = $registration->payments->where('status', 'verified')->sum('amount');
+        $outstanding = max(0, $totalInvoiced - $totalPaid);
+        $latestInvoice = $registration->invoices->sortByDesc('id')->first();
+        $latestPayment = $registration->payments->sortByDesc('id')->first();
+        $latestReceipt = $registration->receipts->sortByDesc('id')->first();
+
+        return view('admin.registrations.show', compact(
+            'registration',
+            'inspectors',
+            'totalInvoiced',
+            'totalPaid',
+            'outstanding',
+            'latestInvoice',
+            'latestPayment',
+            'latestReceipt'
+        ));
     }
 
     /**
@@ -54,11 +91,9 @@ class RegistrationController extends Controller
 
     /**
      * Store a new registration (admin manual).
-     * ✅ Complete fix with proper validation and field mapping
      */
     public function store(Request $request)
     {
-        // ✅ 1. Validation – सबै fields मिलाउनुहोस्
         $validator = Validator::make($request->all(), [
             'hostel_name' => 'required|string|max:255',
             'hostel_name_english' => 'nullable|string|max:255',
@@ -78,12 +113,7 @@ class RegistrationController extends Controller
             'street' => 'nullable|string|max:255',
             'landmark' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
-            // Documents – optional, फारममा required छ तर controller मा optional राख्न सकिन्छ
             'documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            // Payment fields
-            'payment_status' => 'nullable|in:pending,submitted,verified,rejected',
-            'payment_method' => 'nullable|in:bank,qr,cash',
-            'payment_transaction_id' => 'nullable|string|max:255',
             'source' => 'sometimes|in:public,admin,import,renewal',
         ]);
 
@@ -93,12 +123,10 @@ class RegistrationController extends Controller
 
         DB::beginTransaction();
         try {
-            // ✅ 2. Province/District/Municipality को नाम ID बाट fetch
-            $provinceName = Province::find($request->province)?->name;
-            $districtName = District::find($request->district)?->name;
-            $municipalityName = Municipality::find($request->municipality)?->name;
+            $provinceName = \App\Models\Province::find($request->province)?->name;
+            $districtName = \App\Models\District::find($request->district)?->name;
+            $municipalityName = \App\Models\Municipality::find($request->municipality)?->name;
 
-            // ✅ 3. Registration create – सही columns मात्र
             $registration = Registration::create([
                 'source' => $request->source ?? 'admin',
                 'submitted_at' => now(),
@@ -123,7 +151,7 @@ class RegistrationController extends Controller
                 'landmark' => $request->landmark,
             ]);
 
-            // ✅ 4. Documents upload – documents table मा save
+            // Upload documents
             if ($request->hasFile('documents')) {
                 foreach ($request->file('documents') as $type => $file) {
                     $path = $file->store('public/documents/' . $registration->id, 'public');
@@ -134,12 +162,6 @@ class RegistrationController extends Controller
                         'uploaded_at' => now(),
                     ]);
                 }
-            }
-
-            // ✅ 5. Payment (यदि payment_method भरिएको छ भने)
-            if ($request->filled('payment_method')) {
-                // मानौं Payment model छ र payment create गर्नुहोस्
-                // (तपाईंको आवश्यकता अनुसार)
             }
 
             DB::commit();
@@ -194,8 +216,7 @@ class RegistrationController extends Controller
     }
 
     /**
-     * Approve a registration – only set status to 'approved'.
-     * No hostel creation, no invoice generation.
+     * Approve a registration.
      */
     public function approve(Registration $registration)
     {
@@ -203,14 +224,17 @@ class RegistrationController extends Controller
             return back()->with('error', 'Registration is already approved.');
         }
 
-        // ✅ केवल status र approved_at सेट गर्नुहोस्
+        if ($registration->status === 'active') {
+            return back()->with('error', 'Registration is already active.');
+        }
+
         $registration->update([
-            'status' => Registration::STATUS_APPROVED,
+            'status' => 'approved',
             'approved_at' => now(),
         ]);
 
-        return redirect()->route('admin.registrations.index')
-            ->with('success', 'Registration approved. Now generate an invoice.');
+        return redirect()->route('admin.registrations.show', $registration)
+            ->with('success', 'Registration approved. You can now generate an invoice.');
     }
 
     /**
@@ -218,8 +242,8 @@ class RegistrationController extends Controller
      */
     public function reject(Registration $registration)
     {
-        if ($registration->status === 'approved') {
-            return back()->with('error', 'Cannot reject an already approved registration.');
+        if ($registration->status === 'approved' || $registration->status === 'active') {
+            return back()->with('error', 'Cannot reject an approved or active registration.');
         }
 
         $registration->update(['status' => 'rejected']);
@@ -239,7 +263,6 @@ class RegistrationController extends Controller
             'remarks' => 'nullable|string|max:500',
         ]);
 
-        // पहिले नै पेन्डिङ inspection छ कि छैन check गर्नुहोस्
         if ($registration->inspections()->where('status', 'scheduled')->exists()) {
             return back()->with('error', 'An inspection is already scheduled for this registration.');
         }
@@ -307,28 +330,11 @@ class RegistrationController extends Controller
     }
 
     /**
-     * Download an invoice (for admin).
+     * (Legacy) Download an invoice - replaced by InvoiceController.
      */
     public function downloadInvoice($id)
     {
         $invoice = Invoice::findOrFail($id);
-
-        if (!Storage::disk('public')->exists($invoice->pdf_path)) {
-            abort(404, 'File not found.');
-        }
-
-        return response()->download(
-            storage_path('app/public/' . $invoice->pdf_path),
-            'invoice_' . $invoice->invoice_number . '.pdf'
-        );
-    }
-
-    /**
-     * (Optional) Show a list of all documents for a registration.
-     */
-    public function documents(Registration $registration)
-    {
-        $documents = $registration->documents;
-        return view('admin.registrations.documents', compact('registration', 'documents'));
+        return redirect()->route('admin.invoices.download', $invoice);
     }
 }

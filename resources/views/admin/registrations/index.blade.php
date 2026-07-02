@@ -10,7 +10,6 @@
     </a>
 </div>
 
-{{-- ===== TABLE ===== --}}
 <div class="table-container" style="overflow-x:auto; background:#fff; border-radius:12px; border:1px solid #e2e8f0;">
     <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
         <thead style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
@@ -24,29 +23,43 @@
         </thead>
         <tbody>
             @forelse($registrations as $reg)
+            @php
+                // ✅ Fix: Determine actual status to display
+                $displayStatus = $reg->status;
+                if ($reg->status === 'approved') {
+                    // Check if invoice exists and is not paid
+                    $hasInvoice = $reg->invoices->isNotEmpty();
+                    if ($hasInvoice) {
+                        $latestInvoice = $reg->invoices->sortByDesc('id')->first();
+                        if ($latestInvoice && $latestInvoice->status !== 'paid') {
+                            $displayStatus = 'awaiting_payment';
+                        }
+                    }
+                }
+                $statusColorMap = [
+                    'pending'          => ['bg' => '#e2e8f0', 'text' => '#475569'],
+                    'approved'         => ['bg' => '#dcfce7', 'text' => '#166534'],
+                    'awaiting_payment' => ['bg' => '#fef3c7', 'text' => '#92400e'],
+                    'active'           => ['bg' => '#dbeafe', 'text' => '#1e40af'],
+                    'expired'          => ['bg' => '#f1f5f9', 'text' => '#64748b'],
+                    'rejected'         => ['bg' => '#fee2e2', 'text' => '#991b1b'],
+                    'duplicate'        => ['bg' => '#fce4ec', 'text' => '#880e4f'],
+                    'inspection'       => ['bg' => '#fef3c7', 'text' => '#92400e'],
+                ];
+                $colors = $statusColorMap[$displayStatus] ?? ['bg' => '#e2e8f0', 'text' => '#475569'];
+            @endphp
             <tr style="border-bottom:1px solid #e2e8f0; transition:background 0.15s;" class="hover:bg-gray-50">
                 <td style="padding:12px 16px; font-weight:600; color:#0f172a;">{{ $reg->id }}</td>
-
-                {{-- ✅ English name priority, fallback to Nepali --}}
                 <td style="padding:12px 16px; font-weight:500; color:#0f172a;">
                     {{ $reg->hostel_name_english ?: $reg->hostel_name }}
                     @if($reg->hostel_name_english && $reg->hostel_name && $reg->hostel_name_english != $reg->hostel_name)
                         <br><span style="font-size:0.7rem; color:#94a3b8;">{{ $reg->hostel_name }}</span>
                     @endif
                 </td>
-
                 <td style="padding:12px 16px; color:#475569;">{{ $reg->district ?? __('messages.not_available') }}</td>
                 <td style="padding:12px 16px;">
-                    @php
-                        $statusColor = [
-                            'approved' => ['bg' => '#dcfce7', 'text' => '#166534'],
-                            'rejected' => ['bg' => '#fee2e2', 'text' => '#991b1b'],
-                            'inspection' => ['bg' => '#fef3c7', 'text' => '#92400e'],
-                            'pending' => ['bg' => '#e2e8f0', 'text' => '#475569'],
-                        ][$reg->status] ?? ['bg' => '#e2e8f0', 'text' => '#475569'];
-                    @endphp
-                    <span style="padding:4px 12px; border-radius:50px; font-size:0.7rem; font-weight:600; background:{{ $statusColor['bg'] }}; color:{{ $statusColor['text'] }};">
-                        {{ __('messages.status_' . $reg->status) }}
+                    <span style="padding:4px 12px; border-radius:50px; font-size:0.7rem; font-weight:600; background:{{ $colors['bg'] }}; color:{{ $colors['text'] }};">
+                        {{ __('messages.status_' . $displayStatus) }}
                     </span>
                 </td>
                 <td style="padding:12px 16px; text-align:center;">
@@ -67,48 +80,8 @@
     </table>
 </div>
 
-{{-- ===== PAGINATION ===== --}}
 <div style="margin-top:24px; display:flex; justify-content:center;">
     {{ $registrations->links() }}
 </div>
 
 @endsection
-
-@push('styles')
-<style>
-    /* Pagination custom style */
-    .pagination-wrapper .pagination {
-        display: flex;
-        gap: 6px;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    .pagination-wrapper .pagination .page-item .page-link {
-        padding: 8px 14px;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 8px;
-        color: #1e293b;
-        text-decoration: none;
-        transition: 0.2s;
-        font-weight: 500;
-        font-size: 0.9rem;
-        background: #fff;
-    }
-    .pagination-wrapper .pagination .page-item .page-link:hover {
-        background: #f1f5f9;
-        border-color: #0EA5E9;
-    }
-    .pagination-wrapper .pagination .page-item.active .page-link {
-        background: linear-gradient(135deg, #0EA5E9, #3B82F6);
-        border-color: #0EA5E9;
-        color: #fff;
-    }
-    .pagination-wrapper .pagination .page-item.disabled .page-link {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-</style>
-@endpush

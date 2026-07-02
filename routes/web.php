@@ -85,7 +85,8 @@ Route::middleware(['auth', 'admin'])
 
         // Registrations (Full Resource except destroy)
         Route::resource('registrations', RegistrationController::class)->except(['destroy']);
-
+        // Inspection view (for completed inspections)
+Route::get('inspections/{inspection}/view', [InspectionController::class, 'view'])->name('inspections.view');
         // Approve / Reject
         Route::post('registrations/{registration}/approve', [RegistrationController::class, 'approve'])->name('registrations.approve');
         Route::post('registrations/{registration}/reject', [RegistrationController::class, 'reject'])->name('registrations.reject');
@@ -157,9 +158,6 @@ Route::middleware(['auth', 'admin'])
         // Document download (admin)
         Route::get('documents/{document}/download', [RegistrationController::class, 'downloadDocument'])->name('documents.download');
 
-        // (Old invoice download – kept for backward compatibility, but now using InvoiceController route above)
-        // Route::get('invoices/{invoice}/download', [RegistrationController::class, 'downloadInvoice'])->name('invoices.download'); // REMOVED
-
         // Certificate download (admin)
         Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])->name('certificates.download');
 
@@ -172,11 +170,11 @@ Route::middleware(['auth', 'admin'])
         Route::post('payments/{payment}/refund', [PaymentController::class, 'refund'])->name('payments.refund');
 
         // ============================================================
-        // ✅ RECEIPT ROUTES
+        // ✅ RECEIPT ROUTES (generate route REMOVED)
         // ============================================================
         Route::get('receipts', [ReceiptController::class, 'index'])->name('receipts.index');
         Route::get('receipts/{receipt}', [ReceiptController::class, 'show'])->name('receipts.show');
-        Route::post('receipts/generate/{payment}', [ReceiptController::class, 'generate'])->name('receipts.generate');
+        // 🔴 Route::post('receipts/generate/{payment}', [ReceiptController::class, 'generate'])->name('receipts.generate'); // <-- REMOVED
         Route::get('receipts/{receipt}/download', [ReceiptController::class, 'download'])->name('receipts.download');
     });
 

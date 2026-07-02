@@ -7,14 +7,14 @@ use App\Models\Invoice;
 use App\Models\Registration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Mpdf\Mpdf;
+use Mpdf\MpdfException;
 
 class InvoiceController extends Controller
 {
     /**
      * Generate an invoice for a registration.
-     * ✅ Checks for existing pending/partial invoice.
-     * ✅ Sets registration status to 'awaiting_payment'.
      */
     public function generate(Request $request)
     {
@@ -22,37 +22,26 @@ class InvoiceController extends Controller
             'registration_id' => 'required|exists:registrations,id',
             'amount' => 'required|numeric|min:0',
             'due_date' => 'nullable|date|after:today',
-            'invoice_type' => 'nullable|string|max:50', // optional
+            'invoice_type' => 'nullable|string|max:50',
         ]);
 
         $registration = Registration::findOrFail($request->registration_id);
 
-        // 🔥 1. Check if there is any pending or partial invoice for this registration
+        // Check for existing pending/partial invoice
         $existingInvoice = Invoice::where('registration_id', $registration->id)
             ->whereIn('status', ['pending', 'partial'])
             ->first();
 
         if ($existingInvoice) {
-            return back()->with('error', 'An unpaid invoice already exists for this registration. Invoice #: ' . $existingInvoice->invoice_number);
+            return back()->with('error', 'An unpaid invoice already exists. Invoice #: ' . $existingInvoice->invoice_number);
         }
 
-        // 🔥 2. Generate invoice number safely
+        // Generate invoice number
         $lastInvoice = Invoice::orderBy('id', 'desc')->first();
         $nextId = $lastInvoice ? intval(substr($lastInvoice->invoice_number, -6)) + 1 : 1;
         $invoiceNumber = 'INV-' . date('Y') . '-' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
 
-        // 🔥 3. Prepare PDF
-        $html = view('pdf.invoice', compact('registration', 'invoiceNumber', 'request'))->render();
-
-        $mpdf = new Mpdf();
-        $mpdf->WriteHTML($html);
-        $pdfContent = $mpdf->Output('', 'S');
-
-        // 🔥 4. Save PDF
-        $path = 'invoices/invoice_' . uniqid() . '.pdf';
-        Storage::disk('public')->put($path, $pdfContent);
-
-        // 🔥 5. Create invoice record
+        // ===== CREATE INVOICE RECORD FIRST =====
         $invoice = Invoice::create([
             'registration_id' => $registration->id,
             'invoice_number' => $invoiceNumber,
@@ -61,13 +50,64 @@ class InvoiceController extends Controller
             'due_date' => $request->due_date ?? now()->addDays(30),
             'status' => 'pending',
             'invoice_type' => $request->invoice_type ?? 'new_registration',
-            'pdf_path' => $path,
+            'pdf_path' => null,
         ]);
 
-        // 🔥 6. Mark registration as awaiting payment
-        $registration->markAwaitingPayment();
+        try {
+            // ===== GENERATE PDF =====
+            $html = view('pdf.invoice', compact('registration', 'invoiceNumber', 'request'))->render();
 
-        return back()->with('success', 'Invoice generated successfully. Registration is now awaiting payment.');
+            $tempDir = storage_path('app/mpdf');
+            if (!file_exists($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
+
+            // ===== MPDF CONFIG (Same as Certificate) =====
+            $mpdf = new Mpdf([
+                'mode' => 'utf-8',
+                'format' => 'A4',
+                'orientation' => 'P',
+                'default_font_size' => 12,
+                'default_font' => 'dejavusans',
+                'autoScriptToLang' => true,
+                'autoLangToFont' => true,
+                'margin_top' => 10,
+                'margin_bottom' => 10,
+                'margin_left' => 10,
+                'margin_right' => 10,
+                'tempDir' => $tempDir,
+            ]);
+
+            // ===== WATERMARK IMAGE (ADDED - exactly like Certificate) =====
+            $logoPath = public_path('images/logo.png');
+            if (file_exists($logoPath)) {
+                $mpdf->SetWatermarkImage($logoPath, 0.08, 'F', 'P');
+                $mpdf->showWatermarkImage = true;
+            }
+
+            $mpdf->WriteHTML($html);
+            $pdfContent = $mpdf->Output('', 'S');
+
+            // ===== SAVE PDF =====
+            $path = 'invoices/invoice_' . uniqid() . '.pdf';
+            Storage::disk('public')->put($path, $pdfContent);
+
+            $invoice->update(['pdf_path' => $path]);
+
+            // Mark registration as awaiting payment
+            $registration->markAwaitingPayment();
+
+            return back()->with('success', 'Invoice generated successfully!');
+
+        } catch (MpdfException $e) {
+            Log::error('Invoice PDF Generation Error: ' . $e->getMessage());
+            $invoice->delete();
+            return back()->with('error', 'Invoice generation failed: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Invoice Generation Error: ' . $e->getMessage());
+            $invoice->delete();
+            return back()->with('error', 'Invoice generation failed. Please try again.');
+        }
     }
 
     /**
@@ -88,7 +128,7 @@ class InvoiceController extends Controller
     }
 
     /**
-     * (Optional) View invoice details in admin panel.
+     * View invoice details.
      */
     public function show(Invoice $invoice)
     {
@@ -97,7 +137,7 @@ class InvoiceController extends Controller
     }
 
     /**
-     * (Optional) List all invoices.
+     * List all invoices.
      */
     public function index()
     {
@@ -106,7 +146,7 @@ class InvoiceController extends Controller
     }
 
     /**
-     * (Optional) Mark invoice as paid manually (if needed).
+     * Mark invoice as paid.
      */
     public function markPaid(Invoice $invoice)
     {
@@ -115,9 +155,6 @@ class InvoiceController extends Controller
         }
 
         $invoice->update(['status' => 'paid']);
-        // Optionally, activate registration if fully paid
-        // (but usually payment verification does this)
-
         return back()->with('success', 'Invoice marked as paid.');
     }
 }
