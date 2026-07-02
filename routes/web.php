@@ -133,8 +133,18 @@ Route::middleware(['auth', 'admin'])
         Route::post('certificate/generate', [CertificateController::class, 'generate'])->name('certificate.generate');
         Route::get('certificates/{id}/preview', [CertificateController::class, 'show'])->name('certificates.preview');
 
-        // Invoice Generation
+        // ============================================================
+        // ✅ INVOICE ROUTES (Full management)
+        // ============================================================
+        // Manual invoice generation (from registration show)
         Route::post('invoices/generate', [InvoiceController::class, 'generate'])->name('invoices.generate');
+
+        // Invoice listing and details
+        Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+        Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+
+        // Invoice download (replaces old route)
+        Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
 
         // CMS (Homepage editable)
         Route::get('cms', [CMSController::class, 'index'])->name('cms.index');
@@ -147,14 +157,14 @@ Route::middleware(['auth', 'admin'])
         // Document download (admin)
         Route::get('documents/{document}/download', [RegistrationController::class, 'downloadDocument'])->name('documents.download');
 
-        // Invoice download (admin)
-        Route::get('invoices/{invoice}/download', [RegistrationController::class, 'downloadInvoice'])->name('invoices.download');
+        // (Old invoice download – kept for backward compatibility, but now using InvoiceController route above)
+        // Route::get('invoices/{invoice}/download', [RegistrationController::class, 'downloadInvoice'])->name('invoices.download'); // REMOVED
 
         // Certificate download (admin)
         Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])->name('certificates.download');
 
         // ============================================================
-        // ✅ NEW: PAYMENT ROUTES
+        // ✅ PAYMENT ROUTES
         // ============================================================
         Route::resource('payments', PaymentController::class);
         Route::post('payments/{payment}/verify', [PaymentController::class, 'verify'])->name('payments.verify');
@@ -162,7 +172,7 @@ Route::middleware(['auth', 'admin'])
         Route::post('payments/{payment}/refund', [PaymentController::class, 'refund'])->name('payments.refund');
 
         // ============================================================
-        // ✅ NEW: RECEIPT ROUTES
+        // ✅ RECEIPT ROUTES
         // ============================================================
         Route::get('receipts', [ReceiptController::class, 'index'])->name('receipts.index');
         Route::get('receipts/{receipt}', [ReceiptController::class, 'show'])->name('receipts.show');
