@@ -126,7 +126,6 @@ class RegistrationController extends Controller
             // ✅ 4. Documents upload – documents table मा save
             if ($request->hasFile('documents')) {
                 foreach ($request->file('documents') as $type => $file) {
-                    // $type = 'pan', 'citizenship', 'license', etc.
                     $path = $file->store('public/documents/' . $registration->id, 'public');
                     Document::create([
                         'registration_id' => $registration->id,
@@ -195,8 +194,8 @@ class RegistrationController extends Controller
     }
 
     /**
-     * Approve a registration.
-     * Creates a Hostel record and updates registration status.
+     * Approve a registration – only set status to 'approved'.
+     * No hostel creation, no invoice generation.
      */
     public function approve(Registration $registration)
     {
@@ -204,58 +203,14 @@ class RegistrationController extends Controller
             return back()->with('error', 'Registration is already approved.');
         }
 
-        DB::beginTransaction();
-        try {
-            $registration->update([
-                'status' => 'approved',
-                'approved_at' => now(),
-            ]);
+        // ✅ केवल status र approved_at सेट गर्नुहोस्
+        $registration->update([
+            'status' => Registration::STATUS_APPROVED,
+            'approved_at' => now(),
+        ]);
 
-            $hostelData = [
-                'name_nepali'    => $registration->hostel_name ?? 'N/A',
-                'name_english'   => $registration->hostel_name_english ?? $registration->hostel_name ?? 'N/A',
-                'operator_name'  => optional($registration->owner)->name ?? $registration->operator_name ?? 'N/A',
-                'contact'        => $registration->contact ?? 'N/A',
-                'description'    => $registration->description ?? null,
-                'province'       => $registration->province ?? null,
-                'district'       => $registration->district ?? 'Unknown',
-                'municipality'   => $registration->municipality ?? 'Unknown',
-                'ward'           => $registration->ward ?? '0',
-                'street'         => $registration->street ?? null,
-                'landmark'       => $registration->landmark ?? null,
-                'type'           => $registration->hostel_type ?? null,
-                'capacity'       => $registration->capacity ?? 0,
-                'rooms'          => $registration->rooms ?? $registration->capacity ?? 0,
-                'established_year' => $registration->established_year ?? null,
-                'email'          => $registration->email ?? null,
-                'website'        => $registration->website ?? null,
-                'approved'       => true,
-                'visible'        => true,
-                'featured'       => false,
-                'owner_id'       => $registration->owner_id ?? null,
-            ];
-
-            if ($registration->hostel_id) {
-                $hostel = Hostel::find($registration->hostel_id);
-                if ($hostel) {
-                    $hostel->update($hostelData);
-                } else {
-                    $hostel = Hostel::create($hostelData);
-                    $registration->update(['hostel_id' => $hostel->id]);
-                }
-            } else {
-                $hostel = Hostel::create($hostelData);
-                $registration->update(['hostel_id' => $hostel->id]);
-            }
-
-            DB::commit();
-
-            return redirect()->route('admin.registrations.index')
-                ->with('success', 'Registration approved and hostel created/updated successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Failed to approve: ' . $e->getMessage());
-        }
+        return redirect()->route('admin.registrations.index')
+            ->with('success', 'Registration approved. Now generate an invoice.');
     }
 
     /**
@@ -277,28 +232,28 @@ class RegistrationController extends Controller
      * Assign an inspector to a registration.
      */
     public function assignInspector(Request $request, Registration $registration)
-{
-    $request->validate([
-        'inspector_id' => 'required|exists:users,id',
-        'scheduled_date' => 'required|date|after_or_equal:today',
-        'remarks' => 'nullable|string|max:500',
-    ]);
+    {
+        $request->validate([
+            'inspector_id' => 'required|exists:users,id',
+            'scheduled_date' => 'required|date|after_or_equal:today',
+            'remarks' => 'nullable|string|max:500',
+        ]);
 
-    // पहिले नै पेन्डिङ inspection छ कि छैन check गर्नुहोस्
-    if ($registration->inspections()->where('status', 'scheduled')->exists()) {
-        return back()->with('error', 'An inspection is already scheduled for this registration.');
+        // पहिले नै पेन्डिङ inspection छ कि छैन check गर्नुहोस्
+        if ($registration->inspections()->where('status', 'scheduled')->exists()) {
+            return back()->with('error', 'An inspection is already scheduled for this registration.');
+        }
+
+        $inspection = Inspection::create([
+            'registration_id' => $registration->id,
+            'inspector_id' => $request->inspector_id,
+            'scheduled_date' => $request->scheduled_date,
+            'remarks' => $request->remarks,
+            'status' => 'scheduled',
+        ]);
+
+        return back()->with('success', 'Inspector assigned and inspection scheduled.');
     }
-
-    $inspection = Inspection::create([
-        'registration_id' => $registration->id,
-        'inspector_id' => $request->inspector_id,
-        'scheduled_date' => $request->scheduled_date,
-        'remarks' => $request->remarks,
-        'status' => 'scheduled',
-    ]);
-
-    return back()->with('success', 'Inspector assigned and inspection scheduled.');
-}
 
     /**
      * List registrations that need duplicate review.

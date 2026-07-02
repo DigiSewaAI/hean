@@ -11,7 +11,7 @@
             <i class="fas fa-images me-3"></i> @lang('messages.gallery')
         </h1>
         <p style="font-size:1.2rem; opacity:0.9; max-width:600px; margin:0 auto;">
-            Explore moments from our events and activities.
+            {{ __('messages.gallery_hero_desc') }}
         </p>
     </div>
 </section>
@@ -22,19 +22,19 @@
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:20px; text-align:center;">
             <div>
                 <div style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">{{ $images->total() ?? 0 }}</div>
-                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">कुल तस्वीरहरू</div>
+                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">{{ __('messages.gallery_stats_total') }}</div>
             </div>
             <div>
                 <div style="font-size:2.2rem; font-weight:800; color:#22C55E;">
                     {{ $images->count() ?? 0 }}
                 </div>
-                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">यो पृष्ठमा</div>
+                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">{{ __('messages.gallery_stats_current') }}</div>
             </div>
             <div>
                 <div style="font-size:2.2rem; font-weight:800; color:#8B5CF6;">
                     {{ $images->total() > 0 ? ceil($images->total() / 12) : 0 }}
                 </div>
-                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">कुल पृष्ठहरू</div>
+                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">{{ __('messages.gallery_stats_pages') }}</div>
             </div>
         </div>
     </div>
@@ -48,10 +48,10 @@
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:30px;">
             <div>
                 <h2 style="font-size:2rem; font-weight:700; color:#0f172a; margin:0;">
-                    <i class="fas fa-images" style="color:#0EA5E9; margin-right:10px;"></i> सबै तस्वीरहरू
+                    <i class="fas fa-images" style="color:#0EA5E9; margin-right:10px;"></i> {{ __('messages.gallery_section_title') }}
                 </h2>
                 <p style="color:#64748b; margin-top:4px; font-size:0.95rem;">
-                    {{ $images->total() }} तस्वीरहरू फेला पर्यो
+                    {{ __('messages.gallery_found', ['count' => $images->total()]) }}
                 </p>
             </div>
         </div>
@@ -61,10 +61,10 @@
             @forelse($images as $image)
             <div class="gallery-item" 
                  style="border-radius:16px; overflow:hidden; position:relative; aspect-ratio:1/1; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.04); transition:transform 0.3s, box-shadow 0.3s;"
-                 onclick="openLightbox('{{ asset('storage/'.$image->image) }}', '{{ $image->title ?? 'Gallery Image' }}', '{{ $loop->index }}')">
+                 onclick="openLightbox('{{ asset('storage/'.$image->image) }}', '{{ $image->title ?? __('messages.gallery_image') }}', '{{ $loop->index }}')">
                 
                 <img src="{{ asset('storage/'.$image->image) }}" 
-                     alt="{{ $image->title ?? 'Gallery' }}" 
+                     alt="{{ $image->title ?? __('messages.gallery') }}" 
                      style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s;">
                 
                 {{-- Overlay --}}
@@ -78,7 +78,7 @@
             @empty
             <div style="grid-column:1/-1; text-align:center; padding:60px 20px; background:#f8fafc; border-radius:20px;">
                 <i class="fas fa-images" style="font-size:3rem; color:#cbd5e1; display:block; margin-bottom:15px;"></i>
-                <p style="color:#94a3b8; font-size:1.1rem;">कुनै तस्वीर फेला परेन।</p>
+                <p style="color:#94a3b8; font-size:1.1rem;">{{ __('messages.gallery_empty') }}</p>
             </div>
             @endforelse
         </div>
@@ -204,7 +204,7 @@
     // Collect all image data
     @foreach($images as $image)
         lightboxImages.push("{{ asset('storage/'.$image->image) }}");
-        lightboxTitles.push("{{ $image->title ?? 'Gallery Image' }}");
+        lightboxTitles.push("{{ $image->title ?? __('messages.gallery_image') }}");
     @endforeach
 
     function openLightbox(src, title, index) {

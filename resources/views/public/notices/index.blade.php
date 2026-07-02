@@ -11,7 +11,7 @@
             <i class="fas fa-bullhorn me-3"></i> @lang('messages.notices')
         </h1>
         <p style="font-size:1.2rem; opacity:0.9; max-width:600px; margin:0 auto;">
-            Stay updated with the latest notices and events from HEAN.
+            {{ __('messages.notices_hero_desc') }}
         </p>
     </div>
 </section>
@@ -22,19 +22,19 @@
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:20px; text-align:center;">
             <div>
                 <div style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">{{ $notices->total() ?? 0 }}</div>
-                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">कुल सूचनाहरू</div>
+                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">{{ __('messages.notices_stats_total') }}</div>
             </div>
             <div>
                 <div style="font-size:2.2rem; font-weight:800; color:#22C55E;">
                     {{ $notices->pluck('category')->filter()->unique()->count() ?? 0 }}
                 </div>
-                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">विभागहरू</div>
+                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">{{ __('messages.notices_stats_categories') }}</div>
             </div>
             <div>
                 <div style="font-size:2.2rem; font-weight:800; color:#8B5CF6;">
                     {{ $notices->where('is_featured', true)->count() ?? 0 }}
                 </div>
-                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">विशेष सूचना</div>
+                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">{{ __('messages.notices_stats_featured') }}</div>
             </div>
         </div>
     </div>
@@ -48,21 +48,21 @@
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:30px;">
             <div>
                 <h2 style="font-size:2rem; font-weight:700; color:#0f172a; margin:0;">
-                    <i class="fas fa-list-ul" style="color:#0EA5E9; margin-right:10px;"></i> सबै सूचनाहरू
+                    <i class="fas fa-list-ul" style="color:#0EA5E9; margin-right:10px;"></i> {{ __('messages.notices_section_title') }}
                 </h2>
                 <p style="color:#64748b; margin-top:4px; font-size:0.95rem;">
-                    {{ $notices->total() }} सूचनाहरू फेला पर्यो
+                    {{ $notices->total() }} {{ __('messages.notices_found') }}
                 </p>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
                 <span style="color:#64748b; font-size:0.85rem; font-weight:500;">
-                    <i class="fas fa-filter"></i> फिल्टर:
+                    <i class="fas fa-filter"></i> {{ __('messages.notices_filter_label') }}:
                 </span>
                 <select style="padding:8px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.85rem; background:#fff; color:#1e293b; cursor:pointer;">
-                    <option>सबै</option>
-                    <option>घटना</option>
-                    <option>समाचार</option>
-                    <option>कार्यशाला</option>
+                    <option>{{ __('messages.notices_filter_all') }}</option>
+                    <option>{{ __('messages.notices_filter_event') }}</option>
+                    <option>{{ __('messages.notices_filter_news') }}</option>
+                    <option>{{ __('messages.notices_filter_workshop') }}</option>
                 </select>
             </div>
         </div>
@@ -85,7 +85,7 @@
                         {{ $notice->title }}
                         @if($notice->is_featured)
                             <span style="background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; padding:2px 12px; border-radius:50px; font-size:0.65rem; font-weight:600; margin-left:8px; display:inline-block;">
-                                <i class="fas fa-star"></i> Featured
+                                <i class="fas fa-star"></i> {{ __('messages.featured') }}
                             </span>
                         @endif
                     </h4>
@@ -97,10 +97,10 @@
                 {{-- Category Badge + Action --}}
                 <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
                     <span style="background:rgba(14,165,233,0.1); color:#0EA5E9; padding:6px 16px; border-radius:50px; font-size:0.7rem; font-weight:600;">
-                        {{ $notice->category ?? 'General' }}
+                        {{ $notice->category ?? __('messages.general') }}
                     </span>
                     <a href="{{ route('notices.show', $notice) }}" style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; padding:6px 18px; border-radius:50px; text-decoration:none; font-weight:600; font-size:0.8rem; transition:0.3s; box-shadow:0 2px 10px rgba(14,165,233,0.3);">
-                        <i class="fas fa-arrow-right"></i> View
+                        <i class="fas fa-arrow-right"></i> {{ __('messages.view') }}
                     </a>
                 </div>
 
@@ -108,7 +108,7 @@
             @empty
             <div style="grid-column:1/-1; text-align:center; padding:60px 20px; background:#f8fafc; border-radius:20px;">
                 <i class="fas fa-bullhorn" style="font-size:3rem; color:#cbd5e1; display:block; margin-bottom:15px;"></i>
-                <p style="color:#94a3b8; font-size:1.1rem;">कुनै सूचना फेला परेन।</p>
+                <p style="color:#94a3b8; font-size:1.1rem;">{{ __('messages.notices_empty') }}</p>
             </div>
             @endforelse
         </div>

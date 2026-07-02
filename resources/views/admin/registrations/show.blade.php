@@ -38,20 +38,25 @@
     </div>
 @endif
 
-{{-- ===== STATUS BAR ===== --}}
+{{-- ===== STATUS BAR (अपडेटेड – नयाँ statuses थपियो) ===== --}}
 <div style="background:#fff; border-radius:12px; padding:16px 20px; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-bottom:24px; display:flex; flex-wrap:wrap; align-items:center; gap:16px; border:1px solid #e2e8f0;">
-    <span style="display:inline-flex; align-items:center; gap:8px; padding:6px 18px; border-radius:50px; font-weight:600; font-size:0.85rem;
-        @if($registration->status == 'approved') background:#dcfce7; color:#166534;
-        @elseif($registration->status == 'rejected') background:#fee2e2; color:#991b1b;
-        @elseif($registration->status == 'inspection') background:#fef3c7; color:#92400e;
-        @else background:#e2e8f0; color:#475569; @endif">
-        <span style="width:8px; height:8px; border-radius:50%; display:inline-block;
-            @if($registration->status == 'approved') background:#22c55e;
-            @elseif($registration->status == 'rejected') background:#ef4444;
-            @elseif($registration->status == 'inspection') background:#f59e0b;
-            @else background:#94a3b8; @endif">
-        </span>
-        {{ __('messages.status_' . $registration->status) }}
+    @php
+        $statusColorMap = [
+            'pending'          => ['bg' => '#e2e8f0', 'text' => '#475569', 'dot' => '#94a3b8'],
+            'approved'         => ['bg' => '#dcfce7', 'text' => '#166534', 'dot' => '#22c55e'],
+            'awaiting_payment' => ['bg' => '#fef3c7', 'text' => '#92400e', 'dot' => '#f59e0b'],
+            'active'           => ['bg' => '#dbeafe', 'text' => '#1e40af', 'dot' => '#3b82f6'],
+            'expired'          => ['bg' => '#f1f5f9', 'text' => '#64748b', 'dot' => '#94a3b8'],
+            'rejected'         => ['bg' => '#fee2e2', 'text' => '#991b1b', 'dot' => '#ef4444'],
+            'duplicate'        => ['bg' => '#fce4ec', 'text' => '#880e4f', 'dot' => '#e91e63'],
+            'inspection'       => ['bg' => '#fef3c7', 'text' => '#92400e', 'dot' => '#f59e0b'],
+        ];
+        $status = $registration->status;
+        $colors = $statusColorMap[$status] ?? ['bg' => '#e2e8f0', 'text' => '#475569', 'dot' => '#94a3b8'];
+    @endphp
+    <span style="display:inline-flex; align-items:center; gap:8px; padding:6px 18px; border-radius:50px; font-weight:600; font-size:0.85rem; background:{{ $colors['bg'] }}; color:{{ $colors['text'] }};">
+        <span style="width:8px; height:8px; border-radius:50%; display:inline-block; background:{{ $colors['dot'] }};"></span>
+        {{ __('messages.status_' . $status) }}
     </span>
     <span style="color:#64748b; font-size:0.85rem;">
         <i class="far fa-clock"></i> {{ $registration->submitted_at ? $registration->submitted_at->diffForHumans() : __('messages.not_submitted') }}
@@ -60,6 +65,32 @@
     <span style="color:#64748b; font-size:0.85rem;">
         <i class="fas fa-tag"></i> {{ __('messages.source') }}: <strong>{{ ucfirst($registration->source ?? __('messages.not_available')) }}</strong>
     </span>
+</div>
+
+{{-- ===== STATUS PROGRESSION BADGES ===== --}}
+<div style="background:#fff; border-radius:12px; padding:12px 20px; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-bottom:24px; border:1px solid #e2e8f0; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+    <span style="font-weight:600; color:#0f172a; font-size:0.85rem;">{{ __('messages.workflow_status') }}:</span>
+    @php
+        $hasInvoice = $registration->invoices->isNotEmpty();
+        $hasPayment = $registration->payments->isNotEmpty();
+        $paymentVerified = $hasPayment && $registration->payments->where('status', 'verified')->isNotEmpty();
+        $hasReceipt = $registration->receipts->isNotEmpty();
+        $statuses = [
+            'registration' => true,
+            'invoice' => $hasInvoice,
+            'payment' => $hasPayment,
+            'verified' => $paymentVerified,
+            'receipt' => $hasReceipt,
+        ];
+    @endphp
+    @foreach(['registration' => '📋', 'invoice' => '📄', 'payment' => '💳', 'verified' => '✅', 'receipt' => '🧾'] as $key => $icon)
+        <span style="display:flex; align-items:center; gap:4px; padding:4px 12px; border-radius:50px; 
+            {{ $statuses[$key] ? 'background:#dcfce7; color:#166534;' : 'background:#f1f5f9; color:#94a3b8;' }}
+            font-size:0.75rem; font-weight:600;">
+            {{ $icon }} {{ __('messages.step_'.$key) }}
+        </span>
+        @if(!$loop->last) <span style="color:#cbd5e1;">→</span> @endif
+    @endforeach
 </div>
 
 {{-- ===== MAIN CONTENT: 2-COLUMN LAYOUT ===== --}}
@@ -78,7 +109,7 @@
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.hostel_type') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ ucfirst($registration->hostel_type ?? __('messages.not_available')) }}</p></div>
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.capacity') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->capacity ?? __('messages.not_available') }}</p></div>
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.established_year') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->established_year ?? __('messages.not_available') }}</p></div>
-                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.contact_number') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->contact ?? $registration->contact_number ?? __('messages.not_available') }}</p></div>
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.contact_number') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->contact ?? __('messages.not_available') }}</p></div>
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.email') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->email ?? __('messages.not_available') }}</p></div>
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.pan_number') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->pan ?? __('messages.not_available') }}</p></div>
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.registration_number') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->registration_number ?? __('messages.not_available') }}</p></div>
@@ -117,23 +148,81 @@
                 <i class="fas fa-user-circle"></i> {{ __('messages.owner_details') }}
             </div>
             <div style="padding:20px; text-align:center;">
-                @if($registration->owner)
+                @php
+                    $owner = null;
+                    $source = null;
+                    $sourceKey = null;
+
+                    // 1. Registration owner (User)
+                    if ($registration->owner) {
+                        $owner = $registration->owner;
+                        $source = __('messages.owner_source_registration');
+                        $sourceKey = 'registration';
+                    }
+                    // 2. Registration operator_name (fallback string)
+                    elseif (!empty($registration->operator_name)) {
+                        $owner = (object) [
+                            'name' => $registration->operator_name,
+                            'email' => $registration->email ?? null,
+                            'phone' => $registration->contact ?? null,
+                            'citizenship_number' => null,
+                            'pan' => null,
+                        ];
+                        $source = __('messages.owner_source_registration_name');
+                        $sourceKey = 'registration_name';
+                    }
+                    // 3. Hostel owner (User)
+                    elseif ($registration->hostel && $registration->hostel->owner) {
+                        $owner = $registration->hostel->owner;
+                        $source = __('messages.owner_source_hostel');
+                        $sourceKey = 'hostel';
+                    }
+                    // 4. Hostel operator_name (fallback)
+                    elseif ($registration->hostel && !empty($registration->hostel->operator_name)) {
+                        $owner = (object) [
+                            'name' => $registration->hostel->operator_name,
+                            'email' => $registration->hostel->email ?? null,
+                            'phone' => $registration->hostel->contact ?? null,
+                            'citizenship_number' => null,
+                            'pan' => null,
+                        ];
+                        $source = __('messages.owner_source_hostel_name');
+                        $sourceKey = 'hostel_name';
+                    }
+                @endphp
+
+                @if($owner)
+                    {{-- Display owner --}}
                     <div style="width:70px; height:70px; border-radius:50%; background:#0EA5E9; color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; margin:0 auto 12px;">
-                        {{ substr($registration->owner->name, 0, 1) }}
+                        {{ substr($owner->name, 0, 1) }}
                     </div>
-                    <p style="font-weight:700; color:#0f172a; margin:0;">{{ $registration->owner->name }}</p>
-                    <p style="color:#64748b; font-size:0.85rem; margin:2px 0 12px;">
-                        <a href="mailto:{{ $registration->owner->email }}" style="color:#0EA5E9; text-decoration:none;">{{ $registration->owner->email }}</a>
-                    </p>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; text-align:left; font-size:0.85rem; background:#f8fafc; padding:12px; border-radius:8px;">
-                        <div><span style="color:#94a3b8; font-size:0.7rem; text-transform:uppercase;">{{ __('messages.phone') }}</span><br><strong>{{ $registration->owner->phone ?? __('messages.not_available') }}</strong></div>
-                        <div><span style="color:#94a3b8; font-size:0.7rem; text-transform:uppercase;">{{ __('messages.citizenship') }}</span><br><strong>{{ $registration->owner->citizenship_number ?? __('messages.not_available') }}</strong></div>
-                        <div style="grid-column:1/-1;"><span style="color:#94a3b8; font-size:0.7rem; text-transform:uppercase;">{{ __('messages.pan') }}</span><br><strong>{{ $registration->owner->pan ?? __('messages.not_available') }}</strong></div>
+                    <p style="font-weight:700; color:#0f172a; margin:0;">{{ $owner->name }}</p>
+                    @if($owner->email)
+                        <p style="color:#64748b; font-size:0.85rem; margin:2px 0 12px;">
+                            <a href="mailto:{{ $owner->email }}" style="color:#0EA5E9; text-decoration:none;">{{ $owner->email }}</a>
+                        </p>
+                    @endif
+                    <div style="display:grid; grid-template-columns:1fr; gap:8px; text-align:left; font-size:0.85rem; background:#f8fafc; padding:12px; border-radius:8px;">
+                        <div><span style="color:#94a3b8; font-size:0.7rem; text-transform:uppercase;">{{ __('messages.phone') }}</span><br><strong>{{ $owner->phone ?? __('messages.not_available') }}</strong></div>
+                    </div>
+                    <div style="margin-top:12px;">
+                        <span style="display:inline-block; background:#e2e8f0; color:#475569; padding:2px 12px; border-radius:50px; font-size:0.7rem; font-weight:600;">
+                            <i class="fas fa-info-circle"></i> {{ __('messages.owner_source') }}: {{ $source }}
+                        </span>
                     </div>
                 @else
                     <div style="padding:20px;">
                         <i class="fas fa-user-slash" style="font-size:3rem; color:#cbd5e1;"></i>
-                        <p style="color:#94a3b8;">{{ __('messages.no_owner_linked') }}</p>
+                        <p style="color:#94a3b8; margin-top:8px;">{{ __('messages.no_owner_linked') }}</p>
+                        @if($registration->status === 'approved')
+                            <div style="background:#fef3c7; border-left:4px solid #F59E0B; padding:12px 16px; border-radius:8px; margin-top:12px; text-align:left;">
+                                <i class="fas fa-exclamation-triangle" style="color:#F59E0B;"></i>
+                                <span style="color:#92400e; font-weight:500;">{{ __('messages.owner_incomplete_warning') }}</span>
+                                <a href="{{ route('admin.registrations.edit', $registration) }}" style="display:inline-block; margin-top:8px; background:#F59E0B; color:#fff; padding:6px 16px; border-radius:50px; text-decoration:none; font-size:0.8rem;">
+                                    <i class="fas fa-user-plus"></i> {{ __('messages.add_owner') }}
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>
@@ -170,7 +259,7 @@
     </div>
 </div>
 
-{{-- ===== ACTIONS SECTION ===== --}}
+{{-- ===== ACTIONS SECTION (अपडेटेड – Conditional Logic with Status Check) ===== --}}
 <div style="margin-top:24px;">
     <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
         <div style="background:linear-gradient(135deg, #1E293B, #0F172A); color:#fff; padding:14px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
@@ -178,7 +267,23 @@
         </div>
         <div style="padding:20px;">
             <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
-                @if($registration->status == 'pending')
+
+                @php
+                    $hasInvoice = $registration->invoices->isNotEmpty();
+                    $latestInvoice = $hasInvoice ? $registration->invoices->sortByDesc('id')->first() : null;
+                    $invoicePaid = $latestInvoice && $latestInvoice->status === 'paid';
+                    $hasPayment = $registration->payments->isNotEmpty();
+                    $paymentVerified = $hasPayment && $registration->payments->where('status', 'verified')->isNotEmpty();
+                    $verifiedPayment = $paymentVerified ? $registration->payments->where('status', 'verified')->first() : null;
+                    $hasReceipt = $registration->receipts->isNotEmpty();
+                    $isApproved = $registration->status === 'approved';
+                    $isPending = $registration->status === 'pending';
+                    $canGenerateInvoice = $isApproved && !$hasInvoice; // only approved & no invoice
+                    $canAddPayment = $hasInvoice && !$invoicePaid;
+                @endphp
+
+                {{-- 1. APPROVE / REJECT (Pending मा मात्र) --}}
+                @if($isPending)
                     <form action="{{ route('admin.registrations.approve', $registration) }}" method="POST" style="display:inline;">
                         @csrf
                         <button type="submit" style="background:linear-gradient(135deg, #22C55E, #16A34A); color:#fff; border:none; padding:10px 24px; border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(34,197,94,0.3);">
@@ -193,19 +298,64 @@
                     </form>
                 @endif
 
-                {{-- Toggle for Assign Inspector Form --}}
-                <button type="button" onclick="document.getElementById('inspectorForm').style.display=document.getElementById('inspectorForm').style.display=='none'?'block':'none'" style="background:linear-gradient(135deg, #06B6D4, #0891B2); color:#fff; border:none; padding:10px 24px; border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(6,182,212,0.3);">
+                {{-- 2. INVOICE WORKFLOW (अपडेटेड) --}}
+                @if($canGenerateInvoice)
+                    {{-- approved भएको र कुनै invoice छैन: Generate Invoice button --}}
+                    <button type="button" onclick="document.getElementById('invoiceForm').style.display=document.getElementById('invoiceForm').style.display=='none'?'block':'none'"
+                        style="background:linear-gradient(135deg, #8B5CF6, #7C3AED); color:#fff; border:none; padding:10px 24px; border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(139,92,246,0.3);">
+                        <i class="fas fa-file-invoice"></i> {{ __('messages.generate_invoice') }}
+                    </button>
+                @elseif($hasInvoice)
+                    {{-- Invoice अवस्थित छ --}}
+                    @if(!$invoicePaid)
+                        {{-- पूर्ण भुक्तान भएको छैन: View Invoice + Add Payment --}}
+                        @if($latestInvoice)
+                            <a href="{{ route('admin.invoices.download', $latestInvoice->id) }}" style="display:inline-flex; align-items:center; gap:8px; background:#0EA5E9; color:#fff; padding:8px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem;">
+                                <i class="fas fa-eye"></i> {{ __('messages.view_invoice') }}
+                            </a>
+                        @endif
+                        <a href="{{ route('admin.payments.create', ['registration_id' => $registration->id]) }}" style="display:inline-flex; align-items:center; gap:8px; background:#22C55E; color:#fff; padding:8px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem;">
+                            <i class="fas fa-plus-circle"></i> {{ __('messages.add_payment') }}
+                        </a>
+                    @else
+                        {{-- पूर्ण भुक्तान भएको छ --}}
+                        @if(!$hasReceipt)
+                            {{-- Receipt छैन: Generate Receipt (यदि verified payment छ भने) --}}
+                            @if($verifiedPayment)
+                                <form action="{{ route('admin.receipts.generate', $verifiedPayment) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" style="background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; border:none; padding:10px 24px; border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(245,158,11,0.3);">
+                                        <i class="fas fa-receipt"></i> {{ __('messages.generate_receipt') }}
+                                    </button>
+                                </form>
+                            @endif
+                        @else
+                            {{-- Receipt अवस्थित: View Receipt + Download Receipt --}}
+                            @php $latestReceipt = $registration->receipts->sortByDesc('id')->first(); @endphp
+                            @if($latestReceipt)
+                                <a href="{{ route('admin.receipts.show', $latestReceipt) }}" style="display:inline-flex; align-items:center; gap:8px; background:#8B5CF6; color:#fff; padding:8px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem;">
+                                    <i class="fas fa-eye"></i> {{ __('messages.view_receipt') }}
+                                </a>
+                                <a href="{{ route('admin.receipts.download', $latestReceipt) }}" style="display:inline-flex; align-items:center; gap:8px; background:#22C55E; color:#fff; padding:8px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem;">
+                                    <i class="fas fa-download"></i> {{ __('messages.download_receipt') }}
+                                </a>
+                            @endif
+                        @endif
+                    @endif
+                @else
+                    {{-- यदि न approved हो न pending (active, expired, rejected etc.) – कुनै action नदेखाउने --}}
+                    <span style="color:#94a3b8; font-size:0.9rem;">{{ __('messages.no_actions_available') }}</span>
+                @endif
+
+                {{-- 3. INSPECTOR & INSPECTION --}}
+                <button type="button" onclick="document.getElementById('inspectorForm').style.display=document.getElementById('inspectorForm').style.display=='none'?'block':'none'"
+                    style="background:linear-gradient(135deg, #06B6D4, #0891B2); color:#fff; border:none; padding:10px 24px; border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(6,182,212,0.3);">
                     <i class="fas fa-user-check"></i> {{ __('messages.assign_inspector') }}
                 </button>
 
-                {{-- Link to Start Inspection --}}
                 <a href="{{ route('admin.inspections.create', $registration) }}" style="display:inline-flex; align-items:center; gap:8px; background:#8B5CF6; color:#fff; padding:8px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem; transition:0.3s;">
                     <i class="fas fa-clipboard-list"></i> {{ __('messages.start_inspection') }}
                 </a>
-
-                <button type="button" onclick="document.getElementById('invoiceForm').style.display=document.getElementById('invoiceForm').style.display=='none'?'block':'none'" style="background:linear-gradient(135deg, #8B5CF6, #7C3AED); color:#fff; border:none; padding:10px 24px; border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(139,92,246,0.3);">
-                    <i class="fas fa-file-invoice"></i> {{ __('messages.generate_invoice') }}
-                </button>
             </div>
 
             {{-- Inspector Form --}}
@@ -217,9 +367,11 @@
                             <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.inspector') }} <span style="color:#dc2626;">*</span></label>
                             <select name="inspector_id" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;">
                                 <option value="">{{ __('messages.select_inspector') }}</option>
-                                @foreach($inspectors ?? [] as $inspector)
+                                @forelse($inspectors ?? [] as $inspector)
                                     <option value="{{ $inspector->id }}">{{ $inspector->name }}</option>
-                                @endforeach
+                                @empty
+                                    <option value="" disabled>{{ __('messages.no_inspectors_available') }}</option>
+                                @endforelse
                             </select>
                         </div>
                         <div>
@@ -239,8 +391,9 @@
                 </form>
             </div>
 
-            {{-- Invoice Form --}}
-            <div id="invoiceForm" style="display:none; background:#f8fafc; border-radius:12px; padding:20px;">
+            {{-- Invoice Form (hidden) – only shown when canGenerateInvoice is true --}}
+            @if($canGenerateInvoice)
+            <div id="invoiceForm" style="display:none; background:#f8fafc; border-radius:12px; padding:20px; margin-top:12px;">
                 <form action="{{ route('admin.invoices.generate') }}" method="POST">
                     @csrf
                     <input type="hidden" name="registration_id" value="{{ $registration->id }}">
@@ -274,12 +427,14 @@
                     </div>
                 </form>
             </div>
+            @endif
+
         </div>
     </div>
 </div>
 
 {{-- ============================================================ --}}
-{{-- ✅ NEW: FINANCIAL SUMMARY --}}
+{{-- ✅ FINANCIAL SUMMARY --}}
 {{-- ============================================================ --}}
 <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px; margin-top:24px;">
     <h4 style="margin:0 0 16px 0; display:flex; align-items:center; gap:10px;">
@@ -312,7 +467,7 @@
 </div>
 
 {{-- ============================================================ --}}
-{{-- ✅ NEW: INVOICES, PAYMENTS, RECEIPTS GRID --}}
+{{-- ✅ INVOICES, PAYMENTS, RECEIPTS GRID --}}
 {{-- ============================================================ --}}
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px;">
 
@@ -334,7 +489,8 @@
                         <br><span style="font-size:0.75rem; padding:2px 8px; border-radius:50px; 
                             @if($invoice->status == 'paid') background:#dcfce7; color:#166534;
                             @elseif($invoice->status == 'partial') background:#fef3c7; color:#92400e;
-                            @else background:#fee2e2; color:#991b1b; @endif">
+                            @elseif($invoice->status == 'overdue') background:#fee2e2; color:#991b1b;
+                            @else background:#e2e8f0; color:#475569; @endif">
                             {{ __('messages.status_'.$invoice->status) }}
                         </span>
                     </div>
@@ -393,10 +549,13 @@
                     <div>
                         <span style="font-weight:500;">{{ $receipt->receipt_number }}</span>
                         <br><span style="font-size:0.75rem; color:#94a3b8;">{{ $receipt->issued_date->format('Y-m-d') }}</span>
+                        <span style="font-size:0.75rem; color:#94a3b8; margin-left:12px;">NPR {{ number_format($receipt->amount, 2) }}</span>
                     </div>
-                    <div>
-                        <span style="font-weight:700;">NPR {{ number_format($receipt->amount, 2) }}</span>
-                        <a href="{{ route('admin.receipts.download', $receipt) }}" style="margin-left:12px; background:#0EA5E9; color:#fff; padding:2px 12px; border-radius:50px; text-decoration:none; font-size:0.75rem;">
+                    <div style="display:flex; gap:8px;">
+                        <a href="{{ route('admin.receipts.show', $receipt) }}" style="background:#0EA5E9; color:#fff; padding:4px 14px; border-radius:50px; text-decoration:none; font-size:0.75rem; font-weight:600;">
+                            <i class="fas fa-eye"></i> {{ __('messages.view') }}
+                        </a>
+                        <a href="{{ route('admin.receipts.download', $receipt) }}" style="background:#22C55E; color:#fff; padding:4px 14px; border-radius:50px; text-decoration:none; font-size:0.75rem; font-weight:600;">
                             <i class="fas fa-download"></i> {{ __('messages.download') }}
                         </a>
                     </div>
@@ -411,7 +570,6 @@
 
 {{-- ============================================================ --}}
 {{-- BOTTOM SECTIONS: Documents, Inspections, Duplicate Reviews --}}
-{{-- (पहिलेको Payments खण्ड हटाइयो, किनभने माथि छुट्टै ग्रिड छ) --}}
 {{-- ============================================================ --}}
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px;">
 

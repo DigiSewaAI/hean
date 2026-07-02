@@ -11,7 +11,7 @@
             <i class="fas fa-users me-3"></i> @lang('messages.committee')
         </h1>
         <p style="font-size:1.2rem; opacity:0.9; max-width:600px; margin:0 auto;">
-            Meet our executive committee members who are leading the hostel community.
+            {{ __('messages.committee_hero_desc') }}
         </p>
     </div>
 </section>
@@ -22,19 +22,19 @@
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:20px; text-align:center;">
             <div>
                 <div style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">{{ $members->count() ?? 0 }}</div>
-                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">कुल सदस्य</div>
+                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">{{ __('messages.committee_stats_total') }}</div>
             </div>
             <div>
                 <div style="font-size:2.2rem; font-weight:800; color:#22C55E;">
                     {{ $members->pluck('position')->unique()->count() ?? 0 }}
                 </div>
-                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">पदहरू</div>
+                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">{{ __('messages.committee_stats_positions') }}</div>
             </div>
             <div>
                 <div style="font-size:2.2rem; font-weight:800; color:#8B5CF6;">
                     {{ $members->where('is_published', true)->count() ?? 0 }}
                 </div>
-                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">सक्रिय सदस्य</div>
+                <div style="color:#64748b; font-size:0.9rem; font-weight:500;">{{ __('messages.committee_stats_active') }}</div>
             </div>
         </div>
     </div>
@@ -47,10 +47,10 @@
         {{-- Section Header --}}
         <div style="text-align:center; margin-bottom:40px;">
             <h2 style="font-size:2rem; font-weight:700; color:#0f172a; margin:0;">
-                <i class="fas fa-handshake" style="color:#0EA5E9; margin-right:10px;"></i> हाम्रो कार्यसमिति
+                <i class="fas fa-handshake" style="color:#0EA5E9; margin-right:10px;"></i> {{ __('messages.committee_section_title') }}
             </h2>
             <p style="color:#64748b; margin-top:4px; font-size:0.95rem;">
-                हाम्रा कार्यसमिति सदस्यहरू जसले होस्टेल समुदायको नेतृत्व गरिरहेका छन्।
+                {{ __('messages.committee_section_desc') }}
             </p>
         </div>
 
@@ -63,7 +63,7 @@
                     <img src="{{ $member->image ? asset('storage/'.$member->image) : asset('images/avatar-placeholder.png') }}" 
                          alt="{{ $member->name }}" 
                          style="width:130px; height:130px; border-radius:50%; object-fit:cover; border:4px solid #e2e8f0; transition:border-color 0.3s;">
-                    {{-- Badge or indicator --}}
+                    {{-- Badge for active --}}
                     @if($member->is_published)
                         <span style="position:absolute; bottom:4px; right:4px; width:16px; height:16px; background:#22C55E; border-radius:50%; border:3px solid #fff; display:block;"></span>
                     @endif
@@ -79,10 +79,10 @@
                     {{ $member->position }}
                 </div>
 
-                {{-- Order / Serial (if needed) --}}
+                {{-- Order / Serial --}}
                 @if($member->order)
                     <p style="color:#94a3b8; font-size:0.7rem; margin-bottom:8px;">
-                        <i class="fas fa-hashtag"></i> क्रम: {{ $member->order }}
+                        <i class="fas fa-hashtag"></i> {{ __('messages.committee_order_label') }} {{ $member->order }}
                     </p>
                 @endif
 
@@ -99,24 +99,24 @@
                         </a>
                     @endif
                     @if(!$member->facebook && !$member->linkedin)
-                        <span style="color:#94a3b8; font-size:0.75rem;">कुनै सामाजिक लिङ्क छैन</span>
+                        <span style="color:#94a3b8; font-size:0.75rem;">{{ __('messages.committee_no_social') }}</span>
                     @endif
                 </div>
             </div>
             @empty
             <div style="grid-column:1/-1; text-align:center; padding:60px 20px; background:#f8fafc; border-radius:20px;">
                 <i class="fas fa-users" style="font-size:3rem; color:#cbd5e1; display:block; margin-bottom:15px;"></i>
-                <p style="color:#94a3b8; font-size:1.1rem;">कुनै समिति सदस्य फेला परेन।</p>
+                <p style="color:#94a3b8; font-size:1.1rem;">{{ __('messages.committee_empty') }}</p>
             </div>
             @endforelse
         </div>
 
-        {{-- Show only if members exist --}}
+        {{-- Active info --}}
         @if($members->count() > 0)
             <div style="text-align:center; margin-top:30px;">
                 <p style="color:#94a3b8; font-size:0.85rem;">
                     <i class="fas fa-info-circle"></i> 
-                    कुल {{ $members->count() }} सदस्यहरू मध्ये {{ $members->where('is_published', true)->count() }} जना सक्रिय छन्।
+                    {{ __('messages.committee_active_info', ['total' => $members->count(), 'active' => $members->where('is_published', true)->count()]) }}
                 </p>
             </div>
         @endif
@@ -128,19 +128,19 @@
     <div class="container">
         <div style="text-align:center; padding:40px 30px; background:#fff; border-radius:16px; border:2px dashed #0EA5E9; max-width:600px; margin:0 auto;">
             <div style="display:inline-block; background:#0EA5E9; color:#fff; padding:6px 20px; border-radius:50px; font-size:0.85rem; font-weight:600; margin-bottom:15px;">
-                <i class="fas fa-qrcode me-2"></i> होस्टेल दर्ताको लागि QR Code
+                <i class="fas fa-qrcode me-2"></i> {{ __('messages.qr_about_badge') }}
             </div>
             <h4 style="font-weight:700; color:#0f172a; margin-bottom:10px;">
-                स्क्यान गर्नुहोस् र दर्ता गर्नुहोस्
+                {{ __('messages.qr_about_heading') }}
             </h4>
             <p style="color:#64748b; font-size:0.95rem; max-width:400px; margin:0 auto 20px;">
-                तपाईंको होस्टेल HEAN मा दर्ता गर्न मोबाइलको क्यामेरा प्रयोग गर्नुहोस्।
+                {{ __('messages.qr_about_desc') }}
             </p>
             <div style="display:inline-block; background:#fff; padding:15px; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
                 <img src="{{ asset('images/qrcode.png') }}" alt="QR Code for Registration" style="width:180px; height:180px; display:block; margin:0 auto;">
             </div>
             <p style="color:#94a3b8; font-size:0.8rem; margin-top:12px;">
-                <i class="fas fa-camera me-1"></i> QR स्क्यान गरेपछि दर्ता फारम खुल्नेछ
+                <i class="fas fa-camera me-1"></i> {{ __('messages.qr_about_after') }}
             </p>
         </div>
     </div>

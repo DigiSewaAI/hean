@@ -127,7 +127,6 @@
                 <a href="{{ route('admin.registrations.index') }}" class="nav-item {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i> <span>{{ __('messages.applications') }}</span>
                 </a>
-                <!-- ✅ नयाँ निरीक्षण लिङ्क -->
                 <a href="{{ route('admin.inspections.index') }}" class="nav-item {{ request()->routeIs('admin.inspections.*') ? 'active' : '' }}">
                     <i class="fas fa-clipboard-list"></i> <span>{{ __('messages.inspections') }}</span>
                 </a>
@@ -143,12 +142,20 @@
                 <a href="{{ route('admin.gallery.index') }}" class="nav-item {{ request()->routeIs('admin.gallery.*') ? 'active' : '' }}">
                     <i class="fas fa-images"></i> <span>{{ __('messages.gallery') }}</span>
                 </a>
+
+                <!-- ✅ Finance Section (नयाँ) -->
+                <div class="nav-section">{{ __('messages.finance') }}</div>
+                <a href="{{ route('admin.invoices.index') }}" class="nav-item {{ request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
+                    <i class="fas fa-file-invoice"></i> <span>{{ __('messages.invoices') }}</span>
+                </a>
                 <a href="{{ route('admin.payments.index') }}" class="nav-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
-    <i class="fas fa-credit-card"></i> <span>{{ __('messages.payments') }}</span>
-</a>
-<a href="{{ route('admin.receipts.index') }}" class="nav-item {{ request()->routeIs('admin.receipts.*') ? 'active' : '' }}">
-    <i class="fas fa-receipt"></i> <span>{{ __('messages.receipts') }}</span>
-</a>
+                    <i class="fas fa-credit-card"></i> <span>{{ __('messages.payments') }}</span>
+                </a>
+                <a href="{{ route('admin.receipts.index') }}" class="nav-item {{ request()->routeIs('admin.receipts.*') ? 'active' : '' }}">
+                    <i class="fas fa-receipt"></i> <span>{{ __('messages.receipts') }}</span>
+                </a>
+
+                <!-- ===== Settings Section ===== -->
                 <div class="nav-section">{{ __('messages.settings_section') }}</div>
                 <a href="{{ route('admin.settings.index') }}" class="nav-item {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
                     <i class="fas fa-cog"></i> <span>{{ __('messages.settings') }}</span>
@@ -227,7 +234,7 @@
         <!-- ✅ MAIN CONTENT -->
         @yield('content')
 
-        <!-- ✅ ADMIN FOOTER (अपडेटेड – HostelHub हटाइयो) -->
+        <!-- ✅ ADMIN FOOTER -->
         <footer class="admin-footer">
             <div class="brand-line">
                 <strong style="color:#0b2b4a;">HEAN</strong>

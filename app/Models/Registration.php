@@ -8,6 +8,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Registration extends Model
 {
+    // ============================================================
+    // STATUS CONSTANTS
+    // ============================================================
+    const STATUS_PENDING          = 'pending';
+    const STATUS_APPROVED         = 'approved';
+    const STATUS_AWAITING_PAYMENT = 'awaiting_payment';
+    const STATUS_ACTIVE           = 'active';
+    const STATUS_EXPIRED          = 'expired';
+    const STATUS_REJECTED         = 'rejected';
+    const STATUS_DUPLICATE        = 'duplicate';
+
+    // ============================================================
+    // FILLABLE ATTRIBUTES
+    // ============================================================
     protected $fillable = [
         // Foreign keys & meta
         'owner_id',
@@ -39,8 +53,15 @@ class Registration extends Model
         'street',
         'landmark',
         'documents',
+
+        // नयाँ फिल्डहरू (validity dates)
+        'valid_from',
+        'valid_until',
     ];
 
+    // ============================================================
+    // CASTS
+    // ============================================================
     protected $casts = [
         'submitted_at'   => 'datetime',
         'approved_at'    => 'datetime',
@@ -48,12 +69,14 @@ class Registration extends Model
         'rooms'          => 'integer',
         'established_year' => 'integer',
         'documents'      => 'array',
+        // नयाँ casts
+        'valid_from'     => 'date',
+        'valid_until'    => 'date',
     ];
 
     // ============================================================
     // BOOT METHOD - नयाँ रजिस्ट्रेसनमा स्वतः नम्बर सेट गर्न
     // ============================================================
-
     protected static function boot()
     {
         parent::boot();
@@ -71,7 +94,6 @@ class Registration extends Model
     // ============================================================
     // RELATIONSHIPS
     // ============================================================
-
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
@@ -126,9 +148,8 @@ class Registration extends Model
     }
 
     // ============================================================
-    // SCOPES
+    // SCOPES (अवस्थित + नयाँ)
     // ============================================================
-
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
@@ -144,10 +165,18 @@ class Registration extends Model
         return $query->where('status', 'rejected');
     }
 
+    /**
+     * Scope: only currently active registrations.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', self::STATUS_ACTIVE)
+                     ->where('valid_until', '>=', today());
+    }
+
     // ============================================================
     // FINANCIAL SUMMARY ACCESSORS
     // ============================================================
-
     /**
      * Get the total invoiced amount for this registration.
      */
@@ -178,5 +207,42 @@ class Registration extends Model
     public function getLatestReceiptAttribute()
     {
         return $this->receipts()->latest()->first();
+    }
+
+    // ============================================================
+    // VALIDITY & STATUS HELPER METHODS (नयाँ)
+    // ============================================================
+
+    /**
+     * Check if this registration is currently active.
+     */
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE &&
+               $this->valid_until &&
+               $this->valid_until->isFuture();
+    }
+
+    /**
+     * Activate this registration (set status and validity dates).
+     */
+    public function activate(): void
+    {
+        $this->status = self::STATUS_ACTIVE;
+        $this->valid_from = today();
+        $this->valid_until = today()->addYear();
+        $this->save();
+    }
+
+    /**
+     * Mark registration as awaiting payment (after invoice generation).
+     * Only allowed if current status is 'approved'.
+     */
+    public function markAwaitingPayment(): void
+    {
+        if ($this->status === self::STATUS_APPROVED) {
+            $this->status = self::STATUS_AWAITING_PAYMENT;
+            $this->save();
+        }
     }
 }

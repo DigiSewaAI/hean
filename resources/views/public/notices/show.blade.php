@@ -11,7 +11,7 @@
             <i class="fas fa-bullhorn me-3"></i> {{ $notice->title }}
         </h1>
         <p style="font-size:1.1rem; opacity:0.9; max-width:600px; margin:0 auto;">
-            {{ $notice->category ?? 'सूचना' }} · {{ $notice->date->format('d M Y') }}
+            {{ $notice->category ?? __('messages.general') }} · {{ $notice->date->format('d M Y') }}
         </p>
     </div>
 </section>
@@ -24,7 +24,7 @@
             {{-- Back Button --}}
             <div style="margin-bottom:30px;">
                 <a href="{{ route('notices.index') }}" style="display:inline-flex; align-items:center; gap:8px; color:#0EA5E9; text-decoration:none; font-weight:600; transition:0.3s;">
-                    <i class="fas fa-arrow-left"></i> सबै सूचनाहरू
+                    <i class="fas fa-arrow-left"></i> {{ __('messages.back_to_notices') }}
                 </a>
             </div>
 
@@ -34,13 +34,13 @@
                 {{-- Featured Badge --}}
                 @if($notice->is_featured)
                     <div style="display:inline-block; background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; padding:4px 18px; border-radius:50px; font-size:0.75rem; font-weight:700; margin-bottom:16px;">
-                        <i class="fas fa-star"></i> Featured
+                        <i class="fas fa-star"></i> {{ __('messages.featured') }}
                     </div>
                 @endif
 
                 {{-- Category --}}
                 <div style="display:inline-block; background:rgba(14,165,233,0.1); color:#0EA5E9; padding:4px 16px; border-radius:50px; font-size:0.8rem; font-weight:600; margin-bottom:16px;">
-                    {{ $notice->category ?? 'General' }}
+                    {{ $notice->category ?? __('messages.general') }}
                 </div>
 
                 {{-- Title --}}
@@ -54,7 +54,7 @@
                     {{ $notice->date->format('l, d F Y') }}
                     <span style="color:#cbd5e1;">|</span>
                     <i class="far fa-clock" style="color:#0EA5E9;"></i>
-                    {{ $notice->created_at->diffForHumans() }}
+                    {{ __('messages.posted') }} {{ $notice->created_at->diffForHumans() }}
                 </div>
 
                 {{-- Image (if any) --}}
@@ -72,10 +72,10 @@
                 {{-- Share / Footer --}}
                 <div style="margin-top:30px; padding-top:20px; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                     <span style="color:#94a3b8; font-size:0.85rem;">
-                        <i class="fas fa-tag"></i> {{ $notice->category ?? 'General' }}
+                        <i class="fas fa-tag"></i> {{ $notice->category ?? __('messages.general') }}
                     </span>
                     <span style="color:#94a3b8; font-size:0.85rem;">
-                        <i class="fas fa-eye"></i> पढियो
+                        <i class="fas fa-eye"></i> {{ __('messages.read') }}
                     </span>
                 </div>
 
@@ -84,7 +84,7 @@
             {{-- Back to list link --}}
             <div style="text-align:center; margin-top:30px;">
                 <a href="{{ route('notices.index') }}" style="display:inline-flex; align-items:center; gap:8px; background:#e2e8f0; color:#1e293b; padding:10px 30px; border-radius:50px; text-decoration:none; font-weight:500; transition:0.3s;">
-                    <i class="fas fa-arrow-left"></i> सबै सूचनाहरूमा फर्कनुहोस्
+                    <i class="fas fa-arrow-left"></i> {{ __('messages.back_to_all_notices') }}
                 </a>
             </div>
 

@@ -48,7 +48,7 @@
             </div>
             <div class="dash-stat" style="text-align:center;">
                 <div class="number" style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">Growing</div>
-                <div class="label" style="font-size:0.85rem; color:#64748b; font-weight:500; letter-spacing:0.03em;">Community</div>
+                <div class="label" style="font-size:0.85rem; color:#64748b; font-weight:500; letter-spacing:0.03em;">{{ __('messages.stats_community') }}</div>
             </div>
         </div>
     </div>
@@ -119,12 +119,12 @@
                     </div>
                     <div class="meta" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top:1px solid #e2e8f0; font-size:0.85rem;">
                         <span style="color:#64748b; letter-spacing:0.02em;"><i class="far fa-calendar-alt"></i> {{ $hostel->created_at->format('d M Y') }}</span>
-                        <a href="{{ route('hostels.show', $hostel) }}" class="btn btn-primary btn-sm" style="padding:6px 16px; border-radius:50px; background:#0EA5E9; color:#fff; text-decoration:none; font-weight:600; font-size:0.8rem;">View Profile</a>
+                        <a href="{{ route('hostels.show', $hostel) }}" class="btn btn-primary btn-sm" style="padding:6px 16px; border-radius:50px; background:#0EA5E9; color:#fff; text-decoration:none; font-weight:600; font-size:0.8rem;">{{ __('messages.view_profile') }}</a>
                     </div>
                 </div>
             </div>
             @empty
-            <p>No hostels found.</p>
+            <p>{{ __('messages.no_hostels_found') }}</p>
             @endforelse
         </div>
         <div style="text-align:center; margin-top:40px;">
@@ -151,10 +151,10 @@
                     <h4 style="font-weight:600; color:#0f172a; margin-bottom:4px; letter-spacing:0.02em; line-height:1.4; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">{{ $notice->title }}</h4>
                     <p style="font-size:0.9rem; color:#64748b; letter-spacing:0.02em; line-height:1.7; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">{{ Str::limit($notice->content, 100) }}</p>
                 </div>
-                <span class="badge" style="background:rgba(14,165,233,0.1); color:#0EA5E9; padding:4px 14px; border-radius:50px; font-size:0.7rem; font-weight:600; letter-spacing:0.03em;">{{ $notice->category ?? 'General' }}</span>
+                <span class="badge" style="background:rgba(14,165,233,0.1); color:#0EA5E9; padding:4px 14px; border-radius:50px; font-size:0.7rem; font-weight:600; letter-spacing:0.03em;">{{ $notice->category ?? __('messages.general') }}</span>
             </div>
             @empty
-            <p>No notices found.</p>
+            <p>{{ __('messages.no_notices_found') }}</p>
             @endforelse
         </div>
         <div style="text-align:center; margin-top:40px;">
@@ -181,7 +181,7 @@
                 @forelse($gallery as $image)
                     <div style="flex:0 0 280px; border-radius:16px; overflow:hidden; position:relative; aspect-ratio:1/1; box-shadow:0 4px 15px rgba(0,0,0,0.06);">
                         <img src="{{ asset('storage/'.$image->image) }}" 
-                             alt="{{ $image->title ?? 'Gallery' }}" 
+                             alt="{{ $image->title ?? __('messages.gallery') }}" 
                              style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s;">
                         @if($image->title)
                             <div style="position:absolute; bottom:0; left:0; right:0; padding:12px; background:linear-gradient(transparent, rgba(0,0,0,0.6)); color:#fff; font-size:0.85rem; font-weight:500; text-align:center;">
@@ -190,14 +190,14 @@
                         @endif
                     </div>
                 @empty
-                    <p>No images found.</p>
+                    <p>{{ __('messages.no_images_found') }}</p>
                 @endforelse
 
                 {{-- Duplicate for seamless scrolling --}}
                 @forelse($gallery as $image)
                     <div style="flex:0 0 280px; border-radius:16px; overflow:hidden; position:relative; aspect-ratio:1/1; box-shadow:0 4px 15px rgba(0,0,0,0.06);">
                         <img src="{{ asset('storage/'.$image->image) }}" 
-                             alt="{{ $image->title ?? 'Gallery' }}" 
+                             alt="{{ $image->title ?? __('messages.gallery') }}" 
                              style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s;">
                         @if($image->title)
                             <div style="position:absolute; bottom:0; left:0; right:0; padding:12px; background:linear-gradient(transparent, rgba(0,0,0,0.6)); color:#fff; font-size:0.85rem; font-weight:500; text-align:center;">
@@ -217,15 +217,16 @@
         </div>
     </div>
 </section>
+
 {{-- ===== MEMBER VOICES ===== --}}
 <section class="member-voices-section" style="padding:60px 0; background:#0f172a; color:#f8fafc;">
     <div class="container" style="text-align:center;">
-        <h2 style="font-size:2.2rem; font-weight:700; margin-bottom:12px; letter-spacing:0.02em; line-height:1.4; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">Member Voices</h2>
-        <p style="color:#94a3b8; font-size:1.1rem; letter-spacing:0.02em; line-height:1.7; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">Coming Soon — Real stories from our hostel entrepreneurs.</p>
+        <h2 style="font-size:2.2rem; font-weight:700; margin-bottom:12px; letter-spacing:0.02em; line-height:1.4; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">{{ __('messages.member_voices') }}</h2>
+        <p style="color:#94a3b8; font-size:1.1rem; letter-spacing:0.02em; line-height:1.7; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">{{ __('messages.member_voices_sub') }}</p>
         <div style="margin-top:30px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
-            <span style="background:rgba(255,255,255,0.06); padding:8px 20px; border-radius:50px; font-weight:500; letter-spacing:0.03em;">👥 200+ Members</span>
-            <span style="background:rgba(255,255,255,0.06); padding:8px 20px; border-radius:50px; font-weight:500; letter-spacing:0.03em;">🏆 5+ Awards</span>
-            <span style="background:rgba(255,255,255,0.06); padding:8px 20px; border-radius:50px; font-weight:500; letter-spacing:0.03em;">🌍 30+ Districts</span>
+            <span style="background:rgba(255,255,255,0.06); padding:8px 20px; border-radius:50px; font-weight:500; letter-spacing:0.03em;">{{ __('messages.member_stats_members') }}</span>
+            <span style="background:rgba(255,255,255,0.06); padding:8px 20px; border-radius:50px; font-weight:500; letter-spacing:0.03em;">{{ __('messages.member_stats_awards') }}</span>
+            <span style="background:rgba(255,255,255,0.06); padding:8px 20px; border-radius:50px; font-weight:500; letter-spacing:0.03em;">{{ __('messages.member_stats_districts') }}</span>
         </div>
     </div>
 </section>
@@ -247,19 +248,19 @@
         <div class="row justify-content-center">
             <div class="col-lg-6">
                 <span class="badge" style="display:inline-block; background:#0EA5E9; color:#fff; padding:6px 18px; border-radius:50px; font-size:0.8rem; font-weight:600; margin-bottom:12px; letter-spacing:0.03em;">
-                    <i class="fas fa-qrcode me-2"></i> दर्ताको लागि QR Code
+                    <i class="fas fa-qrcode me-2"></i> {{ __('messages.qr_badge') }}
                 </span>
                 <h3 style="font-size:2rem; font-weight:700; color:#0f172a; margin-bottom:12px; letter-spacing:0.02em; line-height:1.4; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">
-                    होस्टेल दर्ता गर्न स्क्यान गर्नुहोस्
+                    {{ __('messages.qr_heading') }}
                 </h3>
                 <p style="color:#64748b; font-size:1.1rem; max-width:500px; margin:0 auto 24px; letter-spacing:0.02em; line-height:1.7; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">
-                    तपाईंको होस्टेल HEAN मा दर्ता गर्न मोबाइलको क्यामेरा वा QR स्क्यानर प्रयोग गर्नुहोस्।
+                    {{ __('messages.qr_desc') }}
                 </p>
                 <div style="display:inline-block; background:#fff; padding:20px; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
-                    <img src="{{ asset('images/qrcode.png') }}" alt="QR Code for Registration" style="width:200px; height:200px; display:block; margin:0 auto;">
+                    <img src="{{ asset('images/qrcode.png') }}" alt="{{ __('messages.qr_badge') }}" style="width:200px; height:200px; display:block; margin:0 auto;">
                 </div>
                 <p style="color:#94a3b8; font-size:0.85rem; margin-top:12px; letter-spacing:0.02em;">
-                    <i class="fas fa-camera me-1"></i> QR स्क्यान गरेपछि दर्ता फारम खुल्नेछ।
+                    <i class="fas fa-camera me-1"></i> {{ __('messages.qr_after_scan') }}
                 </p>
             </div>
         </div>

@@ -34,9 +34,9 @@
             {{-- LEFT: Contact Form --}}
             <div style="background:#f8fafc; border-radius:20px; padding:40px; box-shadow:0 4px 20px rgba(0,0,0,0.04);">
                 <h3 style="font-size:1.8rem; font-weight:700; color:#0f172a; margin-bottom:6px;">
-                    <i class="fas fa-paper-plane" style="color:#0EA5E9; margin-right:10px;"></i> पठाउनुहोस्
+                    <i class="fas fa-paper-plane" style="color:#0EA5E9; margin-right:10px;"></i> {{ __('messages.contact_form_title') }}
                 </h3>
-                <p style="color:#64748b; margin-bottom:25px; font-size:0.95rem;">हामीलाई तपाईंको सन्देश पठाउनुहोस्, हामी चाँडै जवाफ दिनेछौं।</p>
+                <p style="color:#64748b; margin-bottom:25px; font-size:0.95rem;">{{ __('messages.contact_form_desc') }}</p>
 
                 <form action="{{ route('contact.send') }}" method="POST">
                     @csrf
@@ -89,7 +89,7 @@
             {{-- RIGHT: Google Map --}}
             <div style="background:#f8fafc; border-radius:20px; padding:25px; box-shadow:0 4px 20px rgba(0,0,0,0.04);">
                 <h3 style="font-size:1.3rem; font-weight:700; color:#0f172a; margin-bottom:15px;">
-                    <i class="fas fa-map-marked-alt" style="color:#0EA5E9; margin-right:10px;"></i> हाम्रो स्थान
+                    <i class="fas fa-map-marked-alt" style="color:#0EA5E9; margin-right:10px;"></i> {{ __('messages.contact_map_title') }}
                 </h3>
                 <div style="border-radius:16px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.06);">
                     <iframe 
@@ -104,10 +104,10 @@
                 </div>
                 <div style="margin-top:15px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
                     <span style="font-size:0.9rem; color:#64748b;">
-                        <i class="fas fa-map-pin" style="color:#0EA5E9;"></i> काठमाडौं-१०, नेपाल
+                        <i class="fas fa-map-pin" style="color:#0EA5E9;"></i> {{ __('messages.contact_address') }}
                     </span>
                     <a href="https://maps.app.goo.gl/PQK1eXWibN9LzkaS6" target="_blank" style="color:#0EA5E9; text-decoration:none; font-weight:600; font-size:0.9rem;">
-                        <i class="fas fa-external-link-alt"></i> ठूलो नक्सा हेर्नुहोस्
+                        <i class="fas fa-external-link-alt"></i> {{ __('messages.contact_view_map') }}
                     </a>
                 </div>
             </div>
@@ -120,7 +120,7 @@
                     <i class="fas fa-map-marker-alt" style="color:#fff; font-size:1.3rem;"></i>
                 </div>
                 <h5 style="font-weight:700; color:#0f172a; margin-bottom:4px;">@lang('messages.footer_address')</h5>
-                <p style="color:#64748b; font-size:0.9rem; margin:0;">काठमाडौं-१०, नेपाल</p>
+                <p style="color:#64748b; font-size:0.9rem; margin:0;">{{ __('messages.contact_address') }}</p>
             </div>
             <div style="background:#f8fafc; border-radius:16px; padding:25px; text-align:center; border:1px solid #e2e8f0; transition:0.3s;">
                 <div style="width:55px; height:55px; background:#22C55E; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px;">
@@ -141,26 +141,26 @@
                     <i class="fas fa-clock" style="color:#fff; font-size:1.3rem;"></i>
                 </div>
                 <h5 style="font-weight:700; color:#0f172a; margin-bottom:4px;">@lang('messages.footer_office_hours')</h5>
-                <p style="color:#64748b; font-size:0.9rem; margin:0;">आइत – शुक्र: ९:०० – १७:००</p>
+                <p style="color:#64748b; font-size:0.9rem; margin:0;">{{ __('messages.contact_office_hours') }}</p>
             </div>
         </div>
 
         {{-- ===== QR CODE SECTION ===== --}}
         <div style="text-align:center; margin-top:50px; padding:40px 30px; background:#f8fafc; border-radius:16px; border:2px dashed #0EA5E9;">
             <div style="display:inline-block; background:#0EA5E9; color:#fff; padding:6px 20px; border-radius:50px; font-size:0.85rem; font-weight:600; margin-bottom:15px;">
-                <i class="fas fa-qrcode me-2"></i> होस्टेल दर्ताको लागि QR Code
+                <i class="fas fa-qrcode me-2"></i> {{ __('messages.qr_about_badge') }}
             </div>
             <h4 style="font-weight:700; color:#0f172a; margin-bottom:10px;">
-                स्क्यान गर्नुहोस् र दर्ता गर्नुहोस्
+                {{ __('messages.qr_about_heading') }}
             </h4>
             <p style="color:#64748b; font-size:0.95rem; max-width:400px; margin:0 auto 20px;">
-                तपाईंको होस्टेल HEAN मा दर्ता गर्न मोबाइलको क्यामेरा प्रयोग गर्नुहोस्।
+                {{ __('messages.qr_about_desc') }}
             </p>
             <div style="display:inline-block; background:#fff; padding:15px; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
                 <img src="{{ asset('images/qrcode.png') }}" alt="QR Code for Registration" style="width:180px; height:180px; display:block; margin:0 auto;">
             </div>
             <p style="color:#94a3b8; font-size:0.8rem; margin-top:12px;">
-                <i class="fas fa-camera me-1"></i> QR स्क्यान गरेपछि दर्ता फारम खुल्नेछ
+                <i class="fas fa-camera me-1"></i> {{ __('messages.qr_about_after') }}
             </p>
         </div>
 
@@ -170,10 +170,10 @@
 {{-- ===== CTA SECTION ===== --}}
 <section style="padding:50px 0; background:linear-gradient(135deg, #0EA5E9, #10B981); color:#fff; text-align:center;">
     <div class="container">
-        <h2 style="font-size:2rem; font-weight:700; margin-bottom:10px;">HEAN मा सामेल हुन तयार हुनुहुन्छ?</h2>
-        <p style="opacity:0.9; max-width:500px; margin:0 auto 20px;">आजै सदस्य बन्नुहोस् र नेपालको सबैभन्दा ठूलो होस्टेल नेटवर्कको हिस्सा बन्नुहोस्।</p>
+        <h2 style="font-size:2rem; font-weight:700; margin-bottom:10px;">{{ __('messages.cta_title') }}</h2>
+        <p style="opacity:0.9; max-width:500px; margin:0 auto 20px;">{{ __('messages.cta_desc') }}</p>
         <a href="{{ route('hostels.index') }}" style="display:inline-block; background:#fff; color:#0EA5E9; padding:14px 40px; border-radius:50px; font-weight:600; text-decoration:none; transition:0.3s; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
-            <i class="fas fa-hotel me-2"></i> नेटवर्क अन्वेषण गर्नुहोस्
+            <i class="fas fa-hotel me-2"></i> {{ __('messages.explore_network') }}
         </a>
     </div>
 </section>
