@@ -113,10 +113,15 @@
                     <img src="{{ $hostel->image ? asset('storage/'.$hostel->image) : asset('images/hostel-placeholder.jpg') }}" alt="{{ $hostel->name_nepali }}" style="width:100%; height:100%; object-fit:cover; transition:0.4s;">
                 </div>
                 <div class="hostel-body" style="padding:20px;">
-                    <h3 style="font-size:1.2rem; font-weight:700; color:#0f172a; margin-bottom:4px; letter-spacing:0.02em; line-height:1.4; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">{{ $hostel->name_nepali }}</h3>
-                    <div class="location" style="font-size:0.9rem; color:#64748b; display:flex; align-items:center; gap:6px; margin-bottom:6px; letter-spacing:0.02em;">
-                        <i class="fas fa-map-marker-alt" style="color:#0EA5E9;"></i> {{ $hostel->district }}-{{ $hostel->ward }}
-                    </div>
+                    <h3 style="font-size:1.2rem; font-weight:700; color:#0f172a; margin-bottom:2px;">
+    {{ $hostel->name_english ?? $hostel->name_nepali }}
+</h3>
+<div style="font-size:0.8rem; color:#94a3b8; margin-bottom:4px;">
+    {{ $hostel->name_nepali }}
+</div>
+<div class="location" style="font-size:0.9rem; color:#64748b; display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+    <i class="fas fa-map-marker-alt" style="color:#0EA5E9;"></i> {{ $hostel->district }}-{{ $hostel->ward }}
+</div>
                     <div class="meta" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top:1px solid #e2e8f0; font-size:0.85rem;">
                         <span style="color:#64748b; letter-spacing:0.02em;"><i class="far fa-calendar-alt"></i> {{ $hostel->created_at->format('d M Y') }}</span>
                         <a href="{{ route('hostels.show', $hostel) }}" class="btn btn-primary btn-sm" style="padding:6px 16px; border-radius:50px; background:#0EA5E9; color:#fff; text-decoration:none; font-weight:600; font-size:0.8rem;">{{ __('messages.view_profile') }}</a>

@@ -202,6 +202,10 @@ public function show(Hostel $hostel)
 }
 public function bulkAction(Request $request)
 {
+    // ✅ _method field हटाउनुहोस् (Laravel method spoofing बाट)
+    $data = $request->except('_method', '_token');
+    
+    // ✅ Validation
     $request->validate([
         'ids' => 'required|array',
         'ids.*' => 'exists:hostels,id',
@@ -241,9 +245,12 @@ public function bulkAction(Request $request)
                 Hostel::whereIn('id', $ids)->delete();
                 $message = 'चयन गरिएका होस्टेलहरू मेटियो।';
                 break;
+            default:
+                return back()->with('error', 'अमान्य कार्य।');
         }
 
         return redirect()->route('admin.hostels.index')->with('success', $message);
+        
     } catch (\Exception $e) {
         return back()->with('error', 'केही त्रुटि भयो: ' . $e->getMessage());
     }

@@ -82,7 +82,8 @@ Route::middleware(['auth', 'admin'])
 
         // ✅ Dashboard
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-
+                // ✅ Bulk Action – admin group भित्र, resource पछि
+Route::any('test-bulk', [AdminHostelController::class, 'bulkAction'])->name('test.bulk');
         // Registrations (Full Resource except destroy)
         Route::resource('registrations', RegistrationController::class)->except(['destroy']);
         // Inspection view (for completed inspections)
@@ -104,14 +105,14 @@ Route::get('inspections/{inspection}/view', [InspectionController::class, 'view'
         Route::get('inspections/{registration}', [InspectionController::class, 'create'])->name('inspections.create');
         Route::post('inspections', [InspectionController::class, 'store'])->name('inspections.store');
 
+
+
         // Hostels
         Route::resource('hostels', AdminHostelController::class);
         Route::post('hostels/{hostel}/approve', [AdminHostelController::class, 'approve'])->name('hostels.approve');
         Route::post('hostels/{hostel}/feature', [AdminHostelController::class, 'feature'])->name('hostels.feature');
         Route::post('hostels/{hostel}/hide', [AdminHostelController::class, 'hide'])->name('hostels.hide');
 
-        // ✅ Bulk Action – admin group भित्र, resource पछि
-        Route::post('hostels/bulk-action', [AdminHostelController::class, 'bulkAction'])->name('hostels.bulk.action');
 
         // Committee
         Route::resource('committee', AdminCommitteeController::class);
@@ -182,3 +183,4 @@ Route::get('inspections/{inspection}/view', [InspectionController::class, 'view'
 // AUTH ROUTES (Breeze)
 // =============================================
 require __DIR__.'/auth.php';
+Route::post('/test-bulk', function() { return 'OK'; });

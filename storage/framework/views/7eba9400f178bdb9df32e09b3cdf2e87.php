@@ -145,9 +145,11 @@
 
 
 <div class="table-container" style="overflow-x:auto; background:#fff; border-radius:12px; border:1px solid #e2e8f0;">
-    <form action="<?php echo e(url('/admin/hostels/bulk-action')); ?>" method="POST" id="bulkForm">
-        <?php echo csrf_field(); ?>
-        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+    
+<form action="<?php echo e(route('admin.test.bulk')); ?>" method="POST" onsubmit="return confirmBulkAction();">
+    <?php echo csrf_field(); ?>
+
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
             <thead style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
                 <tr>
                     <th style="padding:12px 16px; text-align:left; width:40px;">
@@ -253,7 +255,7 @@
                     <option value="show"><?php echo e(__('messages.bulk_show')); ?></option>
                     <option value="delete"><?php echo e(__('messages.bulk_delete')); ?></option>
                 </select>
-                <button type="submit" form="bulkForm" style="background:#0EA5E9; color:#fff; border:none; padding:8px 20px; border-radius:50px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:0.2s; box-shadow:0 2px 10px rgba(14,165,233,0.2);">
+                <button type="submit" style="background:#0EA5E9; color:#fff; border:none; padding:8px 20px; border-radius:50px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:0.2s; box-shadow:0 2px 10px rgba(14,165,233,0.2);">
                     <i class="fas fa-check"></i> <?php echo e(__('messages.apply')); ?>
 
                 </button>
@@ -353,38 +355,28 @@
         });
 
         updateSelectedCount();
-
-        // ===== BULK ACTION CONFIRMATION =====
-        const bulkForm = document.getElementById('bulkForm');
-        if (bulkForm) {
-            bulkForm.addEventListener('submit', function(e) {
-                const action = document.getElementById('bulkAction').value;
-                const checked = document.querySelectorAll('.rowCheckbox:checked');
-                if (checked.length === 0) {
-                    e.preventDefault();
-                    alert('<?php echo e(__('messages.select_at_least_one')); ?>');
-                    return false;
-                }
-                if (action === '') {
-                    e.preventDefault();
-                    alert('<?php echo e(__('messages.choose_action_first')); ?>');
-                    return false;
-                }
-                if (action === 'delete') {
-                    if (!confirm('<?php echo e(__('messages.confirm_bulk_delete')); ?>')) {
-                        e.preventDefault();
-                        return false;
-                    }
-                } else {
-                    const confirmMsg = '<?php echo e(__('messages.confirm_bulk_action')); ?>'.replace(':action', action);
-                    if (!confirm(confirmMsg)) {
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-            });
-        }
     });
+
+    // ✅ बल्क एक्शन कन्फर्मेसन
+    function confirmBulkAction() {
+        const action = document.getElementById('bulkAction').value;
+        const checked = document.querySelectorAll('.rowCheckbox:checked');
+        
+        if (checked.length === 0) {
+            alert('<?php echo e(__('messages.select_at_least_one')); ?>');
+            return false;
+        }
+        if (action === '') {
+            alert('<?php echo e(__('messages.choose_action_first')); ?>');
+            return false;
+        }
+        if (action === 'delete') {
+            return confirm('<?php echo e(__('messages.confirm_bulk_delete')); ?>');
+        } else {
+            let confirmMsg = '<?php echo e(__('messages.confirm_bulk_action')); ?>'.replace(':action', action);
+            return confirm(confirmMsg);
+        }
+    }
 </script>
 <?php $__env->stopPush(); ?>
 <?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\hean\resources\views/admin/hostels/index.blade.php ENDPATH**/ ?>

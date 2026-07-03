@@ -140,9 +140,11 @@
 
 {{-- ===== TABLE ===== --}}
 <div class="table-container" style="overflow-x:auto; background:#fff; border-radius:12px; border:1px solid #e2e8f0;">
-    <form action="{{ url('/admin/hostels/bulk-action') }}" method="POST" id="bulkForm">
-        @csrf
-        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+    {{-- ✅ FINAL FIX: सीधा URL प्रयोग गरियो, id हटाइयो --}}
+<form action="{{ route('admin.test.bulk') }}" method="POST" onsubmit="return confirmBulkAction();">
+    @csrf
+
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
             <thead style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
                 <tr>
                     <th style="padding:12px 16px; text-align:left; width:40px;">
@@ -243,7 +245,7 @@
                     <option value="show">{{ __('messages.bulk_show') }}</option>
                     <option value="delete">{{ __('messages.bulk_delete') }}</option>
                 </select>
-                <button type="submit" form="bulkForm" style="background:#0EA5E9; color:#fff; border:none; padding:8px 20px; border-radius:50px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:0.2s; box-shadow:0 2px 10px rgba(14,165,233,0.2);">
+                <button type="submit" style="background:#0EA5E9; color:#fff; border:none; padding:8px 20px; border-radius:50px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:0.2s; box-shadow:0 2px 10px rgba(14,165,233,0.2);">
                     <i class="fas fa-check"></i> {{ __('messages.apply') }}
                 </button>
             </div>
@@ -340,37 +342,27 @@
         });
 
         updateSelectedCount();
-
-        // ===== BULK ACTION CONFIRMATION =====
-        const bulkForm = document.getElementById('bulkForm');
-        if (bulkForm) {
-            bulkForm.addEventListener('submit', function(e) {
-                const action = document.getElementById('bulkAction').value;
-                const checked = document.querySelectorAll('.rowCheckbox:checked');
-                if (checked.length === 0) {
-                    e.preventDefault();
-                    alert('{{ __('messages.select_at_least_one') }}');
-                    return false;
-                }
-                if (action === '') {
-                    e.preventDefault();
-                    alert('{{ __('messages.choose_action_first') }}');
-                    return false;
-                }
-                if (action === 'delete') {
-                    if (!confirm('{{ __('messages.confirm_bulk_delete') }}')) {
-                        e.preventDefault();
-                        return false;
-                    }
-                } else {
-                    const confirmMsg = '{{ __('messages.confirm_bulk_action') }}'.replace(':action', action);
-                    if (!confirm(confirmMsg)) {
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-            });
-        }
     });
+
+    // ✅ बल्क एक्शन कन्फर्मेसन
+    function confirmBulkAction() {
+        const action = document.getElementById('bulkAction').value;
+        const checked = document.querySelectorAll('.rowCheckbox:checked');
+        
+        if (checked.length === 0) {
+            alert('{{ __('messages.select_at_least_one') }}');
+            return false;
+        }
+        if (action === '') {
+            alert('{{ __('messages.choose_action_first') }}');
+            return false;
+        }
+        if (action === 'delete') {
+            return confirm('{{ __('messages.confirm_bulk_delete') }}');
+        } else {
+            let confirmMsg = '{{ __('messages.confirm_bulk_action') }}'.replace(':action', action);
+            return confirm(confirmMsg);
+        }
+    }
 </script>
 @endpush
