@@ -6,7 +6,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'notosansdevanagari', 'DejaVu Sans', sans-serif;  <!-- ✅ Explicit font for Nepali -->
+            font-family: 'notosansdevanagari', 'DejaVu Sans', sans-serif;
             font-size: 13px;
             line-height: 1.6;
             color: #1e293b;
@@ -25,9 +25,6 @@
             overflow: hidden;
         }
 
-        /* ===== WATERMARK ===== */
-        /* Removed - handled by controller */
-
         /* ===== HEADER ===== */
         .header {
             display: flex;
@@ -45,7 +42,7 @@
             gap: 15px;
         }
         .header-left .logo img {
-            height: 65px;
+            height: 80px;
             width: auto;
         }
         .header-left .org .nepali-name {
@@ -53,7 +50,6 @@
             font-weight: 700;
             color: #0b2b4a;
             letter-spacing: 0.5px;
-            /* inherits font-family */
         }
         .header-left .org .main-name {
             font-size: 14px;
@@ -283,7 +279,8 @@
             <div class="sub-value">{{ $registration->hostel->name ?? $registration->hostel_name ?? '' }}</div>
         </div>
         <div class="right">
-            <div><strong>Registration #:</strong> {{ $registration->registration_number ?? '#'.$registration->id }}</div>
+            {{-- ✅ 8.3: दर्ता नम्बर (Registration Number) – फलब्याक #ID --}}
+            <div><strong>दर्ता नम्बर:</strong> {{ $registration->registration_number ?? '#'.$registration->id }}</div>
             @if($request->due_date)
                 <div><strong>Due Date:</strong> {{ \Carbon\Carbon::parse($request->due_date)->format('Y-m-d') }}</div>
             @endif

@@ -1216,4 +1216,26 @@ return [
 'inspection_checklist' => 'निरीक्षण चेकलिस्ट',
 'completed_date' => 'सम्पन्न मिति',
 'back_to_registration' => 'दर्तामा फर्कनुहोस्',
+'payment_for_invoice' => 'इनभ्वाइसको लागि भुक्तानी',
+// ============================================================
+// EDIT REGISTRATION PAGE (SPECIFIC KEYS) - NEPALI
+// ============================================================
+'edit_registration' => 'दर्ता सम्पादन',
+'hostel_information' => 'होस्टेल जानकारी',
+'hostel_name_nepali' => 'नाम (नेपाली)',
+'hostel_name_english' => 'नाम (अंग्रेजी)',
+'total_beds' => 'जम्मा बेड',
+'total_rooms' => 'जम्मा कोठा',
+'contact_number' => 'सम्पर्क नम्बर',
+'email_address' => 'इमेल ठेगाना',
+'website_optional' => 'वेबसाइट (वैकल्पिक)',
+'description_facilities_optional' => 'विवरण / सुविधाहरू (वैकल्पिक)',
+'owner_applicant_information' => 'मालिक / आवेदक जानकारी',
+'full_name' => 'पूरा नाम',
+'pan_number' => 'PAN नम्बर',
+'street_tole' => 'सडक / टोल',
+'landmark_optional' => 'स्थलचिह्न (वैकल्पिक)',
+'ward_number' => 'वार्ड नम्बर',
+'status_registration' => 'स्थिति र दर्ता नम्बर',
+'registration_number_readonly' => 'दर्ता नम्बर स्वत: जेनरेट हुन्छ र परिवर्तन गर्न मिल्दैन।',
 ];

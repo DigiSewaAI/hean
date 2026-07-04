@@ -131,23 +131,30 @@
     @endif
 
     {{-- Photos --}}
-    @php
-        $photos = $inspection->photos ? json_decode($inspection->photos, true) : [];
-    @endphp
-    @if(!empty($photos) && is_array($photos))
-    <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px; margin-top:24px;">
-        <h4 style="margin:0 0 16px 0; border-bottom:1px solid #e2e8f0; padding-bottom:8px; display:flex; align-items:center; gap:10px;">
-            <i class="fas fa-camera" style="color:#F59E0B;"></i> {{ __('messages.inspection_photos') }}
-        </h4>
-        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px;">
-            @foreach($photos as $photo)
-                <div style="border-radius:8px; overflow:hidden; border:1px solid #e2e8f0;">
-                    <img src="{{ asset('storage/' . $photo) }}" alt="Inspection Photo" style="width:100%; height:120px; object-fit:cover;">
-                </div>
-            @endforeach
-        </div>
+@php
+    $photos = $inspection->photos ?? [];
+    if (is_string($photos)) {
+        $photos = json_decode($photos, true);
+    }
+@endphp
+@if(!empty($photos) && is_array($photos))
+<div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px; margin-top:24px;">
+    <h4 style="margin:0 0 16px 0; border-bottom:1px solid #e2e8f0; padding-bottom:8px; display:flex; align-items:center; gap:10px;">
+        <i class="fas fa-camera" style="color:#F59E0B;"></i> {{ __('messages.inspection_photos') }}
+    </h4>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px;">
+        @foreach($photos as $photo)
+            {{-- Remove 'public/' prefix if present --}}
+            @php
+                $cleanPath = str_replace('public/', '', $photo);
+            @endphp
+            <div style="border-radius:8px; overflow:hidden; border:1px solid #e2e8f0;">
+                <img src="{{ asset('storage/' . $cleanPath) }}" alt="Inspection Photo" style="width:100%; height:120px; object-fit:cover;">
+            </div>
+        @endforeach
     </div>
-    @endif
+</div>
+@endif
 
     {{-- Actions --}}
     <div style="margin-top:24px; background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:16px 20px; display:flex; gap:12px; flex-wrap:wrap;">

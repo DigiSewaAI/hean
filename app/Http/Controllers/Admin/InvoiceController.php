@@ -68,7 +68,7 @@ class InvoiceController extends Controller
                 'format' => 'A4',
                 'orientation' => 'P',
                 'default_font_size' => 12,
-                'default_font' => 'dejavusans',
+                'default_font' => 'notosansdevanagari',
                 'autoScriptToLang' => true,
                 'autoLangToFont' => true,
                 'margin_top' => 10,
@@ -111,21 +111,99 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Download an invoice PDF.
-     */
-    public function download($id)
-    {
+ * Download an invoice PDF.
+ */
+public function download($id)
+{
+    try {
         $invoice = Invoice::findOrFail($id);
-
-        if (!Storage::disk('public')->exists($invoice->pdf_path)) {
-            abort(404, 'Invoice PDF not found.');
+        
+        // ✅ Check if pdf_path exists
+        if (!$invoice->pdf_path) {
+            return back()->with('error', 'Invoice PDF not found. Please regenerate the invoice.');
         }
-
+        
+        // ✅ Check if file exists
+        if (!Storage::disk('public')->exists($invoice->pdf_path)) {
+            // Try to regenerate PDF
+            try {
+                $registration = $invoice->registration;
+                if (!$registration) {
+                    return back()->with('error', 'Registration not found for this invoice.');
+                }
+                
+                // Prepare data for PDF view
+                $html = view('pdf.invoice', [
+                    'registration' => $registration,
+                    'invoiceNumber' => $invoice->invoice_number,
+                    'request' => (object) [
+                        'amount' => $invoice->amount,
+                        'due_date' => $invoice->due_date
+                    ]
+                ])->render();
+                
+                // ✅ MPDF Config (same as generate)
+                $tempDir = storage_path('app/mpdf');
+                if (!file_exists($tempDir)) {
+                    mkdir($tempDir, 0755, true);
+                }
+                
+                $mpdf = new \Mpdf\Mpdf([
+                    'mode' => 'utf-8',
+                    'format' => 'A4',
+                    'orientation' => 'P',
+                    'default_font_size' => 12,
+                    'default_font' => 'dejavusans',
+                    'autoScriptToLang' => true,
+                    'autoLangToFont' => true,
+                    'margin_top' => 10,
+                    'margin_bottom' => 10,
+                    'margin_left' => 10,
+                    'margin_right' => 10,
+                    'tempDir' => $tempDir,
+                ]);
+                
+                // ✅ Watermark (if logo exists)
+                $logoPath = public_path('images/logo.png');
+                if (file_exists($logoPath)) {
+                    $mpdf->SetWatermarkImage($logoPath, 0.08, 'F', 'P');
+                    $mpdf->showWatermarkImage = true;
+                }
+                
+                $mpdf->WriteHTML($html);
+                $pdfContent = $mpdf->Output('', 'S');
+                
+                // Save regenerated PDF
+                $path = 'invoices/invoice_' . uniqid() . '.pdf';
+                Storage::disk('public')->put($path, $pdfContent);
+                
+                // Update invoice record
+                $invoice->pdf_path = $path;
+                $invoice->save();
+                
+                // Download the regenerated PDF
+                return response()->download(
+                    storage_path('app/public/' . $path),
+                    'invoice_' . $invoice->invoice_number . '.pdf'
+                );
+                
+            } catch (\Exception $e) {
+                \Log::error('PDF Regeneration failed for invoice ID ' . $invoice->id . ': ' . $e->getMessage());
+                return back()->with('error', 'Failed to regenerate PDF: ' . $e->getMessage());
+            }
+        }
+        
+        // File exists – download it
         return response()->download(
             storage_path('app/public/' . $invoice->pdf_path),
             'invoice_' . $invoice->invoice_number . '.pdf'
         );
+        
+    } catch (\Exception $e) {
+        \Log::error('Invoice download failed for ID ' . $id . ': ' . $e->getMessage());
+        return back()->with('error', 'Failed to download invoice: ' . $e->getMessage());
     }
+}
 
     /**
      * View invoice details.

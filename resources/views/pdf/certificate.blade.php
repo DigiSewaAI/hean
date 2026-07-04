@@ -20,7 +20,8 @@
         <p>Owner of <strong>{{ $registration->hostel->name ?? '' }}</strong></p>
         <p>has been officially registered as a member of</p>
         <h2>Hostel Entrepreneur Association of Nepal (HEAN)</h2>
-        <p><strong>Registration #:</strong> {{ $registration->registration_number ?? $registration->id }}</p>
+        {{-- ✅ 8.3: दर्ता नम्बर (फलब्याक #ID) --}}
+        <p><strong>दर्ता नम्बर:</strong> {{ $registration->registration_number ?? '#'.$registration->id }}</p>
         <p><strong>Issued on:</strong> {{ now()->format('F d, Y') }}</p>
         <div class="footer">
             <p>This certificate is the property of HEAN.</p>

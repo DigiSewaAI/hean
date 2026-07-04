@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
+<html lang="<?php echo e(app()->getLocale()); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', __('messages.home') . ' - HEAN')</title>
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <title><?php echo $__env->yieldContent('title', __('messages.home') . ' - HEAN'); ?></title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @stack('styles')
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
+    <?php echo $__env->yieldPushContent('styles'); ?>
 
     <style>
         /* Reset & Base */
@@ -328,7 +328,7 @@
     <!-- Preloader -->
     <div id="preloader">
         <div class="spinner"></div>
-        <div class="text">{{ __('messages.hero_badge') }}</div>
+        <div class="text"><?php echo e(__('messages.hero_badge')); ?></div>
     </div>
 
     <!-- Scroll Progress -->
@@ -338,8 +338,8 @@
     <nav class="navbar" id="navbar">
         <div class="container">
             <div class="navbar-brand" style="display:flex; align-items:center; gap:12px;">
-    <a href="{{ route('home') }}">
-    <img src="{{ asset('images/logo.png') }}" alt="HEAN" style="height:75px; width:auto;">
+    <a href="<?php echo e(route('home')); ?>">
+    <img src="<?php echo e(asset('images/logo.png')); ?>" alt="HEAN" style="height:75px; width:auto;">
 </a>
     <div style="display:flex; flex-direction:column; line-height:1.2;">
         <span style="font-size:14px; font-weight:700; color:#0b2b4a;">होस्टल व्यवसायी संघ</span>
@@ -349,38 +349,38 @@
 
             <div class="navbar-menu" id="navbarMenu">
                 <ul class="nav-links">
-                    <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">@lang('messages.home')</a></li>
-                    <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">@lang('messages.about')</a></li>
-                    <li><a href="{{ route('hostels.index') }}" class="{{ request()->routeIs('hostels.*') ? 'active' : '' }}">@lang('messages.hostels')</a></li>
-                    <li><a href="{{ route('committee.index') }}" class="{{ request()->routeIs('committee.*') ? 'active' : '' }}">@lang('messages.committee')</a></li>
-                    <li><a href="{{ route('notices.index') }}" class="{{ request()->routeIs('notices.*') ? 'active' : '' }}">@lang('messages.notices')</a></li>
-                    <li><a href="{{ route('gallery.index') }}" class="{{ request()->routeIs('gallery.*') ? 'active' : '' }}">@lang('messages.gallery')</a></li>
-                    <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">@lang('messages.contact')</a></li>
+                    <li><a href="<?php echo e(route('home')); ?>" class="<?php echo e(request()->routeIs('home') ? 'active' : ''); ?>"><?php echo app('translator')->get('messages.home'); ?></a></li>
+                    <li><a href="<?php echo e(route('about')); ?>" class="<?php echo e(request()->routeIs('about') ? 'active' : ''); ?>"><?php echo app('translator')->get('messages.about'); ?></a></li>
+                    <li><a href="<?php echo e(route('hostels.index')); ?>" class="<?php echo e(request()->routeIs('hostels.*') ? 'active' : ''); ?>"><?php echo app('translator')->get('messages.hostels'); ?></a></li>
+                    <li><a href="<?php echo e(route('committee.index')); ?>" class="<?php echo e(request()->routeIs('committee.*') ? 'active' : ''); ?>"><?php echo app('translator')->get('messages.committee'); ?></a></li>
+                    <li><a href="<?php echo e(route('notices.index')); ?>" class="<?php echo e(request()->routeIs('notices.*') ? 'active' : ''); ?>"><?php echo app('translator')->get('messages.notices'); ?></a></li>
+                    <li><a href="<?php echo e(route('gallery.index')); ?>" class="<?php echo e(request()->routeIs('gallery.*') ? 'active' : ''); ?>"><?php echo app('translator')->get('messages.gallery'); ?></a></li>
+                    <li><a href="<?php echo e(route('contact')); ?>" class="<?php echo e(request()->routeIs('contact') ? 'active' : ''); ?>"><?php echo app('translator')->get('messages.contact'); ?></a></li>
                 </ul>
 
                 <div class="navbar-actions">
                     <div class="auth-links">
-                        @guest
-                            <a href="{{ route('login') }}">@lang('messages.login')</a>
-                            {{-- Register link removed as per specification --}}
-                        @else
-                            @if(auth()->user()->role == 'admin')
-                                <a href="{{ route('admin.dashboard') }}" style="color:#0EA5E9;">@lang('messages.admin_dashboard')</a>
-                            @endif
-                            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                                @csrf
-                                <button type="submit" style="background:none; border:none; color:#1e293b; font-weight:500; cursor:pointer; font-size:0.9rem; padding:6px 12px;">@lang('messages.logout')</button>
+                        <?php if(auth()->guard()->guest()): ?>
+                            <a href="<?php echo e(route('login')); ?>"><?php echo app('translator')->get('messages.login'); ?></a>
+                            
+                        <?php else: ?>
+                            <?php if(auth()->user()->role == 'admin'): ?>
+                                <a href="<?php echo e(route('admin.dashboard')); ?>" style="color:#0EA5E9;"><?php echo app('translator')->get('messages.admin_dashboard'); ?></a>
+                            <?php endif; ?>
+                            <form action="<?php echo e(route('logout')); ?>" method="POST" style="display:inline;">
+                                <?php echo csrf_field(); ?>
+                                <button type="submit" style="background:none; border:none; color:#1e293b; font-weight:500; cursor:pointer; font-size:0.9rem; padding:6px 12px;"><?php echo app('translator')->get('messages.logout'); ?></button>
                             </form>
-                        @endguest
+                        <?php endif; ?>
                     </div>
 
                     <div class="language-switcher">
-                        <a href="{{ route('lang.switch', 'en') }}" class="{{ app()->getLocale() == 'en' ? 'active' : '' }}">EN</a>
+                        <a href="<?php echo e(route('lang.switch', 'en')); ?>" class="<?php echo e(app()->getLocale() == 'en' ? 'active' : ''); ?>">EN</a>
                         <span class="divider">|</span>
-                        <a href="{{ route('lang.switch', 'ne') }}" class="{{ app()->getLocale() == 'ne' ? 'active' : '' }}">नेपाली</a>
+                        <a href="<?php echo e(route('lang.switch', 'ne')); ?>" class="<?php echo e(app()->getLocale() == 'ne' ? 'active' : ''); ?>">नेपाली</a>
                     </div>
 
-                    {{-- Become Member button removed – registration only via QR --}}
+                    
                 </div>
             </div>
 
@@ -392,7 +392,7 @@
 
     <!-- ====== MAIN CONTENT ====== -->
     <main>
-        @yield('content')
+        <?php echo $__env->yieldContent('content'); ?>
     </main>
 
     <!-- ====== FOOTER ====== -->
@@ -404,13 +404,13 @@
                 <!-- Brand Column -->
                 <div>
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-<img src="{{ asset('images/logo.png') }}" alt="HEAN Logo" style="height:80px; width:auto;">
+<img src="<?php echo e(asset('images/logo.png')); ?>" alt="HEAN Logo" style="height:80px; width:auto;">
         <div style="display:flex; flex-direction:column; line-height:1.2;">
             <span style="font-size:12px; font-weight:700; color:#ffffff;">होस्टल व्यवसायी संघ</span>
             <span style="font-size:9px; font-weight:600; color:#94a3b8;">Hostel Entrepreneur Association of Nepal (HEAN)</span>
         </div>
     </div>
-    <p style="margin-top:12px; font-size:0.95rem; line-height:1.7;">@lang('messages.footer_about')</p>
+    <p style="margin-top:12px; font-size:0.95rem; line-height:1.7;"><?php echo app('translator')->get('messages.footer_about'); ?></p>
     <!-- Social Icons (पहिले जस्तै) -->
     <div style="display:flex; gap:14px; margin-top:20px;">
         <a href="https://www.facebook.com/hostelentrepreneurassociationofnepalHEAN" target="_blank" rel="noopener" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-facebook-f"></i></a>
@@ -422,35 +422,35 @@
 
                 <!-- Quick Links -->
                 <div>
-                    <h4 style="color:#f8fafc; font-weight:600; margin-bottom:20px;">@lang('messages.footer_quick_links')</h4>
+                    <h4 style="color:#f8fafc; font-weight:600; margin-bottom:20px;"><?php echo app('translator')->get('messages.footer_quick_links'); ?></h4>
                     <ul style="list-style:none; padding:0;">
-                        <li style="margin-bottom:10px;"><a href="{{ route('home') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.home')</a></li>
-                        <li style="margin-bottom:10px;"><a href="{{ route('about') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.about')</a></li>
-                        <li style="margin-bottom:10px;"><a href="{{ route('hostels.index') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.hostels')</a></li>
-                        <li style="margin-bottom:10px;"><a href="{{ route('committee.index') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.committee')</a></li>
-                        <li style="margin-bottom:10px;"><a href="{{ route('notices.index') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.notices')</a></li>
-                        <li style="margin-bottom:10px;"><a href="{{ route('gallery.index') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.gallery')</a></li>
+                        <li style="margin-bottom:10px;"><a href="<?php echo e(route('home')); ?>" style="color:#94a3b8; text-decoration:none; transition:0.2s;"><?php echo app('translator')->get('messages.home'); ?></a></li>
+                        <li style="margin-bottom:10px;"><a href="<?php echo e(route('about')); ?>" style="color:#94a3b8; text-decoration:none; transition:0.2s;"><?php echo app('translator')->get('messages.about'); ?></a></li>
+                        <li style="margin-bottom:10px;"><a href="<?php echo e(route('hostels.index')); ?>" style="color:#94a3b8; text-decoration:none; transition:0.2s;"><?php echo app('translator')->get('messages.hostels'); ?></a></li>
+                        <li style="margin-bottom:10px;"><a href="<?php echo e(route('committee.index')); ?>" style="color:#94a3b8; text-decoration:none; transition:0.2s;"><?php echo app('translator')->get('messages.committee'); ?></a></li>
+                        <li style="margin-bottom:10px;"><a href="<?php echo e(route('notices.index')); ?>" style="color:#94a3b8; text-decoration:none; transition:0.2s;"><?php echo app('translator')->get('messages.notices'); ?></a></li>
+                        <li style="margin-bottom:10px;"><a href="<?php echo e(route('gallery.index')); ?>" style="color:#94a3b8; text-decoration:none; transition:0.2s;"><?php echo app('translator')->get('messages.gallery'); ?></a></li>
                     </ul>
                 </div>
 
                 <!-- Contact -->
                 <div>
-                    <h4 style="color:#f8fafc; font-weight:600; margin-bottom:20px;">@lang('messages.footer_contact')</h4>
+                    <h4 style="color:#f8fafc; font-weight:600; margin-bottom:20px;"><?php echo app('translator')->get('messages.footer_contact'); ?></h4>
                     <ul style="list-style:none; padding:0;">
-                        <li style="margin-bottom:10px;"><i class="fas fa-map-marker-alt" style="color:#0EA5E9; width:20px;"></i> @lang('messages.footer_address')</li>
-                        <li style="margin-bottom:10px;"><i class="fas fa-phone" style="color:#0EA5E9; width:20px;"></i> @lang('messages.footer_phone')</li>
-                        <li style="margin-bottom:10px;"><i class="fas fa-envelope" style="color:#0EA5E9; width:20px;"></i> @lang('messages.footer_email')</li>
-                        <li style="margin-bottom:10px;"><i class="fas fa-clock" style="color:#0EA5E9; width:20px;"></i> @lang('messages.footer_office_hours')</li>
+                        <li style="margin-bottom:10px;"><i class="fas fa-map-marker-alt" style="color:#0EA5E9; width:20px;"></i> <?php echo app('translator')->get('messages.footer_address'); ?></li>
+                        <li style="margin-bottom:10px;"><i class="fas fa-phone" style="color:#0EA5E9; width:20px;"></i> <?php echo app('translator')->get('messages.footer_phone'); ?></li>
+                        <li style="margin-bottom:10px;"><i class="fas fa-envelope" style="color:#0EA5E9; width:20px;"></i> <?php echo app('translator')->get('messages.footer_email'); ?></li>
+                        <li style="margin-bottom:10px;"><i class="fas fa-clock" style="color:#0EA5E9; width:20px;"></i> <?php echo app('translator')->get('messages.footer_office_hours'); ?></li>
                     </ul>
                 </div>
 
                 <!-- Newsletter Column -->
                 <div>
-                    <h4 style="color:#f8fafc; font-weight:600; margin-bottom:20px;">@lang('messages.footer_newsletter')</h4>
-                    <p style="font-size:0.9rem; margin-bottom:15px;">@lang('messages.footer_newsletter_desc')</p>
+                    <h4 style="color:#f8fafc; font-weight:600; margin-bottom:20px;"><?php echo app('translator')->get('messages.footer_newsletter'); ?></h4>
+                    <p style="font-size:0.9rem; margin-bottom:15px;"><?php echo app('translator')->get('messages.footer_newsletter_desc'); ?></p>
                     <form>
-                        <input type="email" placeholder="@lang('messages.footer_newsletter_placeholder')" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; margin-bottom:10px;">
-                        <button type="submit" style="background:#0EA5E9; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer;">@lang('messages.footer_newsletter_button')</button>
+                        <input type="email" placeholder="<?php echo app('translator')->get('messages.footer_newsletter_placeholder'); ?>" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; margin-bottom:10px;">
+                        <button type="submit" style="background:#0EA5E9; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer;"><?php echo app('translator')->get('messages.footer_newsletter_button'); ?></button>
                     </form>
                 </div>
             </div>
@@ -459,18 +459,19 @@
             <!-- Copyright (left) | Technology Partner (right, white) -->
             <div class="footer-bottom">
                 <div class="copyright">
-                    @php $year = date('Y'); @endphp
-                    @lang('messages.footer_copyright', ['year' => $year])
+                    <?php $year = date('Y'); ?>
+                    <?php echo app('translator')->get('messages.footer_copyright', ['year' => $year]); ?>
                     &nbsp;|&nbsp;
-                    <a href="#">@lang('messages.footer_privacy')</a>
+                    <a href="#"><?php echo app('translator')->get('messages.footer_privacy'); ?></a>
                     &nbsp;|&nbsp;
-                    <a href="#">@lang('messages.footer_terms')</a>
+                    <a href="#"><?php echo app('translator')->get('messages.footer_terms'); ?></a>
                 </div>
 
                 <div class="tech-partner">
-                    @lang('messages.footer_tech_partner')
+                    <?php echo app('translator')->get('messages.footer_tech_partner'); ?>
                     <a href="https://www.hostelhubnepal.com" target="_blank" rel="noopener">
-                        🏨 {{ __('messages.footer_tech_partner_name') }}
+                        🏨 <?php echo e(__('messages.footer_tech_partner_name')); ?>
+
                     </a>
                 </div>
             </div>
@@ -478,7 +479,7 @@
         </div>
     </footer>
 
-    @stack('scripts')
+    <?php echo $__env->yieldPushContent('scripts'); ?>
 
     <script>
         // Preloader
@@ -519,4 +520,4 @@
         });
     </script>
 </body>
-</html>
+</html><?php /**PATH C:\laragon\www\hean\resources\views/layouts/public.blade.php ENDPATH**/ ?>

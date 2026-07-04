@@ -58,6 +58,8 @@ class Registration extends Model
         // नयाँ फिल्डहरू (validity dates)
         'valid_from',
         'valid_until',
+        'block_name',
+
     ];
 
     // ============================================================

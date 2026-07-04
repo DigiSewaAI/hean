@@ -56,8 +56,9 @@
                     <td style="padding:10px 12px; font-weight:600;">{{ $receipt->receipt_number }}</td>
                     <td style="padding:10px 12px;">
                         @if($registration)
+                            {{-- ✅ 8.3: दर्ता नम्बर (फलब्याक #ID) --}}
                             <a href="{{ route('admin.registrations.show', $registration) }}" style="color:#0EA5E9; text-decoration:none;">
-                                {{ $registration->hostel_name ?? $registration->registration_number }}
+                                {{ $registration->registration_number ?? '#'.$registration->id }}
                             </a>
                         @else
                             <span style="color:#94a3b8;">{{ __('messages.not_available') }}</span>

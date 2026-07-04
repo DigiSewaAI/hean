@@ -58,85 +58,85 @@ class ReceiptController extends Controller
      * Generate a receipt for a verified payment.
      */
     public function generate(Payment $payment)
-    {
-        if ($payment->status !== 'verified') {
-            return back()->with('error', __('messages.receipt_only_for_verified_payments'));
-        }
-
-        if ($payment->receipts()->exists()) {
-            return back()->with('error', __('messages.receipt_already_generated'));
-        }
-
-        DB::beginTransaction();
-        try {
-            $receiptNumber = $this->generateReceiptNumber();
-
-            $receipt = Receipt::create([
-                'registration_id' => $payment->registration_id,
-                'payment_id' => $payment->id,
-                'invoice_id' => $payment->invoice_id,
-                'receipt_number' => $receiptNumber,
-                'amount' => $payment->amount,
-                'issued_date' => now(),
-                'remarks' => $payment->remarks ?? null,
-                'pdf_path' => null,
-            ]);
-
-            // ===== GENERATE PDF =====
-            $html = view('admin.receipts.pdf', compact('receipt', 'payment'))->render();
-
-            $tempDir = storage_path('app/mpdf');
-            if (!file_exists($tempDir)) {
-                mkdir($tempDir, 0755, true);
-            }
-
-            // ===== MPDF CONFIG (Same as Certificate) =====
-            $mpdf = new Mpdf([
-                'mode' => 'utf-8',
-                'format' => 'A4',
-                'orientation' => 'P',
-                'default_font_size' => 12,
-                'default_font' => 'dejavusans',
-                'autoScriptToLang' => true,
-                'autoLangToFont' => true,
-                'margin_top' => 10,
-                'margin_bottom' => 10,
-                'margin_left' => 10,
-                'margin_right' => 10,
-                'tempDir' => $tempDir,
-            ]);
-
-            // ===== WATERMARK IMAGE (ADDED - exactly like Certificate) =====
-            $logoPath = public_path('images/logo.png');
-            if (file_exists($logoPath)) {
-                $mpdf->SetWatermarkImage($logoPath, 0.08, 'F', 'P');
-                $mpdf->showWatermarkImage = true;
-            }
-
-            $mpdf->WriteHTML($html);
-            $pdfContent = $mpdf->Output('', 'S');
-
-            // ===== SAVE PDF =====
-            $path = 'receipts/receipt_' . uniqid() . '.pdf';
-            Storage::disk('public')->put($path, $pdfContent);
-
-            $receipt->update(['pdf_path' => $path]);
-
-            DB::commit();
-
-            return redirect()->route('admin.receipts.show', $receipt)
-                ->with('success', __('messages.receipt_generated_successfully'));
-
-        } catch (MpdfException $e) {
-            DB::rollBack();
-            Log::error('Receipt PDF Generation Error: ' . $e->getMessage());
-            return back()->with('error', 'Receipt generation failed: ' . $e->getMessage());
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Receipt Generation Error: ' . $e->getMessage());
-            return back()->with('error', 'Receipt generation failed. Please try again.');
-        }
+{
+    if ($payment->status !== 'verified') {
+        return back()->with('error', __('messages.receipt_only_for_verified_payments'));
     }
+
+    if ($payment->receipts()->exists()) {
+        return back()->with('error', __('messages.receipt_already_generated'));
+    }
+
+    DB::beginTransaction();
+    try {
+        $receiptNumber = $this->generateReceiptNumber();
+
+        $receipt = Receipt::create([
+            'registration_id' => $payment->registration_id,
+            'payment_id' => $payment->id,
+            'invoice_id' => $payment->invoice_id,
+            'receipt_number' => $receiptNumber,
+            'amount' => $payment->amount,
+            'issued_date' => now(),
+            'remarks' => $payment->remarks ?? null,
+            'pdf_path' => null,
+        ]);
+
+        // ===== GENERATE PDF =====
+        $html = view('admin.receipts.pdf', compact('receipt', 'payment'))->render();
+
+        $tempDir = storage_path('app/mpdf');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        // ✅ MPDF CONFIG – EXACTLY SAME AS INVOICE (तर default_font notosansdevanagari)
+        $mpdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'orientation' => 'P',
+            'default_font_size' => 12,
+            'default_font' => 'notosansdevanagari', // ✅ यो मुख्य परिवर्तन
+            'autoScriptToLang' => true,
+            'autoLangToFont' => true,
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'tempDir' => $tempDir,
+        ]);
+
+        // ✅ WATERMARK – EXACTLY SAME AS INVOICE
+        $logoPath = public_path('images/logo.png');
+        if (file_exists($logoPath)) {
+            $mpdf->SetWatermarkImage($logoPath, 0.08, 'F', 'P');
+            $mpdf->showWatermarkImage = true;
+        }
+
+        $mpdf->WriteHTML($html);
+        $pdfContent = $mpdf->Output('', 'S');
+
+        // ===== SAVE PDF =====
+        $path = 'receipts/receipt_' . uniqid() . '.pdf';
+        Storage::disk('public')->put($path, $pdfContent);
+
+        $receipt->update(['pdf_path' => $path]);
+
+        DB::commit();
+
+        return redirect()->route('admin.receipts.show', $receipt)
+            ->with('success', __('messages.receipt_generated_successfully'));
+
+    } catch (MpdfException $e) {
+        DB::rollBack();
+        Log::error('Receipt PDF Generation Error: ' . $e->getMessage());
+        return back()->with('error', 'Receipt generation failed: ' . $e->getMessage());
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Receipt Generation Error: ' . $e->getMessage());
+        return back()->with('error', 'Receipt generation failed. Please try again.');
+    }
+}
 
     /**
      * Download receipt PDF.

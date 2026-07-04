@@ -140,7 +140,7 @@ class PaymentController extends Controller
         $validator = Validator::make($request->all(), [
             'invoice_id' => 'required|exists:invoices,id',
             'registration_id' => 'required|exists:registrations,id',
-            'method' => 'required|string|in:bank,esewa,khalti,cash',
+            'method' => 'required|string|in:bank,esewa,khalti,cash,qr',
             'amount' => 'required|numeric|min:0.01',
             'transaction_id' => 'nullable|string|max:255',
             'payment_date' => 'required|date',
@@ -239,7 +239,7 @@ class PaymentController extends Controller
         $validator = Validator::make($request->all(), [
             'invoice_id' => 'required|exists:invoices,id',
             'registration_id' => 'required|exists:registrations,id',
-            'method' => 'required|string|in:bank,esewa,khalti,cash',
+            'method' => 'required|string|in:bank,esewa,khalti,cash,qr',
             'amount' => 'required|numeric|min:0.01',
             'transaction_id' => 'nullable|string|max:255',
             'payment_date' => 'required|date',

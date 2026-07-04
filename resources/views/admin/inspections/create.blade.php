@@ -72,14 +72,51 @@
             </table>
         </div>
 
-        {{-- फोटो अपलोड --}}
-        <div style="background:#f8fafc; padding:16px 20px; border-radius:12px; margin-bottom:20px; border-left:4px solid #F59E0B;">
-            <h5 style="margin:0 0 12px 0; font-size:0.95rem; color:#92400e;">
-                <i class="fas fa-camera me-2"></i> {{ __('messages.inspection_photos') }}
-            </h5>
-            <input type="file" name="photos[]" id="photos" accept=".jpg,.jpeg,.png" multiple style="padding:8px 0;">
-            <small style="color:#64748b; display:block; font-size:0.75rem;">{{ __('messages.photo_upload_instructions') }}</small>
-        </div>
+        {{-- फोटो अपलोड (Multiple + Preview) --}}
+<div style="background:#f8fafc; padding:16px 20px; border-radius:12px; margin-bottom:20px; border-left:4px solid #F59E0B;">
+    <h5 style="margin:0 0 12px 0; font-size:0.95rem; color:#92400e;">
+        <i class="fas fa-camera me-2"></i> {{ __('messages.inspection_photos') }}
+        <span style="font-size:0.7rem; font-weight:400; color:#94a3b8;">({{ __('messages.multiple_files_allowed') }})</span>
+    </h5>
+    
+    {{-- File Input --}}
+    <input type="file" name="photos[]" id="photos" accept=".jpg,.jpeg,.png" multiple 
+           style="padding:8px 0; width:100%;" 
+           onchange="previewPhotos(event)">
+    
+    {{-- Preview Container --}}
+    <div id="photoPreview" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px,1fr)); gap:10px; margin-top:12px;"></div>
+    
+    <small style="color:#64748b; display:block; font-size:0.75rem; margin-top:4px;">
+        <i class="fas fa-info-circle"></i> {{ __('messages.photo_upload_instructions') }}
+        <br>{{ __('messages.max_photos_allowed') }}: 10
+    </small>
+</div>
+
+@push('scripts')
+<script>
+function previewPhotos(event) {
+    const container = document.getElementById('photoPreview');
+    container.innerHTML = '';
+    const files = event.target.files;
+    if (files.length === 0) return;
+    
+    for (let i = 0; i < files.length; i++) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.style.cssText = 'border-radius:8px; overflow:hidden; border:1px solid #e2e8f0; aspect-ratio:1/1;';
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.cssText = 'width:100%; height:100%; object-fit:cover;';
+            div.appendChild(img);
+            container.appendChild(div);
+        };
+        reader.readAsDataURL(files[i]);
+    }
+}
+</script>
+@endpush
 
         {{-- डिजिटल हस्ताक्षर --}}
         <div style="background:#f8fafc; padding:16px 20px; border-radius:12px; margin-bottom:20px; border-left:4px solid #6366F1;">

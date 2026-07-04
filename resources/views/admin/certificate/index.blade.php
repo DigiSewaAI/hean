@@ -52,8 +52,9 @@
                                 style="border-radius: 12px; border: 1.5px solid #e2e8f0; padding: 12px 16px; background: #f8fafc; transition: 0.3s;" required>
                             <option value="">{{ __('messages.select_registration') }}</option>
                             @foreach(\App\Models\Registration::with('hostel')->where('status', 'approved')->get() as $reg)
+                                {{-- ✅ 8.3: दर्ता नम्बर (फलब्याक #ID) --}}
                                 <option value="{{ $reg->id }}">
-                                    #{{ $reg->id }} – {{ $reg->hostel->name ?? __('messages.not_available') }}
+                                    {{ $reg->registration_number ?? '#'.$reg->id }} – {{ $reg->hostel->name ?? __('messages.not_available') }}
                                 </option>
                             @endforeach
                         </select>
@@ -111,7 +112,10 @@
                                         {{ $cert->certificate_number }}
                                     </span>
                                 </td>
-                                <td style="padding: 12px 16px; color: #1e293b;">#{{ $cert->registration_id }}</td>
+                                {{-- ✅ 8.3: दर्ता नम्बर (फलब्याक #ID) --}}
+                                <td style="padding: 12px 16px; color: #1e293b;">
+                                    {{ $cert->registration->registration_number ?? '#'.$cert->registration_id }}
+                                </td>
                                 <td style="padding: 12px 16px; color: #1e293b;">
                                     {{ $cert->registration->hostel->name ?? __('messages.not_available') }}
                                 </td>

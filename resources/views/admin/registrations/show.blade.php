@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', __('messages.registration_title') . ' #' . $registration->id . ' - HEAN Admin')
+@section('title', __('messages.registration_title') . ' - ' . ($registration->hostel ? $registration->hostel->registration_number : ($registration->registration_number ?? 'N/A')) . ' - HEAN Admin')
 
 @section('content')
 
@@ -9,7 +9,10 @@
     <div>
         <h2 style="font-size:1.5rem; font-weight:700; color:#0f172a; margin:0; display:flex; align-items:center; gap:10px;">
             <i class="fas fa-file-alt" style="color:#0EA5E9;"></i>
-            {{ __('messages.registration') }} #{{ $registration->id }}
+            {{ __('messages.registration') }}
+            <span style="font-weight:700; color:#0EA5E9;">
+                {{ $registration->hostel ? $registration->hostel->registration_number : ($registration->registration_number ?? 'N/A') }}
+            </span>
             <span style="font-size:0.8rem; font-weight:400; color:#64748b; margin-left:8px;">
                 {{ $registration->created_at ? $registration->created_at->format('M d, Y') : __('messages.not_available') }}
             </span>
@@ -85,16 +88,16 @@
         {{-- Basic Info Grid --}}
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; padding-top:12px; border-top:1px solid #e2e8f0;">
             <div>
-    <span style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.hostel_name') }}</span>
-    <p style="font-weight:600; color:#0f172a; margin:2px 0 0;">
-        @if($registration->hostel_name_english)
-            {{ $registration->hostel_name_english }}
-            <br><span style="font-weight:400; color:#64748b; font-size:0.85rem;">{{ $registration->hostel_name ?? 'N/A' }}</span>
-        @else
-            {{ $registration->hostel_name ?? 'N/A' }}
-        @endif
-    </p>
-</div>
+                <span style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.hostel_name') }}</span>
+                <p style="font-weight:600; color:#0f172a; margin:2px 0 0;">
+                    @if($registration->hostel_name_english)
+                        {{ $registration->hostel_name_english }}
+                        <br><span style="font-weight:400; color:#64748b; font-size:0.85rem;">{{ $registration->hostel_name ?? 'N/A' }}</span>
+                    @else
+                        {{ $registration->hostel_name ?? 'N/A' }}
+                    @endif
+                </p>
+            </div>
             <div>
                 <span style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.hostel_type') }}</span>
                 <p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ ucfirst($registration->hostel_type ?? 'N/A') }}</p>
@@ -255,7 +258,7 @@
 @php
     $latestInvoice = $registration->invoices->sortByDesc('id')->first();
     $hasInvoice = $registration->invoices->isNotEmpty();
-    $canGenerateInvoice = $registration->status === 'approved' && !$hasInvoice;
+    $canGenerateInvoice = !$hasInvoice || ($hasInvoice && $latestInvoice && $latestInvoice->status === 'paid');
 @endphp
 
 <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden; margin-bottom:24px;">
@@ -265,7 +268,7 @@
         @if($canGenerateInvoice)
             <button type="button" onclick="document.getElementById('invoiceForm').style.display='block'" 
                 style="margin-left:auto; background:rgba(255,255,255,0.2); color:#fff; border:1px solid rgba(255,255,255,0.3); padding:4px 16px; border-radius:50px; font-weight:600; font-size:0.75rem; cursor:pointer;">
-                <i class="fas fa-plus"></i> {{ __('messages.generate_invoice') }}
+                <i class="fas fa-file-invoice"></i> {{ __('messages.generate_invoice') }}
             </button>
         @endif
     </div>
@@ -537,15 +540,15 @@
                         $hasCompletedInspection = $registration->inspections->where('status', 'completed')->isNotEmpty();
                     @endphp
                     @if($hasCompletedInspection)
-    @php
-        $completedInspection = $registration->inspections->where('status', 'completed')->first();
-    @endphp
-    @if($completedInspection)
-        <a href="{{ route('admin.inspections.view', $completedInspection) }}" style="display:inline-flex; align-items:center; gap:4px; background:#8B5CF6; color:#fff; padding:4px 14px; border-radius:50px; text-decoration:none; font-size:0.75rem; font-weight:600;">
-            <i class="fas fa-eye"></i> {{ __('messages.view_inspection') }}
-        </a>
-    @endif
-@endif
+                        @php
+                            $completedInspection = $registration->inspections->where('status', 'completed')->first();
+                        @endphp
+                        @if($completedInspection)
+                            <a href="{{ route('admin.inspections.view', $completedInspection) }}" style="display:inline-flex; align-items:center; gap:4px; background:#8B5CF6; color:#fff; padding:4px 14px; border-radius:50px; text-decoration:none; font-size:0.75rem; font-weight:600;">
+                                <i class="fas fa-eye"></i> {{ __('messages.view_inspection') }}
+                            </a>
+                        @endif
+                    @endif
                 </div>
             </div>
 

@@ -14,7 +14,10 @@
     <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
         <thead style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
             <tr>
-                <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">#</th>
+                {{-- ✅ 8.3: # लाई दर्ता नम्बरले बदलियो --}}
+                <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">
+                    दर्ता नम्बर
+                </th>
                 <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">{{ __('messages.hostel') }}</th>
                 <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">{{ __('messages.district') }}</th>
                 <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">{{ __('messages.status') }}</th>
@@ -49,7 +52,16 @@
                 $colors = $statusColorMap[$displayStatus] ?? ['bg' => '#e2e8f0', 'text' => '#475569'];
             @endphp
             <tr style="border-bottom:1px solid #e2e8f0; transition:background 0.15s;" class="hover:bg-gray-50">
-                <td style="padding:12px 16px; font-weight:600; color:#0f172a;">{{ $reg->id }}</td>
+                {{-- ✅ 8.3: दर्ता नम्बर देखाउने, लिङ्क सहित (यदि hostel छ भने) --}}
+                <td style="padding:12px 16px; font-weight:600; color:#0f172a;">
+                    @if($reg->hostel)
+                        <a href="{{ route('admin.hostels.show', $reg->hostel) }}" style="color:#0EA5E9; text-decoration:none;">
+                            {{ $reg->hostel->registration_number }}
+                        </a>
+                    @else
+                        {{ $reg->registration_number ?? 'N/A' }}
+                    @endif
+                </td>
                 <td style="padding:12px 16px; font-weight:500; color:#0f172a;">
                     {{ $reg->hostel_name_english ?: $reg->hostel_name }}
                     @if($reg->hostel_name_english && $reg->hostel_name && $reg->hostel_name_english != $reg->hostel_name)

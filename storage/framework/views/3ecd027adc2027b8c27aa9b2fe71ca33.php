@@ -274,7 +274,7 @@
 <?php
     $latestInvoice = $registration->invoices->sortByDesc('id')->first();
     $hasInvoice = $registration->invoices->isNotEmpty();
-    $canGenerateInvoice = $registration->status === 'approved' && !$hasInvoice;
+    $canGenerateInvoice = !$hasInvoice || ($hasInvoice && $latestInvoice && $latestInvoice->status === 'paid');
 ?>
 
 <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden; margin-bottom:24px;">
@@ -283,12 +283,13 @@
 
         <span style="font-size:0.8rem; font-weight:400; opacity:0.8;">(<?php echo e($registration->invoices?->count() ?? 0); ?>)</span>
         <?php if($canGenerateInvoice): ?>
-            <button type="button" onclick="document.getElementById('invoiceForm').style.display='block'" 
-                style="margin-left:auto; background:rgba(255,255,255,0.2); color:#fff; border:1px solid rgba(255,255,255,0.3); padding:4px 16px; border-radius:50px; font-weight:600; font-size:0.75rem; cursor:pointer;">
-                <i class="fas fa-plus"></i> <?php echo e(__('messages.generate_invoice')); ?>
+    <button type="button" onclick="document.getElementById('invoiceForm').style.display='block'" 
+        style="margin-left:auto; background:rgba(255,255,255,0.2); color:#fff; border:1px solid rgba(255,255,255,0.3); padding:4px 16px; border-radius:50px; font-weight:600; font-size:0.75rem; cursor:pointer;">
+                       <i class="fas fa-file-invoice"></i> <?php echo e(__('messages.generate_invoice')); ?>
 
-            </button>
-        <?php endif; ?>
+    </button>
+<?php endif; ?>
+
     </div>
     <div style="padding:16px;">
         <?php if($hasInvoice): ?>

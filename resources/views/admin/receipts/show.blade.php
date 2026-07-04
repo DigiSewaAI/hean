@@ -21,7 +21,24 @@
                 <tr><td style="padding:6px 0; font-weight:600;">{{ __('messages.amount') }}</td><td style="padding:6px 0; font-weight:700; color:#0EA5E9;">NPR {{ number_format($receipt->amount, 2) }}</td></tr>
                 <tr><td style="padding:6px 0; font-weight:600;">{{ __('messages.issued_date') }}</td><td style="padding:6px 0;">{{ $receipt->issued_date ? $receipt->issued_date->format('Y-m-d H:i') : 'N/A' }}</td></tr>
                 <tr><td style="padding:6px 0; font-weight:600;">{{ __('messages.payment_method') }}</td><td style="padding:6px 0;">{{ ucfirst($receipt->payment?->method ?? 'N/A') }}</td></tr>
-                <tr><td style="padding:6px 0; font-weight:600;">{{ __('messages.remarks') }}</td><td style="padding:6px 0;">{{ $receipt->remarks ?? 'N/A' }}</td></tr>
+                <tr>
+                    <td style="padding:6px 0; font-weight:600;">{{ __('messages.remarks') }}</td>
+                    <td style="padding:6px 0;">
+                        @php
+                            $remarks = $receipt->remarks;
+                            if (empty($remarks) && $receipt->payment && $receipt->payment->invoice) {
+                                $invoice = $receipt->payment->invoice;
+                                $invoiceType = $invoice->invoice_type ?? 'unknown';
+                                $typeLabel = __('messages.invoice_type_' . $invoiceType) ?? ucfirst(str_replace('_', ' ', $invoiceType));
+                                $remarks = __('messages.payment_for_invoice') . ' ' . $invoice->invoice_number . ' (' . $typeLabel . ')';
+                            }
+                            if (empty($remarks)) {
+                                $remarks = __('messages.none');
+                            }
+                        @endphp
+                        {{ $remarks }}
+                    </td>
+                </tr>
             </table>
         </div>
 
@@ -31,8 +48,15 @@
                 <h4 style="margin:0 0 12px 0; border-bottom:1px solid #e2e8f0; padding-bottom:8px;"><i class="fas fa-file-alt"></i> {{ __('messages.registration') }}</h4>
                 @php $registration = $receipt->payment?->registration; @endphp
                 @if($registration)
-                    <p style="margin:4px 0; font-weight:600;">{{ $registration->hostel_name ?? $registration->registration_number }}</p>
-                    <p style="margin:4px 0; color:#64748b; font-size:0.85rem;"><i class="fas fa-hashtag"></i> {{ $registration->registration_number }}</p>
+                    {{-- ✅ 8.3: दर्ता नम्बर (फलब्याक #ID) --}}
+                    <p style="margin:4px 0; font-weight:600; color:#0f172a;">
+                        {{ $registration->registration_number ?? '#'.$registration->id }}
+                    </p>
+                    @if($registration->hostel_name)
+                        <p style="margin:4px 0; color:#64748b; font-size:0.85rem;">
+                            <i class="fas fa-hotel"></i> {{ $registration->hostel_name }}
+                        </p>
+                    @endif
                     <a href="{{ route('admin.registrations.show', $registration) }}" style="display:inline-block; background:#0EA5E9; color:#fff; padding:4px 16px; border-radius:4px; text-decoration:none; font-size:0.85rem;"><i class="fas fa-eye"></i> {{ __('messages.view_registration') }}</a>
                 @else
                     <p style="color:#94a3b8;">{{ __('messages.not_available') }}</p>

@@ -97,8 +97,9 @@
                 </h4>
                 @if($invoice->registration)
                     <p style="margin:4px 0; font-weight:600; color:#0f172a;">{{ $invoice->registration->hostel_name ?? $invoice->registration->registration_number }}</p>
+                    {{-- ✅ 8.3: दर्ता नम्बर (फलब्याक #ID) --}}
                     <p style="margin:4px 0; color:#64748b; font-size:0.85rem;">
-                        <i class="fas fa-hashtag"></i> {{ $invoice->registration->registration_number }}
+                        <i class="fas fa-hashtag"></i> {{ $invoice->registration->registration_number ?? '#'.$invoice->registration->id }}
                     </p>
                     <p style="margin:4px 0; color:#64748b; font-size:0.85rem;">
                         <i class="fas fa-map-marker-alt"></i> {{ $invoice->registration->district }}, {{ $invoice->registration->municipality }}
@@ -166,29 +167,29 @@
     </div>
 
     {{-- Actions --}}
-<div style="margin-top:24px; background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:16px 20px; display:flex; gap:12px; flex-wrap:wrap;">
-    @if($invoice->pdf_path)
-        <a href="{{ route('admin.invoices.download', $invoice) }}" style="display:inline-flex; align-items:center; gap:6px; background:#22C55E; color:#fff; padding:8px 24px; border-radius:50px; text-decoration:none; font-weight:600; font-size:0.85rem; box-shadow:0 4px 15px rgba(34,197,94,0.3);">
-            <i class="fas fa-file-pdf"></i> {{ __('messages.download_pdf') }}
-        </a>
-    @endif
+    <div style="margin-top:24px; background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:16px 20px; display:flex; gap:12px; flex-wrap:wrap;">
+        @if($invoice->pdf_path)
+            <a href="{{ route('admin.invoices.download', $invoice) }}" style="display:inline-flex; align-items:center; gap:6px; background:#22C55E; color:#fff; padding:8px 24px; border-radius:50px; text-decoration:none; font-weight:600; font-size:0.85rem; box-shadow:0 4px 15px rgba(34,197,94,0.3);">
+                <i class="fas fa-file-pdf"></i> {{ __('messages.download_pdf') }}
+            </a>
+        @endif
 
-    {{-- Add Payment as Form (GET) --}}
-@if($invoice->status !== 'paid')
-    <form action="{{ route('admin.payments.create') }}" method="GET" style="display:inline;">
-        <input type="hidden" name="invoice_id" value="{{ $invoice->id }}">
-        <button type="submit" style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; border:none; padding:8px 24px; border-radius:50px; font-weight:600; font-size:0.85rem; cursor:pointer; box-shadow:0 4px 15px rgba(14,165,233,0.3);">
-            <i class="fas fa-plus-circle"></i> {{ __('messages.add_payment') }}
-        </button>
-    </form>
-@endif
-    @if($invoice->registration)
-        <a href="{{ route('admin.registrations.show', $invoice->registration) }}" 
-           style="display:inline-flex; align-items:center; gap:6px; background:#e2e8f0; color:#1e293b; padding:8px 24px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem;">
-            <i class="fas fa-arrow-right"></i> {{ __('messages.go_to_registration') }}
-        </a>
-    @endif
-</div>
+        {{-- Add Payment as Form (GET) --}}
+        @if($invoice->status !== 'paid')
+            <form action="{{ route('admin.payments.create') }}" method="GET" style="display:inline;">
+                <input type="hidden" name="invoice_id" value="{{ $invoice->id }}">
+                <button type="submit" style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; border:none; padding:8px 24px; border-radius:50px; font-weight:600; font-size:0.85rem; cursor:pointer; box-shadow:0 4px 15px rgba(14,165,233,0.3);">
+                    <i class="fas fa-plus-circle"></i> {{ __('messages.add_payment') }}
+                </button>
+            </form>
+        @endif
+        @if($invoice->registration)
+            <a href="{{ route('admin.registrations.show', $invoice->registration) }}" 
+               style="display:inline-flex; align-items:center; gap:6px; background:#e2e8f0; color:#1e293b; padding:8px 24px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem;">
+                <i class="fas fa-arrow-right"></i> {{ __('messages.go_to_registration') }}
+            </a>
+        @endif
+    </div>
 
 </div>
 @endsection

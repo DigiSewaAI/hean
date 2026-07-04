@@ -54,7 +54,7 @@
                 <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">
                     <i class="fas fa-search" style="color:#0EA5E9;"></i> {{ __('messages.search') }}
                 </label>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('messages.search_placeholder_hostel') }}" 
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('messages.search_placeholder_hostel') }} (नाम, ठेगाना, दर्ता नम्बर)" 
                        style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; transition:0.2s;">
             </div>
 
@@ -140,15 +140,18 @@
 
 {{-- ===== TABLE ===== --}}
 <div class="table-container" style="overflow-x:auto; background:#fff; border-radius:12px; border:1px solid #e2e8f0;">
-    {{-- ✅ FINAL FIX: सीधा URL प्रयोग गरियो, id हटाइयो --}}
-<form action="{{ route('admin.test.bulk') }}" method="POST" onsubmit="return confirmBulkAction();">
-    @csrf
+    <form action="{{ route('admin.test.bulk') }}" method="POST" onsubmit="return confirmBulkAction();">
+        @csrf
 
-            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
             <thead style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
                 <tr>
                     <th style="padding:12px 16px; text-align:left; width:40px;">
                         <input type="checkbox" id="selectAll" style="accent-color:#0EA5E9; width:16px; height:16px; cursor:pointer;">
+                    </th>
+                    {{-- ✅ 8.3: दर्ता नम्बर स्तम्भ थपियो --}}
+                    <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">
+                        दर्ता नम्बर
                     </th>
                     <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">{{ __('messages.hostel') }}</th>
                     <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">{{ __('messages.district') }}</th>
@@ -165,6 +168,12 @@
                 <tr style="border-bottom:1px solid #e2e8f0; transition:background 0.15s;" class="hover:bg-gray-50">
                     <td style="padding:12px 16px; text-align:center;">
                         <input type="checkbox" name="ids[]" value="{{ $hostel->id }}" class="rowCheckbox" style="accent-color:#0EA5E9; width:16px; height:16px; cursor:pointer;">
+                    </td>
+                    {{-- ✅ 8.3: दर्ता नम्बर लिङ्कको रूपमा देखाइयो --}}
+                    <td style="padding:12px 16px; font-weight:600; color:#0f172a;">
+                        <a href="{{ route('admin.hostels.show', $hostel) }}" style="color:#0EA5E9; text-decoration:none; font-weight:600;">
+                            {{ $hostel->registration_number }}
+                        </a>
                     </td>
                     <td style="padding:12px 16px; font-weight:500; color:#0f172a;">
                         {{ $hostel->name_english ?: $hostel->name_nepali }}
@@ -221,7 +230,8 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" style="padding:40px 16px; text-align:center; color:#94a3b8;">
+                    {{-- ✅ colspan 10 (पहिले 9 थियो, अब 10 भयो) --}}
+                    <td colspan="10" style="padding:40px 16px; text-align:center; color:#94a3b8;">
                         <i class="fas fa-hotel" style="font-size:2rem; display:block; margin-bottom:8px; color:#cbd5e1;"></i>
                         {{ __('messages.no_hostels_found') }}
                     </td>

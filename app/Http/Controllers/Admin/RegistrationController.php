@@ -32,7 +32,6 @@ class RegistrationController extends Controller
 
     /**
      * Show a single registration with all related data.
-     * ✅ FIXED: Loads all necessary relationships for clean UI.
      */
     public function show(Registration $registration)
     {
@@ -91,20 +90,22 @@ class RegistrationController extends Controller
 
     /**
      * Store a new registration (admin manual).
+     * ✅ डुप्लिकेट जाँच, block_name, र registration_number ह्यान्डलिङ थपियो।
      */
     public function store(Request $request)
     {
+        // ✅ block_name थपियो (वैकल्पिक)
         $validator = Validator::make($request->all(), [
             'hostel_name' => 'required|string|max:255',
             'hostel_name_english' => 'nullable|string|max:255',
             'hostel_type' => 'required|in:boys,girls,co-ed',
             'established_year' => 'required|integer|min:1900|max:' . date('Y'),
-            'pan' => 'nullable|string|max:50',
+            'pan' => 'nullable|string|max:50',              // ✅ 'unique' हटाइयो (पहिले नै थिएन)
             'capacity' => 'required|integer|min:1',
             'rooms' => 'nullable|integer|min:0',
             'operator_name' => 'required|string|max:255',
-            'email' => 'nullable|email|max:255',
-            'contact' => 'required|string|max:20',
+            'email' => 'nullable|email|max:255',            // ✅ 'unique' हटाइयो
+            'contact' => 'required|string|max:20',          // ✅ 'unique' हटाइयो
             'website' => 'nullable|url|max:255',
             'province' => 'required|exists:provinces,id',
             'district' => 'required|exists:districts,id',
@@ -113,6 +114,7 @@ class RegistrationController extends Controller
             'street' => 'nullable|string|max:255',
             'landmark' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
+            'block_name' => 'nullable|string|max:255',      // ✅ नयाँ
             'documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'source' => 'sometimes|in:public,admin,import,renewal',
         ]);
@@ -121,12 +123,29 @@ class RegistrationController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        // ✅ नामहरू लिनुहोस् (province, district, municipality)
+        $provinceName = \App\Models\Province::find($request->province)?->name;
+        $districtName = \App\Models\District::find($request->district)?->name;
+        $municipalityName = \App\Models\Municipality::find($request->municipality)?->name;
+
+        // ✅ डुप्लिकेट जाँच – province पठाउनु हुँदैन
+        $duplicate = Hostel::checkDuplicate(
+            $request->hostel_name,
+            $districtName,
+            $municipalityName,
+            $request->ward,
+            $request->street,
+            $request->block_name ?? null
+        );
+
+        if ($duplicate) {
+            return back()->withErrors([
+                'hostel_name' => 'यसै नाम र ठेगानामा अर्को होस्टल पहिले नै दर्ता भएको छ। यदि यो फरक ब्लक हो भने कृपया "ब्लक / भवन नाम" भर्नुहोस्।'
+            ])->withInput();
+        }
+
         DB::beginTransaction();
         try {
-            $provinceName = \App\Models\Province::find($request->province)?->name;
-            $districtName = \App\Models\District::find($request->district)?->name;
-            $municipalityName = \App\Models\Municipality::find($request->municipality)?->name;
-
             $registration = Registration::create([
                 'source' => $request->source ?? 'admin',
                 'submitted_at' => now(),
@@ -149,9 +168,12 @@ class RegistrationController extends Controller
                 'ward' => $request->ward,
                 'street' => $request->street,
                 'landmark' => $request->landmark,
+                'block_name' => $request->block_name,        // ✅ थपियो
+                // ❌ 'registration_number' हटाइयो – model event ले जनरेट गर्छ
             ]);
 
-            // Upload documents
+            // Upload documents and capture first photo path
+            $firstPhotoPath = null;
             if ($request->hasFile('documents')) {
                 foreach ($request->file('documents') as $type => $file) {
                     $path = $file->store('public/documents/' . $registration->id, 'public');
@@ -161,6 +183,10 @@ class RegistrationController extends Controller
                         'file_path' => $path,
                         'uploaded_at' => now(),
                     ]);
+
+                    if ($type === 'photos' && is_null($firstPhotoPath)) {
+                        $firstPhotoPath = $path;
+                    }
                 }
             }
 
@@ -186,9 +212,11 @@ class RegistrationController extends Controller
 
     /**
      * Update registration.
+     * ✅ registration_number बाहेक सबै अपडेट गरिन्छ।
      */
     public function update(Request $request, Registration $registration)
     {
+        // ✅ registration_number validation बाट हटाइयो
         $data = $request->validate([
             'hostel_name' => 'required|string|max:255',
             'hostel_name_english' => 'nullable|string|max:255',
@@ -206,8 +234,12 @@ class RegistrationController extends Controller
             'street' => 'nullable|string|max:255',
             'landmark' => 'nullable|string|max:255',
             'pan' => 'nullable|string|max:50',
-            'registration_number' => 'nullable|string|max:50',
+            'block_name' => 'nullable|string|max:255',      // ✅ थपियो
+            'status' => 'required|in:pending,approved,active,rejected,duplicate,awaiting_payment,inspection',
         ]);
+
+        // ✅ registration_number हटाउनुहोस् (सुरक्षाका लागि)
+        $data = $request->except(['registration_number', '_token', '_method']);
 
         $registration->update($data);
 
@@ -217,24 +249,132 @@ class RegistrationController extends Controller
 
     /**
      * Approve a registration.
+     * ✅ Creates/updates the associated hostel and copies the first photo/signboard.
      */
     public function approve(Registration $registration)
     {
-        if ($registration->status === 'approved') {
-            return back()->with('error', 'Registration is already approved.');
+        if ($registration->status === 'approved' || $registration->status === 'active') {
+            return back()->with('error', 'Registration is already approved or active.');
         }
 
-        if ($registration->status === 'active') {
-            return back()->with('error', 'Registration is already active.');
+        DB::beginTransaction();
+        try {
+            // ✅ 1. Ensure hostel exists (create if not)
+            $this->ensureHostelExists($registration);
+
+            // ✅ 2. Copy image from documents (signboard or photos)
+            $imagePath = null;
+            $doc = $registration->documents()->whereIn('type', ['signboard', 'photos'])->first();
+            if ($doc && Storage::disk('public')->exists($doc->file_path)) {
+                $filename = uniqid() . '_' . basename($doc->file_path);
+                $newPath = 'hostels/' . $filename;
+                Storage::disk('public')->copy($doc->file_path, $newPath);
+                $imagePath = $newPath;
+            }
+
+            // ✅ 3. Update hostel with all registration data and image
+            if ($registration->hostel_id) {
+                $hostel = Hostel::find($registration->hostel_id);
+                if ($hostel) {
+                    $hostel->update([
+                        'name_nepali' => $registration->hostel_name,
+                        'name_english' => $registration->hostel_name_english,
+                        'operator_name' => $registration->operator_name,
+                        'contact' => $registration->contact,
+                        'description' => $registration->description,
+                        'province' => $registration->province,
+                        'district' => $registration->district,
+                        'municipality' => $registration->municipality,
+                        'ward' => $registration->ward,
+                        'street' => $registration->street,
+                        'landmark' => $registration->landmark,
+                        'type' => $registration->hostel_type,
+                        'capacity' => $registration->capacity,
+                        'rooms' => $registration->rooms,
+                        'established_year' => $registration->established_year,
+                        'email' => $registration->email,
+                        'website' => $registration->website,
+                        'image' => $imagePath ?? $hostel->image,
+                        'approved' => true,
+                        'visible' => true,
+                    ]);
+                }
+            }
+
+            // ✅ 4. Update registration status
+            $registration->status = 'approved';
+            $registration->approved_at = now();
+            $registration->save();
+
+            DB::commit();
+
+            return redirect()->route('admin.registrations.show', $registration)
+                ->with('success', 'Registration approved and hostel updated successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Approval failed: ' . $e->getMessage());
+            return back()->withErrors(['general' => 'Error during approval: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Ensure a hostel exists for the registration.
+     * ✅ refresh(), guard, र registration_number प्रतिलिपि थपियो।
+     */
+    private function ensureHostelExists(Registration $registration)
+    {
+        if ($registration->hostel_id) {
+            return;
         }
 
-        $registration->update([
-            'status' => 'approved',
-            'approved_at' => now(),
+        // Copy image from documents (signboard or photos)
+        $imagePath = null;
+        $doc = $registration->documents()->whereIn('type', ['signboard', 'photos'])->first();
+        if ($doc && Storage::disk('public')->exists($doc->file_path)) {
+            $filename = uniqid() . '_' . basename($doc->file_path);
+            $newPath = 'hostels/' . $filename;
+            Storage::disk('public')->copy($doc->file_path, $newPath);
+            $imagePath = $newPath;
+        }
+
+        // ✅ Hostel सिर्जना गर्नुहोस् (block_name पनि पठाउनुहोस्)
+        $hostel = Hostel::create([
+            'name_nepali' => $registration->hostel_name,
+            'name_english' => $registration->hostel_name_english,
+            'operator_name' => $registration->operator_name,
+            'contact' => $registration->contact,
+            'description' => $registration->description,
+            'province' => $registration->province,
+            'district' => $registration->district,
+            'municipality' => $registration->municipality,
+            'ward' => $registration->ward,
+            'street' => $registration->street,
+            'landmark' => $registration->landmark,
+            'type' => $registration->hostel_type,
+            'capacity' => $registration->capacity,
+            'rooms' => $registration->rooms,
+            'established_year' => $registration->established_year,
+            'email' => $registration->email,
+            'website' => $registration->website,
+            'block_name' => $registration->block_name ?? null,  // ✅ थपियो
+            'image' => $imagePath,
+            'approved' => true,
+            'visible' => true,
+            'featured' => false,
         ]);
 
-        return redirect()->route('admin.registrations.show', $registration)
-            ->with('success', 'Registration approved. You can now generate an invoice.');
+        // ✅ ताजा मान ल्याउन refresh() – event बाट registration_number ल्याउँछ
+        $hostel->refresh();
+
+        $registration->hostel_id = $hostel->id;
+
+        // ✅ Guard: यदि पहिले नै registration_number सेट छैन भने मात्र प्रतिलिपि गर्ने
+        if (empty($registration->registration_number)) {
+            $registration->registration_number = $hostel->registration_number;
+        }
+
+        $registration->save();
     }
 
     /**

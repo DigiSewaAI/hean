@@ -1,43 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <title>Receipt {{ $receipt->receipt_number }}</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @charset "UTF-8";
+        @page {
+            margin: 20px;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'notosansdevanagari', 'DejaVu Sans', sans-serif;
+        }
         body {
-            font-family: 'notosansdevanagari', 'DejaVu Sans', sans-serif;  <!-- ✅ Explicit font for Nepali -->
             font-size: 13px;
             line-height: 1.6;
             color: #1e293b;
-            padding: 30px;
-            background: #f8fafc;
+            padding: 20px;
+            background: #fff;
         }
         .receipt-wrapper {
             max-width: 900px;
             margin: 0 auto;
             background: #ffffff;
-            padding: 30px 35px;
+            padding: 25px 30px;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-            position: relative;
-            overflow: hidden;
         }
-
-        /* ===== WATERMARK ===== */
-        /* Removed - handled by controller */
-
-        /* ===== HEADER ===== */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 4px solid #22C55E;
-            padding-bottom: 20px;
+            padding-bottom: 15px;
             margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
         }
         .header-left {
             display: flex;
@@ -45,14 +43,14 @@
             gap: 15px;
         }
         .header-left .logo img {
-            height: 65px;
+            height: 80px;
             width: auto;
         }
         .header-left .org .nepali-name {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
             color: #0b2b4a;
-            letter-spacing: 0.5px;
+            font-family: 'notosansdevanagari', 'DejaVu Sans', sans-serif;
         }
         .header-left .org .main-name {
             font-size: 14px;
@@ -66,9 +64,7 @@
         }
         .header-left .org .regd-no {
             font-size: 11px;
-            font-weight: 500;
             color: #475569;
-            margin-top: 2px;
         }
         .header-right {
             text-align: right;
@@ -80,7 +76,6 @@
             letter-spacing: 3px;
         }
         .header-right .doc-meta {
-            margin-top: 4px;
             font-size: 12px;
             color: #475569;
             line-height: 1.8;
@@ -92,32 +87,27 @@
             font-size: 11px;
             color: #475569;
             margin-top: 4px;
-            line-height: 1.5;
         }
 
-        /* ===== RECEIVED FROM ===== */
         .received {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 25px;
-            padding: 15px 0;
+            margin-bottom: 20px;
+            padding: 10px 0;
             border-bottom: 1px solid #e2e8f0;
-            position: relative;
-            z-index: 1;
         }
         .received .from .label {
             font-weight: 700;
             font-size: 14px;
             color: #0f172a;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
         .received .from .value {
             font-size: 16px;
             font-weight: 700;
             color: #0f172a;
-            margin-top: 4px;
+            margin-top: 2px;
         }
         .received .from .sub-value {
             font-weight: 400;
@@ -134,11 +124,8 @@
             color: #0f172a;
         }
 
-        /* ===== TABLE ===== */
         .table-wrap {
-            margin-bottom: 25px;
-            position: relative;
-            z-index: 1;
+            margin-bottom: 20px;
         }
         table.items {
             width: 100%;
@@ -151,41 +138,29 @@
             font-weight: 700;
             text-transform: uppercase;
             font-size: 11px;
-            letter-spacing: 0.5px;
-            padding: 12px 15px;
+            padding: 10px 12px;
             border-bottom: 2px solid #e2e8f0;
             text-align: left;
         }
         table.items tbody td {
-            padding: 12px 15px;
+            padding: 10px 12px;
             border-bottom: 1px solid #e2e8f0;
         }
-        table.items tbody tr:last-child td {
-            border-bottom: none;
-        }
-        .text-right {
-            text-align: right;
-        }
-        .text-center {
-            text-align: center;
-        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
 
-        /* ===== TOTALS ===== */
         .totals {
             display: flex;
             justify-content: flex-end;
-            padding-right: 15px;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
+            margin-bottom: 15px;
         }
         .totals table {
-            width: 320px;
+            width: 300px;
             border-collapse: collapse;
             font-size: 14px;
         }
         .totals table td {
-            padding: 8px 15px;
+            padding: 6px 12px;
             border-bottom: 1px solid #e2e8f0;
         }
         .totals table .total-row td {
@@ -193,21 +168,18 @@
             font-size: 18px;
             color: #0f172a;
             border-bottom: 3px solid #22C55E;
-            padding-top: 14px;
+            padding-top: 10px;
         }
 
-        /* ===== STATUS ===== */
         .status-row {
             background: #f8fafc;
             border-radius: 8px;
-            padding: 14px 20px;
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 10px;
             border: 1px solid #e2e8f0;
-            position: relative;
-            z-index: 1;
+            margin: 10px 0 20px;
         }
         .status-label {
             font-weight: 700;
@@ -215,28 +187,23 @@
             color: #0f172a;
         }
         .paid-badge {
-            display: inline-block;
             background: #dcfce7;
             color: #166534;
             padding: 4px 24px;
             border-radius: 30px;
             font-weight: 800;
             font-size: 16px;
-            letter-spacing: 0.5px;
         }
 
-        /* ===== FOOTER ===== */
         .footer {
-            margin-top: 30px;
-            padding-top: 20px;
+            margin-top: 20px;
+            padding-top: 15px;
             border-top: 2px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
             font-size: 13px;
             color: #64748b;
-            position: relative;
-            z-index: 1;
         }
         .footer .thank {
             font-weight: 600;
@@ -251,7 +218,7 @@
         .footer .digital-note {
             font-size: 11px;
             color: #94a3b8;
-            margin-top: 6px;
+            margin-top: 4px;
             font-style: italic;
         }
         .footer .signature {
@@ -263,15 +230,10 @@
             font-size: 12px;
         }
         .footer .signature .line {
-            width: 180px;
+            width: 150px;
             border-top: 1px solid #94a3b8;
-            margin-top: 8px;
+            margin-top: 6px;
             margin-left: auto;
-        }
-
-        @media print {
-            body { padding: 10px; background: #fff; }
-            .receipt-wrapper { border: none; box-shadow: none; padding: 15px; }
         }
     </style>
 </head>
@@ -312,7 +274,7 @@
             <div class="sub-value">{{ $payment->registration->hostel->name ?? $payment->registration->hostel_name ?? '' }}</div>
         </div>
         <div class="details">
-            <div><strong>Registration #:</strong> {{ $payment->registration->registration_number ?? $payment->registration_id }}</div>
+<div><strong>दर्ता नम्बर:</strong> {{ $payment->registration->registration_number ?? '#'.$payment->registration_id }}</div>
             @if($payment->invoice)
                 <div><strong>Invoice:</strong> {{ $payment->invoice->invoice_number }}</div>
             @endif
@@ -327,8 +289,8 @@
             <thead>
                 <tr>
                     <th style="width:8%;" class="text-center">#</th>
-                    <th style="width:52%;">DESCRIPTION</th>
-                    <th style="width:20%;">INVOICE NO.</th>
+                    <th style="width:50%;">DESCRIPTION</th>
+                    <th style="width:22%;">INVOICE NO.</th>
                     <th style="width:20%;" class="text-right">AMOUNT</th>
                 </tr>
             </thead>
@@ -360,7 +322,7 @@
     {{-- STATUS --}}
     <div class="status-row">
         <span class="status-label">Payment Status</span>
-        <span class="paid-badge">✅ Paid</span>
+        <span class="paid-badge">Paid</span>
     </div>
 
     {{-- FOOTER --}}
@@ -368,10 +330,10 @@
         <div>
             <div class="thank">Thank you for your payment.</div>
             <div class="org-name">Hostel Entrepreneurs Association Nepal</div>
-            <div class="digital-note">🔹 This is a digitally generated receipt. No signature required.</div>
+            <div class="digital-note">This is a digitally generated receipt. No signature required.</div>
         </div>
         <div class="signature">
-            <div class="title">— — —</div>
+            <div class="title">- - -</div>
             <div style="font-size:11px; color:#94a3b8;">Machine Generated</div>
         </div>
     </div>

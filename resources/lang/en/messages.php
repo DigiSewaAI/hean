@@ -1190,5 +1190,26 @@ return [
 'inspection_checklist' => 'Inspection Checklist',
 'completed_date' => 'Completed Date',
 'back_to_registration' => 'Back to Registration',
-
+'payment_for_invoice' => 'Payment for Invoice',
+// ============================================================
+// EDIT REGISTRATION PAGE (SPECIFIC KEYS)
+// ============================================================
+'edit_registration' => 'Edit Registration',
+'hostel_information' => 'Hostel Information',
+'hostel_name_nepali' => 'Name (Nepali)',
+'hostel_name_english' => 'Name (English)',
+'total_beds' => 'Total Beds',
+'total_rooms' => 'Total Rooms',
+'contact_number' => 'Contact Number',
+'email_address' => 'Email Address',
+'website_optional' => 'Website (Optional)',
+'description_facilities_optional' => 'Description / Facilities (Optional)',
+'owner_applicant_information' => 'Owner / Applicant Information',
+'full_name' => 'Full Name',
+'pan_number' => 'PAN Number',
+'street_tole' => 'Street / Tole',
+'landmark_optional' => 'Landmark (Optional)',
+'ward_number' => 'Ward Number',
+'status_registration' => 'Status & Registration',
+'registration_number_readonly' => 'Registration number is auto-generated and cannot be changed.',
 ];

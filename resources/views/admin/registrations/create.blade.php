@@ -43,6 +43,18 @@
                 </div>
             </div>
 
+            {{-- ✅ 8.1: Block / Building Name --}}
+            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="block_name">ब्लक / भवन नाम <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+                    <input type="text" name="block_name" id="block_name" value="{{ old('block_name') }}" placeholder="जस्तै: Block A, Main Building">
+                    @error('block_name')
+                        <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
+                    @enderror
+                    <small style="color:#64748b; font-size:0.75rem;">यदि एउटै ठेगानामा धेरै ब्लक छन् भने छुट्याउन प्रयोग गर्नुहोस्।</small>
+                </div>
+            </div>
+
             <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div class="form-group">
                     <label for="hostel_type">{{ __('messages.type') }} <span style="color:#dc2626;">*</span></label>
@@ -65,7 +77,11 @@
                 <div class="form-group">
                     <label for="pan">{{ __('messages.pan_number') }} <span style="color:#dc2626;">*</span></label>
                     <input type="text" name="pan" id="pan" value="{{ old('pan') }}" placeholder="{{ __('messages.placeholder_pan') }}" required>
-                    <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_pan_block') }}</small>
+                    {{-- ✅ 8.2: PAN helper message --}}
+                    <small style="color:#64748b; font-size:0.75rem;">
+                        <i class="fas fa-info-circle"></i> 
+                        PAN नम्बर केवल प्रमाणीकरणको लागि हो। एउटै PAN मा धेरै होस्टल दर्ता गर्न सकिन्छ।
+                    </small>
                 </div>
                 <div class="form-group">
                     {{-- Registration Number will be auto-generated --}}
@@ -99,13 +115,22 @@
                 <div class="form-group">
                     <label for="email">{{ __('messages.email_address') }} <span style="color:#dc2626;">*</span></label>
                     <input type="email" name="email" id="email" value="{{ old('email') }}" placeholder="{{ __('messages.placeholder_email') }}" required>
+                    {{-- ✅ 8.2: Email helper message --}}
+                    <small style="color:#64748b; font-size:0.75rem;">
+                        <i class="fas fa-info-circle"></i> 
+                        इमेल सञ्चार र प्रमाणीकरणको लागि हो। एउटै इमेल धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
+                    </small>
                 </div>
             </div>
             <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div class="form-group">
                     <label for="contact">{{ __('messages.contact_number') }} <span style="color:#dc2626;">*</span></label>
                     <input type="text" name="contact" id="contact" value="{{ old('contact') }}" required>
-                    <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_contact_duplicate_check') }}</small>
+                    {{-- ✅ 8.2: Contact helper message --}}
+                    <small style="color:#64748b; font-size:0.75rem;">
+                        <i class="fas fa-info-circle"></i> 
+                        सम्पर्क नम्बर सञ्चारको लागि हो। एउटै नम्बर धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
+                    </small>
                 </div>
                 <div class="form-group">
                     <label for="website">{{ __('messages.website_optional') }}</label>
@@ -258,12 +283,10 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // ===== Dynamic Dropdowns =====
         const provinceSelect = document.getElementById('province');
         const districtSelect = document.getElementById('district');
         const municipalitySelect = document.getElementById('municipality');
 
-        // Load districts on province change
         provinceSelect.addEventListener('change', function() {
             const provinceId = this.value;
             districtSelect.innerHTML = '<option value="">' + '{{ __("messages.select_district") }}' + '</option>';
@@ -279,13 +302,10 @@
                             districtSelect.appendChild(option);
                         });
                     })
-                    .catch(() => {
-                        // Fallback: if API fails, show nothing
-                    });
+                    .catch(() => {});
             }
         });
 
-        // Load municipalities on district change
         districtSelect.addEventListener('change', function() {
             const districtId = this.value;
             municipalitySelect.innerHTML = '<option value="">' + '{{ __("messages.select_municipality") }}' + '</option>';
@@ -304,7 +324,6 @@
             }
         });
 
-        // Trigger change on page load if old values exist
         if (provinceSelect.value) {
             provinceSelect.dispatchEvent(new Event('change'));
             if (districtSelect.value) {

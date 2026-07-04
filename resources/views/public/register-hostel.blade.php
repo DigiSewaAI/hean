@@ -64,6 +64,21 @@
                                 </div>
                             </div>
 
+                            {{-- ✅ 8.1: Block / Building Name --}}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="block_name" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                                        ब्लक / भवन नाम <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+                                    </label>
+                                    <input type="text" name="block_name" id="block_name" value="{{ old('block_name') }}"
+                                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
+                                           class="form-control @error('block_name') is-invalid @enderror"
+                                           placeholder="जस्तै: Block A, Main Building">
+                                    @error('block_name') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+                                    <small style="color:#64748b; font-size:0.75rem;">यदि एउटै ठेगानामा धेरै ब्लक छन् भने छुट्याउन प्रयोग गर्नुहोस्।</small>
+                                </div>
+                            </div>
+
                             {{-- Type --}}
                             <div class="col-md-3">
                                 <div class="form-group">
@@ -132,6 +147,11 @@
                                            style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
                                            class="form-control @error('contact_number') is-invalid @enderror" required>
                                     @error('contact_number') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+                                    {{-- ✅ 8.2: Contact helper message --}}
+                                    <small style="color:#64748b; font-size:0.75rem;">
+                                        <i class="fas fa-info-circle"></i> 
+                                        सम्पर्क नम्बर सञ्चारको लागि हो। एउटै नम्बर धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
+                                    </small>
                                 </div>
                             </div>
 
@@ -145,6 +165,11 @@
                                            style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
                                            class="form-control @error('email') is-invalid @enderror" required>
                                     @error('email') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+                                    {{-- ✅ 8.2: Email helper message --}}
+                                    <small style="color:#64748b; font-size:0.75rem;">
+                                        <i class="fas fa-info-circle"></i> 
+                                        इमेल सञ्चार र प्रमाणीकरणको लागि हो। एउटै इमेल धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
+                                    </small>
                                 </div>
                             </div>
 
@@ -202,7 +227,11 @@
                                            style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
                                            class="form-control @error('pan') is-invalid @enderror" placeholder="e.g. 123456789" required>
                                     @error('pan') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-                                    <small style="color:#64748b; font-size:0.75rem;">PAN matching applications will be blocked automatically.</small>
+                                    {{-- ✅ 8.2: PAN helper message --}}
+                                    <small style="color:#64748b; font-size:0.75rem;">
+                                        <i class="fas fa-info-circle"></i> 
+                                        PAN नम्बर केवल प्रमाणीकरणको लागि हो। एउटै PAN मा धेरै होस्टल दर्ता गर्न सकिन्छ।
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -484,7 +513,6 @@
         const districtSelect = document.getElementById('district');
         const municipalitySelect = document.getElementById('municipality');
 
-        // Load districts on province change
         provinceSelect.addEventListener('change', function() {
             const provinceId = this.value;
             districtSelect.innerHTML = '<option value="">Select District</option>';
@@ -503,7 +531,6 @@
             }
         });
 
-        // Load municipalities on district change
         districtSelect.addEventListener('change', function() {
             const districtId = this.value;
             municipalitySelect.innerHTML = '<option value="">Select Municipality</option>';
@@ -521,10 +548,8 @@
             }
         });
 
-        // Trigger change if there's old value (to load districts/municipalities on page load)
         if (provinceSelect.value) {
             provinceSelect.dispatchEvent(new Event('change'));
-            // Also trigger district if district value exists
             if (districtSelect.value) {
                 districtSelect.dispatchEvent(new Event('change'));
             }

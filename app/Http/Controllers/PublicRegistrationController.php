@@ -30,10 +30,26 @@ class PublicRegistrationController extends Controller
                 ->withInput();
         }
 
-        // Get names from IDs
+        // Get names from IDs (province, district, municipality)
         $provinceName = Province::find($request->province)?->name;
         $districtName = District::find($request->district)?->name;
         $municipalityName = Municipality::find($request->municipality)?->name;
+
+        // ✅ डुप्लिकेट जाँच – province पठाउनु हुँदैन
+        $duplicate = Hostel::checkDuplicate(
+            $request->hostel_name,          // नाम (नेपाली/अंग्रेजी दुवै खोज्छ)
+            $districtName,                  // जिल्लाको नाम
+            $municipalityName,              // नगरपालिकाको नाम
+            $request->ward,
+            $request->street,
+            $request->block_name ?? null    // वैकल्पिक ब्लक
+        );
+
+        if ($duplicate) {
+            return back()->withErrors([
+                'hostel_name' => 'यसै नाम र ठेगानामा अर्को होस्टल पहिले नै दर्ता भएको छ। यदि यो फरक ब्लक हो भने कृपया "ब्लक / भवन नाम" भर्नुहोस्।'
+            ])->withInput();
+        }
 
         DB::beginTransaction();
         try {
@@ -43,7 +59,7 @@ class PublicRegistrationController extends Controller
                 'status' => 'pending',
                 // Hostel details
                 'hostel_name' => $request->hostel_name,
-                    'hostel_name_english' => $request->hostel_name_english,
+                'hostel_name_english' => $request->hostel_name_english,
                 'hostel_type' => $request->hostel_type,
                 'capacity' => $request->capacity,
                 'rooms' => $request->rooms,
@@ -62,7 +78,9 @@ class PublicRegistrationController extends Controller
                 'street' => $request->street,
                 'landmark' => $request->landmark,
                 'pan' => $request->pan,
-                'registration_number' => $request->registration_number,
+                // ✅ block_name थपियो (यो होस्टलमा मात्र होइन, यहाँ पनि)
+                'block_name' => $request->block_name,
+                // ❌ 'registration_number' हटाइयो – model event ले आफैं बनाउँछ
             ]);
 
             // Documents
@@ -120,8 +138,8 @@ class PublicRegistrationController extends Controller
             'capacity' => 'required|integer|min:1',
             'rooms' => 'required|integer|min:1',
             'established_year' => 'required|integer|min:1900|max:' . date('Y'),
-            'contact_number' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
+            'contact_number' => 'required|string|max:20',      // ✅ 'unique' हटाइयो (पहिले नै थिएन)
+            'email' => 'required|email|max:255',               // ✅ 'unique' हटाइयो
             'website' => 'nullable|url|max:255',
             'description' => 'nullable|string|max:1000',
             'owner_name' => 'required|string|max:255',
@@ -131,8 +149,8 @@ class PublicRegistrationController extends Controller
             'ward' => 'required|integer|min:1|max:32',
             'street' => 'required|string|max:255',
             'landmark' => 'nullable|string|max:255',
-            'pan' => 'required|string|max:50',
-            'registration_number' => 'nullable|string|max:50',
+            'pan' => 'required|string|max:50',                // ✅ 'unique' हटाइयो
+            'block_name' => 'nullable|string|max:255',        // ✅ नयाँ: वैकल्पिक ब्लक
             'documents.registration_certificate' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'documents.citizenship_copy' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'documents.pan_certificate' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',

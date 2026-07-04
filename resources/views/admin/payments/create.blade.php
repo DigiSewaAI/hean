@@ -96,6 +96,7 @@
                 <option value="esewa" {{ old('method') == 'esewa' ? 'selected' : '' }}>{{ __('eSewa') }}</option>
                 <option value="khalti" {{ old('method') == 'khalti' ? 'selected' : '' }}>{{ __('Khalti') }}</option>
                 <option value="cash" {{ old('method') == 'cash' ? 'selected' : '' }}>{{ __('Cash') }}</option>
+                <option value="qr" {{ old('method') == 'qr' ? 'selected' : '' }}>{{ __('QR Scan') }}</option>
             </select>
             @error('method') <span style="color:#ef4444; font-size:0.8rem;">{{ $message }}</span> @enderror
         </div>
@@ -165,4 +166,5 @@
         </div>
     </form>
 </div>
+
 @endsection

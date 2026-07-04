@@ -8,34 +8,13 @@ use App\Models\DuplicateReview;
 class DuplicateDetectionService
 {
     /**
-     * Check if a registration is a duplicate based on hostel name, owner citizenship, or PAN.
+     * Check if a registration is a duplicate.
+     * ✅ अब डुप्लिकेट जाँच Hostel::checkDuplicate() बाट गरिन्छ, यसैले यो method ले false मात्र फर्काउँछ।
      */
     public function check(Registration $registration): bool
     {
-        // Check by hostel name (case insensitive)
-        $duplicate = Registration::where('hostel_id', $registration->hostel_id)
-            ->where('id', '!=', $registration->id)
-            ->exists();
-
-        if ($duplicate) return true;
-
-        // Check by owner citizenship
-        $owner = $registration->owner;
-        if ($owner) {
-            $duplicate = Registration::whereHas('owner', function ($q) use ($owner) {
-                $q->where('citizenship_number', $owner->citizenship_number);
-            })->where('id', '!=', $registration->id)->exists();
-            if ($duplicate) return true;
-        }
-
-        // Check by PAN
-        if ($registration->pan) {
-            $duplicate = Registration::where('pan', $registration->pan)
-                ->where('id', '!=', $registration->id)
-                ->exists();
-            if ($duplicate) return true;
-        }
-
+        // अब डुप्लिकेट जाँच कन्ट्रोलरमा Hostel::checkDuplicate() प्रयोग गरी गरिन्छ।
+        // यस सेवा मार्फत कुनै पनि जाँच गरिंदैन।
         return false;
     }
 
@@ -52,4 +31,4 @@ class DuplicateDetectionService
             'reviewed_at' => now(),
         ]);
     }
-} 
+}

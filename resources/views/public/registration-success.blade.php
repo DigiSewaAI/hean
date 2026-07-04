@@ -37,10 +37,12 @@
                     {{-- Divider --}}
                     <div style="width:60px; height:3px; background:linear-gradient(90deg, #22C55E, #0EA5E9); border-radius:4px; margin:0 auto 24px;"></div>
 
-                    {{-- Registration ID --}}
+                    {{-- ✅ 8.3: दर्ता नम्बर (Registration Number) --}}
                     <div style="display:inline-block; background:#f0f9ff; border:2px dashed #0EA5E9; border-radius:16px; padding:16px 32px; margin-bottom:24px; position:relative; z-index:1;">
-                        <span style="display:block; font-size:0.75rem; text-transform:uppercase; color:#64748b; font-weight:600; letter-spacing:0.5px;">Registration ID</span>
-                        <span style="display:block; font-size:2.5rem; font-weight:800; color:#0EA5E9; letter-spacing:1px;">#{{ $registration->id }}</span>
+                        <span style="display:block; font-size:0.75rem; text-transform:uppercase; color:#64748b; font-weight:600; letter-spacing:0.5px;">दर्ता नम्बर</span>
+                        <span style="display:block; font-size:2.5rem; font-weight:800; color:#0EA5E9; letter-spacing:1px;">
+                            {{ $registration->registration_number ?? '#' . $registration->id }}
+                        </span>
                     </div>
 
                     {{-- Status Info --}}
@@ -53,12 +55,12 @@
                         <div style="background:#f8fafc; border-radius:12px; padding:14px 10px; border:1px solid #e2e8f0;">
                             <div style="font-size:1.2rem; margin-bottom:2px;">🏨</div>
                             <div style="font-size:0.8rem; color:#94a3b8; font-weight:500;">Hostel</div>
-                            <div style="font-weight:700; color:#0f172a; font-size:0.9rem;">{{ $registration->hostel->name_nepali ?? $registration->hostel_name ?? 'N/A' }}</div>
+                            <div style="font-weight:700; color:#0f172a; font-size:0.9rem;">{{ $registration->hostel_name ?? 'N/A' }}</div>
                         </div>
                         <div style="background:#f8fafc; border-radius:12px; padding:14px 10px; border:1px solid #e2e8f0;">
                             <div style="font-size:1.2rem; margin-bottom:2px;">👤</div>
                             <div style="font-size:0.8rem; color:#94a3b8; font-weight:500;">Owner</div>
-                            <div style="font-weight:700; color:#0f172a; font-size:0.9rem;">{{ $registration->owner->name ?? $registration->operator_name ?? 'N/A' }}</div>
+                            <div style="font-weight:700; color:#0f172a; font-size:0.9rem;">{{ $registration->operator_name ?? 'N/A' }}</div>
                         </div>
                     </div>
 
@@ -87,7 +89,7 @@
                             A confirmation email has been sent to your registered email address.
                         </p>
                         <p style="color:#94a3b8; font-size:0.75rem; margin:4px 0 0;">
-                            <i class="fas fa-print"></i> Please save this Registration ID for future reference.
+                            <i class="fas fa-print"></i> कृपया यो दर्ता नम्बर भविष्यको लागि सुरक्षित राख्नुहोस्।
                         </p>
                     </div>
 

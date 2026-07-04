@@ -75,9 +75,14 @@
                 <td style="padding:14px 16px; font-weight:600; color:#0f172a;">{{ $invoice->invoice_number }}</td>
                 <td style="padding:14px 16px;">
                     @if($invoice->registration)
+                        {{-- ✅ 8.3: दर्ता नम्बर (फलब्याक #ID) --}}
                         <a href="{{ route('admin.registrations.show', $invoice->registration) }}" style="color:#0EA5E9; text-decoration:none; font-weight:500;">
-                            {{ $invoice->registration->hostel_name ?? $invoice->registration->registration_number }}
+                            {{ $invoice->registration->registration_number ?? '#'.$invoice->registration->id }}
                         </a>
+                        {{-- Optional: hostel name as small subtitle --}}
+                        @if($invoice->registration->hostel_name)
+                            <br><span style="font-size:0.7rem; color:#94a3b8;">{{ $invoice->registration->hostel_name }}</span>
+                        @endif
                     @else
                         <span style="color:#94a3b8;">{{ __('messages.not_available') }}</span>
                     @endif
