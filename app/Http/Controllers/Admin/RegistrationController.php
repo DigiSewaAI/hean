@@ -117,6 +117,8 @@ class RegistrationController extends Controller
             'block_name' => 'nullable|string|max:255',      // ✅ नयाँ
             'documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'source' => 'sometimes|in:public,admin,import,renewal',
+            'local_registration_number' => 'required|string|max:100',
+
         ]);
 
         if ($validator->fails()) {
@@ -168,8 +170,8 @@ class RegistrationController extends Controller
                 'ward' => $request->ward,
                 'street' => $request->street,
                 'landmark' => $request->landmark,
-                'block_name' => $request->block_name,        // ✅ थपियो
-                // ❌ 'registration_number' हटाइयो – model event ले जनरेट गर्छ
+                'block_name' => $request->block_name,
+                'local_registration_number' => $request->local_registration_number,
             ]);
 
             // Upload documents and capture first photo path
@@ -236,6 +238,8 @@ class RegistrationController extends Controller
             'pan' => 'nullable|string|max:50',
             'block_name' => 'nullable|string|max:255',      // ✅ थपियो
             'status' => 'required|in:pending,approved,active,rejected,duplicate,awaiting_payment,inspection',
+            'local_registration_number' => 'required|string|max:100',
+
         ]);
 
         // ✅ registration_number हटाउनुहोस् (सुरक्षाका लागि)
@@ -295,6 +299,7 @@ class RegistrationController extends Controller
                         'email' => $registration->email,
                         'website' => $registration->website,
                         'image' => $imagePath ?? $hostel->image,
+                        'local_registration_number' => $registration->local_registration_number,
                         'approved' => true,
                         'visible' => true,
                     ]);
@@ -357,7 +362,8 @@ class RegistrationController extends Controller
             'established_year' => $registration->established_year,
             'email' => $registration->email,
             'website' => $registration->website,
-            'block_name' => $registration->block_name ?? null,  // ✅ थपियो
+            'block_name' => $registration->block_name ?? null,
+            'local_registration_number' => $registration->local_registration_number,
             'image' => $imagePath,
             'approved' => true,
             'visible' => true,

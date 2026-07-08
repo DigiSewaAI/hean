@@ -1238,4 +1238,7 @@ return [
 'ward_number' => 'वार्ड नम्बर',
 'status_registration' => 'स्थिति र दर्ता नम्बर',
 'registration_number_readonly' => 'दर्ता नम्बर स्वत: जेनरेट हुन्छ र परिवर्तन गर्न मिल्दैन।',
+'local_registration_number' => 'स्थानीय दर्ता नम्बर',
+'placeholder_local_registration_number' => 'जस्तै: KMC-W31-2082-00125',
+'help_local_registration_number' => 'वडा वा नगरपालिकाबाट प्राप्त भएको स्थानीय दर्ता नम्बर।',
 ];

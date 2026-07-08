@@ -111,6 +111,7 @@ class HostelController extends Controller
             'approved' => 'boolean',
             'featured' => 'boolean',
             'visible' => 'boolean',
+            'local_registration_number' => 'required|string|max:100',
         ]);
 
         if ($request->hasFile('image')) {
@@ -151,7 +152,8 @@ class HostelController extends Controller
             'approved' => 'boolean',
             'featured' => 'boolean',
             'visible' => 'boolean',
-            // ✅ 'registration_number' validation बाट हटाइयो (पहिले नै थिएन)
+            'local_registration_number' => 'required|string|max:100',
+
         ]);
 
         // Image handle

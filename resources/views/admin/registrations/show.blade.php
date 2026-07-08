@@ -107,7 +107,18 @@
                 <p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->district ?? 'N/A' }}</p>
             </div>
         </div>
+        {{-- Local Registration Number --}}
+<div style="grid-column:1/-1; background:#f0f9ff; padding:10px 14px; border-radius:8px; border-left:4px solid #0EA5E9;">
+    <label style="font-size:0.7rem; text-transform:uppercase; color:#0EA5E9; font-weight:700;">
+        {{ __('messages.local_registration_number') }}
+    </label>
+    <p style="font-weight:700; color:#0f172a; margin:2px 0 0; font-size:1.1rem;">
+        {{ $registration->local_registration_number ?? __('messages.not_available') }}
+    </p>
+</div>
     </div>
+
+    
 
     {{-- Right: Workflow Status (Highlighted Steps) --}}
     <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px;">

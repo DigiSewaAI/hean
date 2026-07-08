@@ -51,8 +51,7 @@
                         <select name="registration_id" id="registration_id" class="form-select form-select-lg" 
                                 style="border-radius: 12px; border: 1.5px solid #e2e8f0; padding: 12px 16px; background: #f8fafc; transition: 0.3s;" required>
                             <option value="">{{ __('messages.select_registration') }}</option>
-                            @foreach(\App\Models\Registration::with('hostel')->where('status', 'approved')->get() as $reg)
-                                {{-- ✅ 8.3: दर्ता नम्बर (फलब्याक #ID) --}}
+@foreach(\App\Models\Registration::with('hostel')->whereIn('status', ['approved', 'active'])->get() as $reg)                                {{-- ✅ 8.3: दर्ता नम्बर (फलब्याक #ID) --}}
                                 <option value="{{ $reg->id }}">
                                     {{ $reg->registration_number ?? '#'.$reg->id }} – {{ $reg->hostel->name ?? __('messages.not_available') }}
                                 </option>

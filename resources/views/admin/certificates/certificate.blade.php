@@ -438,6 +438,13 @@
                                                                     <td class="value">{{ $regNumber }}</td>
                                                                 </tr>
                                                             </table>
+                                                            <table class="field-table" cellpadding="0" cellspacing="0">
+    <tr>
+        <td class="label">स्थानीय दर्ता नं. :</td>
+        <td class="value">{{ $registration->local_registration_number ?? '—' }}</td>
+    </tr>
+</table>
+
 
                                                             <table class="field-table" cellpadding="0" cellspacing="0">
                                                                 <tr>

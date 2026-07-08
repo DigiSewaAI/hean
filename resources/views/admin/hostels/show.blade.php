@@ -6,7 +6,7 @@
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
     <h2 style="font-size:1.5rem; font-weight:700; color:#0f172a; margin:0;">
         <i class="fas fa-hotel me-2" style="color:#0EA5E9;"></i> {{ $hostel->name_nepali }}
-        {{-- ✅ 8.3: दर्ता नम्बर हेडरमा थपियो --}}
+        {{-- ✅ दर्ता नम्बर --}}
         <span style="font-size:0.9rem; font-weight:400; color:#64748b; margin-left:12px;">
             <i class="fas fa-hashtag" style="color:#0EA5E9;"></i>
             {{ $hostel->registration_number }}
@@ -26,24 +26,60 @@
                 <i class="fas fa-info-circle"></i> {{ __('messages.details') }}
             </div>
             <div style="padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                {{-- ✅ 8.3: दर्ता नम्बर विवरणमा पहिलो पङ्क्तिमा देखाइयो --}}
+                {{-- ✅ दर्ता नम्बर --}}
                 <div style="grid-column:1/-1; background:#f0f9ff; padding:10px 14px; border-radius:8px; border-left:4px solid #0EA5E9;">
                     <label style="font-size:0.7rem; text-transform:uppercase; color:#0EA5E9; font-weight:700;">दर्ता नम्बर</label>
                     <p style="font-weight:700; color:#0f172a; margin:2px 0 0; font-size:1.1rem;">
                         {{ $hostel->registration_number }}
                     </p>
                 </div>
+
+                {{-- Local Registration Number --}}
+<div style="grid-column:1/-1; background:#f0f9ff; padding:10px 14px; border-radius:8px; border-left:4px solid #0EA5E9;">
+    <label style="font-size:0.7rem; text-transform:uppercase; color:#0EA5E9; font-weight:700;">
+        {{ __('messages.local_registration_number') }}
+    </label>
+    <p style="font-weight:700; color:#0f172a; margin:2px 0 0; font-size:1.1rem;">
+        {{ $hostel->local_registration_number ?? __('messages.not_available') }}
+    </p>
+</div>
+
+                {{-- Core fields --}}
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.hostel_name_nepali') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $hostel->name_nepali }}</p></div>
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.hostel_name_english') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $hostel->name_english ?? __('messages.not_available') }}</p></div>
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.type') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ ucfirst($hostel->type ?? __('messages.not_available')) }}</p></div>
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.capacity') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $hostel->capacity ?? __('messages.not_available') }} {{ __('messages.beds') }}</p></div>
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.rooms') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $hostel->rooms ?? __('messages.not_available') }}</p></div>
+
+                {{-- Operator & Contact --}}
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.operator_name') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $hostel->operator_name }}</p></div>
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.contact') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $hostel->contact }}</p></div>
+
+                {{-- ✅ Email --}}
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">इमेल</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $hostel->email ?? __('messages.not_available') }}</p></div>
+
+                {{-- ✅ PAN --}}
+                <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">PAN नम्बर</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $hostel->pan ?? __('messages.not_available') }}</p></div>
+
+                {{-- ✅ Website (if exists) --}}
+                @if($hostel->website)
+                <div style="grid-column:1/-1;">
+                    <label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">वेबसाइट</label>
+                    <p style="margin:2px 0 0;">
+                        <a href="{{ $hostel->website }}" target="_blank" style="color:#0EA5E9; text-decoration:underline; font-weight:500;">
+                            {{ $hostel->website }}
+                        </a>
+                    </p>
+                </div>
+                @endif
+
+                {{-- Address --}}
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.district') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $hostel->district }}</p></div>
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.municipality') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $hostel->municipality }}</p></div>
                 <div><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.ward') }}</label><p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $hostel->ward }}</p></div>
                 <div style="grid-column:1/-1;"><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.street') }}</label><p style="color:#475569; margin:2px 0 0;">{{ $hostel->street ?? __('messages.not_available') }}</p></div>
+
+                {{-- Description --}}
                 @if($hostel->description)
                     <div style="grid-column:1/-1;"><label style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.description') }}</label><p style="color:#475569; margin:2px 0 0;">{{ $hostel->description }}</p></div>
                 @endif

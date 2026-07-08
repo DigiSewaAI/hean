@@ -59,6 +59,8 @@ class Registration extends Model
         'valid_from',
         'valid_until',
         'block_name',
+        'local_registration_number',
+
 
     ];
 
@@ -76,20 +78,7 @@ class Registration extends Model
         'valid_until'    => 'date',
     ];
 
-    // ============================================================
-    // BOOT METHOD - नयाँ रजिस्ट्रेसनमा स्वतः नम्बर सेट गर्न
-    // ============================================================
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($registration) {
-            if (empty($registration->registration_number)) {
-                $nextId = static::max('id') + 1;
-                $registration->registration_number = 'REG-' . date('Y') . '-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
-            }
-        });
-    }
+    
 
     // ============================================================
     // RELATIONSHIPS

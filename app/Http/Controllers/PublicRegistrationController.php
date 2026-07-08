@@ -80,7 +80,7 @@ class PublicRegistrationController extends Controller
                 'pan' => $request->pan,
                 // ✅ block_name थपियो (यो होस्टलमा मात्र होइन, यहाँ पनि)
                 'block_name' => $request->block_name,
-                // ❌ 'registration_number' हटाइयो – model event ले आफैं बनाउँछ
+                'local_registration_number' => $request->local_registration_number,
             ]);
 
             // Documents
@@ -162,6 +162,8 @@ class PublicRegistrationController extends Controller
             'payment_date' => 'nullable|date',
             'bank_name' => 'nullable|string|max:255',
             'bank_account' => 'nullable|string|max:255',
+            'local_registration_number' => 'required|string|max:100',
+
         ];
 
         return Validator::make($request->all(), $rules);

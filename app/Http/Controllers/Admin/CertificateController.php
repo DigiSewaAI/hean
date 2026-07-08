@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Mpdf\Mpdf;
 use Mpdf\MpdfException;
 
+
 class CertificateController extends Controller
 {
     public function index()

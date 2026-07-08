@@ -44,7 +44,8 @@ class Hostel extends Model
         // ✅ नयाँ: ब्लक / भवन नाम (mass assignment को लागि)
         'block_name',
 
-        // ❌ 'registration_number' यहाँ नराख्नुहोस् – यो model event बाट सेट हुन्छ
+        'local_registration_number',
+
     ];
 
     protected $casts = [

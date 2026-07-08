@@ -1212,4 +1212,8 @@ return [
 'ward_number' => 'Ward Number',
 'status_registration' => 'Status & Registration',
 'registration_number_readonly' => 'Registration number is auto-generated and cannot be changed.',
+// Add these keys
+'local_registration_number' => 'Local Registration Number',
+'placeholder_local_registration_number' => 'e.g. KMC-W31-2082-00125',
+'help_local_registration_number' => 'Registration number issued by the Municipality or Ward Office.',
 ];

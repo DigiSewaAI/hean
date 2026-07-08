@@ -79,6 +79,27 @@
                                 </div>
                             </div>
 
+                            {{-- Local Registration Number --}}
+<div class="col-md-12">
+    <div class="form-group">
+        <label for="local_registration_number" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            {{ __('messages.local_registration_number') }} <span style="color:#dc2626;">*</span>
+        </label>
+        <input type="text" name="local_registration_number" id="local_registration_number"
+               value="{{ old('local_registration_number') }}"
+               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
+               class="form-control @error('local_registration_number') is-invalid @enderror"
+               placeholder="{{ __('messages.placeholder_local_registration_number') }}" required>
+        @error('local_registration_number')
+            <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
+        @enderror
+        <small style="color:#64748b; font-size:0.75rem;">
+            <i class="fas fa-info-circle"></i>
+            {{ __('messages.help_local_registration_number') }}
+        </small>
+    </div>
+</div>
+
                             {{-- Type --}}
                             <div class="col-md-3">
                                 <div class="form-group">
