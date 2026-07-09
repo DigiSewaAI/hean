@@ -215,13 +215,100 @@ public function download($id)
     }
 
     /**
-     * List all invoices.
-     */
-    public function index()
-    {
-        $invoices = Invoice::with('registration')->latest()->paginate(20);
-        return view('admin.invoices.index', compact('invoices'));
+ * List all invoices with advanced search/filter.
+ */
+public function index(Request $request)
+{
+    $query = Invoice::with('registration');
+
+    // ===== 1. BASIC SEARCH (Multiple Fields) =====
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('invoice_number', 'LIKE', "%{$search}%")
+              ->orWhereHas('registration', function ($r) use ($search) {
+                  $r->where('hostel_name', 'LIKE', "%{$search}%")
+                    ->orWhere('hostel_name_english', 'LIKE', "%{$search}%")
+                    ->orWhere('registration_number', 'LIKE', "%{$search}%")
+                    ->orWhere('local_registration_number', 'LIKE', "%{$search}%");
+              });
+        });
     }
+
+    // ===== 2. FILTER: Status =====
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // ===== 3. FILTER: Invoice Type =====
+    if ($request->filled('invoice_type')) {
+        $query->where('invoice_type', $request->invoice_type);
+    }
+
+    // ===== 4. FILTER: Amount Range =====
+    if ($request->filled('amount_min')) {
+        $query->where('amount', '>=', $request->amount_min);
+    }
+    if ($request->filled('amount_max')) {
+        $query->where('amount', '<=', $request->amount_max);
+    }
+
+    // ===== 5. FILTER: Date Range (Issued Date) =====
+    if ($request->filled('date_from')) {
+        $query->whereDate('issued_date', '>=', $request->date_from);
+    }
+    if ($request->filled('date_to')) {
+        $query->whereDate('issued_date', '<=', $request->date_to);
+    }
+
+    // ===== 6. SORTING =====
+    switch ($request->sort) {
+        case 'oldest':
+            $query->oldest();
+            break;
+        case 'amount_asc':
+            $query->orderBy('amount', 'asc');
+            break;
+        case 'amount_desc':
+            $query->orderBy('amount', 'desc');
+            break;
+        case 'status_asc':
+            $query->orderBy('status', 'asc');
+            break;
+        case 'status_desc':
+            $query->orderBy('status', 'desc');
+            break;
+        default:
+            $query->latest();
+            break;
+    }
+
+    // ===== PAGINATE =====
+    $invoices = $query->paginate(15)->appends($request->query());
+
+    // ===== STATS =====
+    $totalInvoices = Invoice::count();
+    $paidCount = Invoice::where('status', 'paid')->count();
+    $pendingCount = Invoice::where('status', 'pending')->count();
+    $overdueCount = Invoice::where('status', 'overdue')->count();
+    $partialCount = Invoice::where('status', 'partial')->count();
+
+    // ===== DISTINCT INVOICE TYPES FOR DROPDOWN =====
+    $invoiceTypes = Invoice::select('invoice_type')
+        ->distinct()
+        ->orderBy('invoice_type')
+        ->pluck('invoice_type');
+
+    return view('admin.invoices.index', compact(
+        'invoices',
+        'totalInvoices',
+        'paidCount',
+        'pendingCount',
+        'overdueCount',
+        'partialCount',
+        'invoiceTypes'
+    ));
+}
 
     /**
      * Mark invoice as paid.

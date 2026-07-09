@@ -19,16 +19,98 @@ use Illuminate\Support\Facades\Validator;
 class RegistrationController extends Controller
 {
     /**
-     * List all registrations.
-     */
-    public function index()
-    {
-        $registrations = Registration::with('owner', 'hostel')
-            ->latest()
-            ->paginate(15);
+ * List all registrations with advanced search/filter.
+ */
+public function index(Request $request)
+{
+    $query = Registration::with('owner', 'hostel');
 
-        return view('admin.registrations.index', compact('registrations'));
+    // ===== 1. BASIC SEARCH (Multiple Fields) =====
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('hostel_name', 'LIKE', "%{$search}%")
+              ->orWhere('hostel_name_english', 'LIKE', "%{$search}%")
+              ->orWhere('operator_name', 'LIKE', "%{$search}%")
+              ->orWhere('contact', 'LIKE', "%{$search}%")
+              ->orWhere('email', 'LIKE', "%{$search}%")
+              ->orWhere('pan', 'LIKE', "%{$search}%")
+              ->orWhere('registration_number', 'LIKE', "%{$search}%")
+              ->orWhere('local_registration_number', 'LIKE', "%{$search}%");
+        });
     }
+
+    // ===== 2. ADVANCED SEARCH: Local Registration Number =====
+    if ($request->filled('local_reg_number')) {
+        $query->where('local_registration_number', 'LIKE', "%{$request->local_reg_number}%");
+    }
+
+    // ===== 3. FILTER: Status =====
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // ===== 4. FILTER: Source (Public/Admin) =====
+    if ($request->filled('source')) {
+        $query->where('source', $request->source);
+    }
+
+    // ===== 5. FILTER: District =====
+    if ($request->filled('district')) {
+        $query->where('district', $request->district);
+    }
+
+    // ===== 6. FILTER: Submitted Date Range =====
+    if ($request->filled('date_from')) {
+        $query->whereDate('submitted_at', '>=', $request->date_from);
+    }
+    if ($request->filled('date_to')) {
+        $query->whereDate('submitted_at', '<=', $request->date_to);
+    }
+
+    // ===== 7. SORTING =====
+    switch ($request->sort) {
+        case 'oldest':
+            $query->oldest();
+            break;
+        case 'reg_number_asc':
+            $query->orderBy('registration_number', 'asc');
+            break;
+        case 'reg_number_desc':
+            $query->orderBy('registration_number', 'desc');
+            break;
+        case 'status_asc':
+            $query->orderBy('status', 'asc');
+            break;
+        case 'status_desc':
+            $query->orderBy('status', 'desc');
+            break;
+        default:
+            $query->latest();
+            break;
+    }
+
+    // ===== PAGINATE =====
+    $registrations = $query->paginate(15)->appends($request->query());
+
+    // ===== STATS =====
+    $totalRegistrations = Registration::count();
+    $pendingCount = Registration::where('status', 'pending')->count();
+    $approvedCount = Registration::where('status', 'approved')->count();
+    $rejectedCount = Registration::where('status', 'rejected')->count();
+
+    // ===== DISTINCT DISTRICTS FOR DROPDOWN =====
+    $districts = Registration::select('district')->distinct()->orderBy('district')->pluck('district');
+
+    return view('admin.registrations.index', compact(
+        'registrations',
+        'totalRegistrations',
+        'pendingCount',
+        'approvedCount',
+        'rejectedCount',
+        'districts'
+    ));
+}
 
     /**
      * Show a single registration with all related data.

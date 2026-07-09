@@ -44,11 +44,11 @@
     </div>
 </div>
 
-{{-- ===== TOOLBAR: SEARCH + FILTERS + ACTIONS ===== --}}
+{{-- ===== TOOLBAR: SEARCH + FILTERS + ACTIONS (Advanced + Collapsible) ===== --}}
 <div style="background:#fff; border-radius:12px; padding:16px 20px; border:1px solid #e2e8f0; margin-bottom:24px;">
     <form action="{{ route('admin.hostels.index') }}" method="GET" id="filterForm">
+        {{-- Basic Search & Quick Filters (always visible) --}}
         <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
-
             {{-- Search --}}
             <div style="flex:2; min-width:200px;">
                 <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">
@@ -111,6 +111,9 @@
                     <option value="district_asc" {{ request('sort')=='district_asc'?'selected':'' }}>{{ __('messages.sort_district_asc') }}</option>
                     <option value="capacity_desc" {{ request('sort')=='capacity_desc'?'selected':'' }}>{{ __('messages.sort_capacity_desc') }}</option>
                     <option value="capacity_asc" {{ request('sort')=='capacity_asc'?'selected':'' }}>{{ __('messages.sort_capacity_asc') }}</option>
+                    {{-- ✅ नयाँ: दर्ता नम्बर अनुसार क्रमबद्ध --}}
+                    <option value="reg_number_asc" {{ request('sort')=='reg_number_asc'?'selected':'' }}>{{ __('messages.sort_reg_number_asc') ?? 'Reg. Number (A-Z)' }}</option>
+                    <option value="reg_number_desc" {{ request('sort')=='reg_number_desc'?'selected':'' }}>{{ __('messages.sort_reg_number_desc') ?? 'Reg. Number (Z-A)' }}</option>
                 </select>
             </div>
 
@@ -122,6 +125,62 @@
                 <a href="{{ route('admin.hostels.index') }}" style="background:#e2e8f0; color:#1e293b; padding:10px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem; transition:0.2s; display:inline-flex; align-items:center; gap:6px;">
                     <i class="fas fa-undo"></i> {{ __('messages.reset') }}
                 </a>
+                {{-- ✅ Advanced Toggle Button --}}
+                <button type="button" onclick="toggleAdvancedFilters()" 
+                        style="background:#f1f5f9; color:#1e293b; border:1px solid #e2e8f0; padding:10px 16px; border-radius:50px; font-weight:500; font-size:0.85rem; cursor:pointer; transition:0.2s;">
+                    <i class="fas fa-sliders-h"></i> {{ __('messages.advanced') ?? 'Advanced' }}
+                </button>
+            </div>
+        </div>
+
+        {{-- ===== ADVANCED FILTERS (Collapsible) ===== --}}
+        <div id="advancedFilters" style="display: {{ request()->hasAny(['local_reg_number', 'capacity_min', 'capacity_max', 'date_from', 'date_to', 'district']) ? 'block' : 'none' }}; margin-top:16px; padding-top:16px; border-top:1px solid #e2e8f0;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
+                {{-- Local Registration Number --}}
+                <div>
+                    <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">{{ __('messages.local_reg_number') ?? 'स्थानीय दर्ता नम्बर' }}</label>
+                    <input type="text" name="local_reg_number" value="{{ request('local_reg_number') }}" placeholder="KMC-W31-2082-..." 
+                           style="width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc;">
+                </div>
+
+                {{-- District Dropdown (Dynamic) --}}
+                <div>
+                    <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">{{ __('messages.district') }}</label>
+                    <select name="district" style="width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; cursor:pointer;">
+                        <option value="">{{ __('messages.all') }}</option>
+                        @foreach($districts as $dist)
+                            <option value="{{ $dist }}" {{ request('district')==$dist?'selected':'' }}>{{ $dist }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Capacity Min --}}
+                <div>
+                    <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">{{ __('messages.capacity_min') ?? 'न्यूनतम क्षमता' }}</label>
+                    <input type="number" name="capacity_min" value="{{ request('capacity_min') }}" placeholder="Min" min="0" 
+                           style="width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc;">
+                </div>
+
+                {{-- Capacity Max --}}
+                <div>
+                    <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">{{ __('messages.capacity_max') ?? 'अधिकतम क्षमता' }}</label>
+                    <input type="number" name="capacity_max" value="{{ request('capacity_max') }}" placeholder="Max" min="0" 
+                           style="width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc;">
+                </div>
+
+                {{-- Date From --}}
+                <div>
+                    <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">{{ __('messages.date_from') ?? 'सुरु मिति' }}</label>
+                    <input type="date" name="date_from" value="{{ request('date_from') }}" 
+                           style="width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc;">
+                </div>
+
+                {{-- Date To --}}
+                <div>
+                    <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">{{ __('messages.date_to') ?? 'अन्त्य मिति' }}</label>
+                    <input type="date" name="date_to" value="{{ request('date_to') }}" 
+                           style="width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc;">
+                </div>
             </div>
         </div>
     </form>
@@ -149,7 +208,7 @@
                     <th style="padding:12px 16px; text-align:left; width:40px;">
                         <input type="checkbox" id="selectAll" style="accent-color:#0EA5E9; width:16px; height:16px; cursor:pointer;">
                     </th>
-                    {{-- ✅ 8.3: दर्ता नम्बर स्तम्भ थपियो --}}
+                    {{-- ✅ 8.3: दर्ता नम्बर स्तम्भ --}}
                     <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">
                         दर्ता नम्बर
                     </th>
@@ -169,7 +228,7 @@
                     <td style="padding:12px 16px; text-align:center;">
                         <input type="checkbox" name="ids[]" value="{{ $hostel->id }}" class="rowCheckbox" style="accent-color:#0EA5E9; width:16px; height:16px; cursor:pointer;">
                     </td>
-                    {{-- ✅ 8.3: दर्ता नम्बर लिङ्कको रूपमा देखाइयो --}}
+                    {{-- ✅ 8.3: दर्ता नम्बर लिङ्कको रूपमा --}}
                     <td style="padding:12px 16px; font-weight:600; color:#0f172a;">
                         <a href="{{ route('admin.hostels.show', $hostel) }}" style="color:#0EA5E9; text-decoration:none; font-weight:600;">
                             {{ $hostel->registration_number }}
@@ -372,6 +431,16 @@
         } else {
             let confirmMsg = '{{ __('messages.confirm_bulk_action') }}'.replace(':action', action);
             return confirm(confirmMsg);
+        }
+    }
+
+    // ✅ Advanced Filters Toggle
+    function toggleAdvancedFilters() {
+        var el = document.getElementById('advancedFilters');
+        if (el.style.display === 'none' || el.style.display === '') {
+            el.style.display = 'block';
+        } else {
+            el.style.display = 'none';
         }
     }
 </script>

@@ -16,34 +16,88 @@ use Mpdf\MpdfException;
 class ReceiptController extends Controller
 {
     /**
-     * List all receipts with filters.
-     */
-    public function index(Request $request)
-    {
-        $query = Receipt::with(['payment', 'payment.registration']);
+ * List all receipts with advanced search/filter.
+ */
+public function index(Request $request)
+{
+    $query = Receipt::with(['payment', 'payment.registration', 'payment.invoice']);
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('receipt_number', 'LIKE', "%{$search}%")
-                  ->orWhereHas('payment.registration', function($r) use ($search) {
-                      $r->where('hostel_name', 'LIKE', "%{$search}%")
-                        ->orWhere('registration_number', 'LIKE', "%{$search}%");
-                  });
-            });
-        }
-
-        if ($request->filled('registration_id')) {
-            $query->whereHas('payment', function($q) use ($request) {
-                $q->where('registration_id', $request->registration_id);
-            });
-        }
-
-        $receipts = $query->latest()->paginate(15)->appends($request->query());
-        $registrations = Registration::select('id', 'hostel_name')->get();
-
-        return view('admin.receipts.index', compact('receipts', 'registrations'));
+    // ===== 1. BASIC SEARCH (Multiple Fields) =====
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('receipt_number', 'LIKE', "%{$search}%")
+              ->orWhere('amount', 'LIKE', "%{$search}%")
+              ->orWhereHas('payment.registration', function ($r) use ($search) {
+                  $r->where('hostel_name', 'LIKE', "%{$search}%")
+                    ->orWhere('hostel_name_english', 'LIKE', "%{$search}%")
+                    ->orWhere('registration_number', 'LIKE', "%{$search}%")
+                    ->orWhere('local_registration_number', 'LIKE', "%{$search}%");
+              })
+              ->orWhereHas('payment.invoice', function ($i) use ($search) {
+                  $i->where('invoice_number', 'LIKE', "%{$search}%");
+              });
+        });
     }
+
+    // ===== 2. FILTER: Registration =====
+    if ($request->filled('registration_id')) {
+        $query->whereHas('payment', function ($q) use ($request) {
+            $q->where('registration_id', $request->registration_id);
+        });
+    }
+
+    // ===== 3. FILTER: Amount Range =====
+    if ($request->filled('amount_min')) {
+        $query->where('amount', '>=', $request->amount_min);
+    }
+    if ($request->filled('amount_max')) {
+        $query->where('amount', '<=', $request->amount_max);
+    }
+
+    // ===== 4. FILTER: Date Range (Issued Date) =====
+    if ($request->filled('date_from')) {
+        $query->whereDate('issued_date', '>=', $request->date_from);
+    }
+    if ($request->filled('date_to')) {
+        $query->whereDate('issued_date', '<=', $request->date_to);
+    }
+
+    // ===== 5. SORTING =====
+    switch ($request->sort) {
+        case 'oldest':
+            $query->oldest();
+            break;
+        case 'amount_asc':
+            $query->orderBy('amount', 'asc');
+            break;
+        case 'amount_desc':
+            $query->orderBy('amount', 'desc');
+            break;
+        default:
+            $query->latest();
+            break;
+    }
+
+    // ===== PAGINATE =====
+    $receipts = $query->paginate(15)->appends($request->query());
+
+    // ===== STATS =====
+    $totalReceipts = Receipt::count();
+    $totalAmount = Receipt::sum('amount');
+
+    // ===== REGISTRATIONS FOR DROPDOWN =====
+    $registrations = Registration::select('id', 'hostel_name', 'registration_number')
+        ->orderBy('hostel_name')
+        ->get();
+
+    return view('admin.receipts.index', compact(
+        'receipts',
+        'totalReceipts',
+        'totalAmount',
+        'registrations'
+    ));
+}
 
     /**
      * Show a single receipt.

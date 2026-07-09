@@ -62,7 +62,7 @@
             {{ __('messages.local_registration_number') }} <span style="color:#dc2626;">*</span>
         </label>
         <input type="text" name="local_registration_number"
-               value="{{ old('local_registration_number', $registration->local_registration_number) }}"
+value="{{ old('local_registration_number') }}"
                placeholder="{{ __('messages.placeholder_local_registration_number') }}"
                style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
                required>

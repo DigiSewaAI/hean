@@ -13,16 +13,102 @@ use Illuminate\Support\Facades\Log;
 class InspectionController extends Controller
 {
     /**
-     * सबै निरीक्षणको सूची (admin panel को inspection list)
-     */
-    public function index()
-    {
-        $inspections = Inspection::with(['registration', 'inspector'])
-            ->latest()
-            ->paginate(15);
+ * सबै निरीक्षणको सूची (admin panel को inspection list) – Advanced Search/Filter सहित
+ */
+public function index(Request $request)
+{
+    $query = Inspection::with(['registration', 'inspector']);
 
-        return view('admin.inspections.index', compact('inspections'));
+    // ===== 1. BASIC SEARCH (Multiple Fields) =====
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->whereHas('registration', function ($r) use ($search) {
+                $r->where('hostel_name', 'LIKE', "%{$search}%")
+                  ->orWhere('hostel_name_english', 'LIKE', "%{$search}%")
+                  ->orWhere('registration_number', 'LIKE', "%{$search}%")
+                  ->orWhere('local_registration_number', 'LIKE', "%{$search}%")
+                  ->orWhere('district', 'LIKE', "%{$search}%");
+            })
+            ->orWhereHas('inspector', function ($i) use ($search) {
+                $i->where('name', 'LIKE', "%{$search}%");
+            })
+            ->orWhere('remarks', 'LIKE', "%{$search}%");
+        });
     }
+
+    // ===== 2. FILTER: Status =====
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // ===== 3. FILTER: Inspector =====
+    if ($request->filled('inspector_id')) {
+        $query->where('inspector_id', $request->inspector_id);
+    }
+
+    // ===== 4. FILTER: Registration =====
+    if ($request->filled('registration_id')) {
+        $query->where('registration_id', $request->registration_id);
+    }
+
+    // ===== 5. FILTER: Date Range (Completed Date) =====
+    if ($request->filled('date_from')) {
+        $query->whereDate('completed_date', '>=', $request->date_from);
+    }
+    if ($request->filled('date_to')) {
+        $query->whereDate('completed_date', '<=', $request->date_to);
+    }
+
+    // ===== 6. SORTING =====
+    switch ($request->sort) {
+        case 'oldest':
+            $query->oldest();
+            break;
+        case 'status_asc':
+            $query->orderBy('status', 'asc');
+            break;
+        case 'status_desc':
+            $query->orderBy('status', 'desc');
+            break;
+        case 'date_asc':
+            $query->orderBy('completed_date', 'asc');
+            break;
+        default:
+            $query->latest();
+            break;
+    }
+
+    // ===== PAGINATE =====
+    $inspections = $query->paginate(15)->appends($request->query());
+
+    // ===== STATS =====
+    $totalInspections = Inspection::count();
+    $completedCount = Inspection::where('status', 'completed')->count();
+    $scheduledCount = Inspection::where('status', 'scheduled')->count();
+    $cancelledCount = Inspection::where('status', 'cancelled')->count();
+
+    // ===== INSPECTORS FOR DROPDOWN =====
+    $inspectors = \App\Models\User::where('role', 'inspector')
+        ->select('id', 'name')
+        ->orderBy('name')
+        ->get();
+
+    // ===== REGISTRATIONS FOR DROPDOWN =====
+    $registrations = Registration::select('id', 'hostel_name', 'registration_number')
+        ->orderBy('hostel_name')
+        ->get();
+
+    return view('admin.inspections.index', compact(
+        'inspections',
+        'totalInspections',
+        'completedCount',
+        'scheduledCount',
+        'cancelledCount',
+        'inspectors',
+        'registrations'
+    ));
+}
 
     /**
      * निरीक्षण फारम देखाउने (चेकलिस्ट)

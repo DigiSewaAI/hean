@@ -1216,4 +1216,74 @@ return [
 'local_registration_number' => 'Local Registration Number',
 'placeholder_local_registration_number' => 'e.g. KMC-W31-2082-00125',
 'help_local_registration_number' => 'Registration number issued by the Municipality or Ward Office.',
+    // =============================================
+    // Advanced Search / Filter (Hostels)
+    // =============================================
+    'sort_reg_number_asc' => 'Reg. Number (A-Z)',
+    'sort_reg_number_desc' => 'Reg. Number (Z-A)',
+    'advanced' => 'Advanced',
+    'local_reg_number' => 'Local Registration Number',
+    'capacity_min' => 'Min Capacity',
+    'capacity_max' => 'Max Capacity',
+    'date_from' => 'From Date',
+    'date_to' => 'To Date',
+        // =============================================
+    // Registrations Index (Advanced Search/Filter)
+    // =============================================
+    'total_registrations' => 'Total Registrations',
+    'source_public' => 'Public',
+    'source_admin' => 'Admin',
+    'source_import' => 'Import',
+    'source_renewal' => 'Renewal',
+    'sort_status_asc' => 'Status (A-Z)',
+    'sort_status_desc' => 'Status (Z-A)',
+    'showing_registrations' => 'Showing :from–:to of :total registrations',
+       // =============================================
+    // Committee Index (Advanced Search/Filter)
+    // =============================================
+    'total_members' => 'Total Members',
+    'unpublished' => 'Unpublished',
+    'search_committee_placeholder' => 'Name, position...',
+    'sort_order_asc' => 'Order (Low to High)',
+    'sort_order_desc' => 'Order (High to Low)',
+    'sort_position_asc' => 'Position (A-Z)',
+    'sort_position_desc' => 'Position (Z-A)',
+    'showing_members' => 'Showing :from–:to of :total members',
+         // =============================================
+    // Invoices Index (Advanced Search/Filter)
+    // =============================================
+    'total_invoices' => 'Total Invoices',
+    'amount_min' => 'Min Amount',
+    'amount_max' => 'Max Amount',
+    'sort_amount_asc' => 'Amount (Low to High)',
+    'sort_amount_desc' => 'Amount (High to Low)',
+    'confirm_mark_paid' => 'Are you sure you want to mark this invoice as paid?',
+        // =============================================
+    // Receipts Index (Advanced Search/Filter)
+    // =============================================
+    'total_receipts' => 'Total Receipts',
+    'total_amount' => 'Total Amount',
+    'all_registrations' => 'All Registrations',
+    'search_receipts' => 'Search receipts...',
+    'no_receipts_found' => 'No receipts found.',
+        // =============================================
+    // Payments Index (Advanced Search/Filter)
+    // =============================================
+    'sort_date_asc' => 'Date (Oldest First)',
+    'confirm_delete_payment' => 'Are you sure you want to delete this payment?',
+    'confirm_verify_payment' => 'Are you sure you want to verify this payment?',
+    'confirm_reject_payment' => 'Are you sure you want to reject this payment?',
+    'confirm_refund_payment' => 'Are you sure you want to refund this payment?',
+        // =============================================
+    // Inspections Index (Advanced Search/Filter)
+    // =============================================
+    'total_inspections' => 'Total Inspections',
+    'back_to_registrations' => 'Back to Registrations',
+    'showing_inspections' => 'Showing :from–:to of :total inspections',
+       // =============================================
+    // Certificate Index (Advanced Search/Filter)
+    // =============================================
+    'total_certificates' => 'Total Certificates',
+    'sort_cert_number_asc' => 'Certificate Number (A-Z)',
+    'sort_cert_number_desc' => 'Certificate Number (Z-A)', 
 ];

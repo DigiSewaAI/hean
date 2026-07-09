@@ -16,56 +16,117 @@ use Illuminate\Support\Facades\Validator;
 class PaymentController extends Controller
 {
     /**
-     * Display a listing of payments with filters.
-     */
-    public function index(Request $request)
-    {
-        $query = Payment::with(['registration', 'invoice']);
+ * Display a listing of payments with advanced search/filter.
+ */
+public function index(Request $request)
+{
+    $query = Payment::with(['registration', 'invoice']);
 
-        // Search
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('transaction_id', 'LIKE', "%{$search}%")
-                  ->orWhere('method', 'LIKE', "%{$search}%")
-                  ->orWhereHas('registration', function($r) use ($search) {
-                      $r->where('hostel_name', 'LIKE', "%{$search}%")
-                        ->orWhere('registration_number', 'LIKE', "%{$search}%");
-                  });
-            });
-        }
-
-        // Filters
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-        if ($request->filled('method')) {
-            $query->where('method', $request->method);
-        }
-
-        // Sorting
-        $sort = $request->sort ?? 'latest';
-        if ($sort === 'latest') {
-            $query->latest();
-        } elseif ($sort === 'oldest') {
-            $query->oldest();
-        } elseif ($sort === 'amount_asc') {
-            $query->orderBy('amount', 'asc');
-        } elseif ($sort === 'amount_desc') {
-            $query->orderBy('amount', 'desc');
-        } else {
-            $query->latest();
-        }
-
-        $payments = $query->paginate(15)->appends($request->query());
-
-        // Stats for summary
-        $totalPayments = Payment::sum('amount');
-        $pendingCount = Payment::where('status', 'pending')->count();
-        $verifiedCount = Payment::where('status', 'verified')->count();
-
-        return view('admin.payments.index', compact('payments', 'totalPayments', 'pendingCount', 'verifiedCount'));
+    // ===== 1. BASIC SEARCH (Multiple Fields) =====
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('transaction_id', 'LIKE', "%{$search}%")
+              ->orWhere('method', 'LIKE', "%{$search}%")
+              ->orWhere('bank_name', 'LIKE', "%{$search}%")
+              ->orWhere('bank_account', 'LIKE', "%{$search}%")
+              ->orWhereHas('registration', function ($r) use ($search) {
+                  $r->where('hostel_name', 'LIKE', "%{$search}%")
+                    ->orWhere('hostel_name_english', 'LIKE', "%{$search}%")
+                    ->orWhere('registration_number', 'LIKE', "%{$search}%")
+                    ->orWhere('local_registration_number', 'LIKE', "%{$search}%");
+              })
+              ->orWhereHas('invoice', function ($i) use ($search) {
+                  $i->where('invoice_number', 'LIKE', "%{$search}%");
+              });
+        });
     }
+
+    // ===== 2. FILTER: Status =====
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // ===== 3. FILTER: Payment Method =====
+    if ($request->filled('method')) {
+        $query->where('method', $request->method);
+    }
+
+    // ===== 4. FILTER: Amount Range =====
+    if ($request->filled('amount_min')) {
+        $query->where('amount', '>=', $request->amount_min);
+    }
+    if ($request->filled('amount_max')) {
+        $query->where('amount', '<=', $request->amount_max);
+    }
+
+    // ===== 5. FILTER: Date Range (Payment Date) =====
+    if ($request->filled('date_from')) {
+        $query->whereDate('payment_date', '>=', $request->date_from);
+    }
+    if ($request->filled('date_to')) {
+        $query->whereDate('payment_date', '<=', $request->date_to);
+    }
+
+    // ===== 6. FILTER: Registration (Specific) =====
+    if ($request->filled('registration_id')) {
+        $query->where('registration_id', $request->registration_id);
+    }
+
+    // ===== 7. SORTING =====
+    switch ($request->sort) {
+        case 'oldest':
+            $query->oldest();
+            break;
+        case 'amount_asc':
+            $query->orderBy('amount', 'asc');
+            break;
+        case 'amount_desc':
+            $query->orderBy('amount', 'desc');
+            break;
+        case 'status_asc':
+            $query->orderBy('status', 'asc');
+            break;
+        case 'status_desc':
+            $query->orderBy('status', 'desc');
+            break;
+        case 'date_asc':
+            $query->orderBy('payment_date', 'asc');
+            break;
+        default:
+            $query->latest();
+            break;
+    }
+
+    // ===== PAGINATE =====
+    $payments = $query->paginate(15)->appends($request->query());
+
+    // ===== STATS =====
+    $totalPayments = Payment::sum('amount');
+    $pendingCount = Payment::where('status', 'pending')->count();
+    $verifiedCount = Payment::where('status', 'verified')->count();
+    $rejectedCount = Payment::where('status', 'rejected')->count();
+    $refundedCount = Payment::where('status', 'refunded')->count();
+
+    // ===== DISTINCT METHODS FOR DROPDOWN =====
+    $methods = Payment::select('method')->distinct()->pluck('method');
+
+    // ===== REGISTRATIONS FOR DROPDOWN =====
+    $registrations = Registration::select('id', 'hostel_name', 'registration_number')
+        ->orderBy('hostel_name')
+        ->get();
+
+    return view('admin.payments.index', compact(
+        'payments',
+        'totalPayments',
+        'pendingCount',
+        'verifiedCount',
+        'rejectedCount',
+        'refundedCount',
+        'methods',
+        'registrations'
+    ));
+}
 
     /**
      * Show form to create a new payment.

@@ -10,82 +10,118 @@ use Illuminate\Support\Facades\Storage;
 class HostelController extends Controller
 {
     public function index(Request $request)
-    {
-        $query = Hostel::query();
+{
+    $query = Hostel::query();
 
-        // ===== SEARCH =====
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name_nepali', 'LIKE', "%{$search}%")
-                  ->orWhere('name_english', 'LIKE', "%{$search}%")
-                  ->orWhere('district', 'LIKE', "%{$search}%")
-                  ->orWhere('operator_name', 'LIKE', "%{$search}%")
-                  ->orWhere('contact', 'LIKE', "%{$search}%")
-                  ->orWhere('registration_number', 'LIKE', "%{$search}%");  // ✅ थपियो
-            });
-        }
-
-        // ===== FILTER: Status =====
-        if ($request->filled('status')) {
-            if ($request->status == 'approved') {
-                $query->where('approved', true);
-            } elseif ($request->status == 'pending') {
-                $query->where('approved', false);
-            }
-        }
-
-        // ===== FILTER: Featured =====
-        if ($request->filled('featured')) {
-            $query->where('featured', $request->featured == '1');
-        }
-
-        // ===== FILTER: Visibility =====
-        if ($request->filled('visible')) {
-            $query->where('visible', $request->visible == '1');
-        }
-
-        // ===== FILTER: Type =====
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-
-        // ===== SORTING =====
-        switch ($request->sort) {
-            case 'oldest':
-                $query->oldest();
-                break;
-            case 'name_asc':
-                $query->orderBy('name_nepali', 'asc');
-                break;
-            case 'name_desc':
-                $query->orderBy('name_nepali', 'desc');
-                break;
-            case 'district_asc':
-                $query->orderBy('district', 'asc');
-                break;
-            case 'capacity_desc':
-                $query->orderBy('capacity', 'desc');
-                break;
-            case 'capacity_asc':
-                $query->orderBy('capacity', 'asc');
-                break;
-            default:
-                $query->orderBy('capacity', 'desc');
-                break;
-        }
-
-        // ===== PAGINATE =====
-        $hostels = $query->paginate(15)->appends($request->query());
-
-        // ===== STATS =====
-        $totalHostels = Hostel::count();
-        $approvedCount = Hostel::where('approved', true)->count();
-        $featuredCount = Hostel::where('featured', true)->count();
-        $visibleCount = Hostel::where('visible', true)->count();
-
-        return view('admin.hostels.index', compact('hostels', 'totalHostels', 'approvedCount', 'featuredCount', 'visibleCount'));
+    // ===== 1. BASIC SEARCH (Multiple Fields) =====
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('name_nepali', 'LIKE', "%{$search}%")
+              ->orWhere('name_english', 'LIKE', "%{$search}%")
+              ->orWhere('district', 'LIKE', "%{$search}%")
+              ->orWhere('operator_name', 'LIKE', "%{$search}%")
+              ->orWhere('contact', 'LIKE', "%{$search}%")
+              ->orWhere('registration_number', 'LIKE', "%{$search}%")
+              ->orWhere('local_registration_number', 'LIKE', "%{$search}%");
+        });
     }
+
+    // ===== 2. ADVANCED SEARCH: Local Registration Number =====
+    if ($request->filled('local_reg_number')) {
+        $query->where('local_registration_number', 'LIKE', "%{$request->local_reg_number}%");
+    }
+
+    // ===== 3. FILTER: Status (Approved/Pending) =====
+    if ($request->filled('status')) {
+        if ($request->status === 'approved') {
+            $query->where('approved', true);
+        } elseif ($request->status === 'pending') {
+            $query->where('approved', false);
+        }
+    }
+
+    // ===== 4. FILTER: Featured =====
+    if ($request->filled('featured')) {
+        $query->where('featured', $request->featured === '1');
+    }
+
+    // ===== 5. FILTER: Visibility =====
+    if ($request->filled('visible')) {
+        $query->where('visible', $request->visible === '1');
+    }
+
+    // ===== 6. FILTER: Type =====
+    if ($request->filled('type')) {
+        $query->where('type', $request->type);
+    }
+
+    // ===== 7. FILTER: District (Dynamic Dropdown) =====
+    if ($request->filled('district')) {
+        $query->where('district', $request->district);
+    }
+
+    // ===== 8. FILTER: Capacity Range =====
+    if ($request->filled('capacity_min')) {
+        $query->where('capacity', '>=', $request->capacity_min);
+    }
+    if ($request->filled('capacity_max')) {
+        $query->where('capacity', '<=', $request->capacity_max);
+    }
+
+    // ===== 9. FILTER: Created Date Range =====
+    if ($request->filled('date_from')) {
+        $query->whereDate('created_at', '>=', $request->date_from);
+    }
+    if ($request->filled('date_to')) {
+        $query->whereDate('created_at', '<=', $request->date_to);
+    }
+
+    // ===== 10. SORTING =====
+    switch ($request->sort) {
+        case 'oldest':
+            $query->oldest();
+            break;
+        case 'name_asc':
+            $query->orderBy('name_nepali', 'asc');
+            break;
+        case 'name_desc':
+            $query->orderBy('name_nepali', 'desc');
+            break;
+        case 'district_asc':
+            $query->orderBy('district', 'asc');
+            break;
+        case 'capacity_desc':
+            $query->orderBy('capacity', 'desc');
+            break;
+        case 'capacity_asc':
+            $query->orderBy('capacity', 'asc');
+            break;
+        case 'reg_number_asc':
+            $query->orderBy('registration_number', 'asc');
+            break;
+        case 'reg_number_desc':
+            $query->orderBy('registration_number', 'desc');
+            break;
+        default:
+            $query->latest();
+            break;
+    }
+
+    // ===== PAGINATE =====
+    $hostels = $query->paginate(15)->appends($request->query());
+
+    // ===== STATS (Total, Approved, Featured, Visible) =====
+    $totalHostels = Hostel::count();
+    $approvedCount = Hostel::where('approved', true)->count();
+    $featuredCount = Hostel::where('featured', true)->count();
+    $visibleCount = Hostel::where('visible', true)->count();
+
+    // ===== DISTINCT DISTRICTS FOR DROPDOWN =====
+    $districts = Hostel::select('district')->distinct()->orderBy('district')->pluck('district');
+
+    return view('admin.hostels.index', compact('hostels', 'totalHostels', 'approvedCount', 'featuredCount', 'visibleCount', 'districts'));
+}
 
     public function create()
     {

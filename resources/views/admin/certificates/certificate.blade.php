@@ -291,8 +291,8 @@
                                                             <table cellpadding="0" cellspacing="0" style="width:100%;">
                                                                 <tr>
                                                                     <td align="right" class="cert-number">
-                                                                        दर्ता नं. {{ $certNumber }}
-                                                                    </td>
+    दर्ता नं. ०२९/०७९/०८०
+</td>
                                                                 </tr>
                                                             </table>
 
@@ -329,8 +329,7 @@
                                                                         <table cellpadding="0" cellspacing="0" style="width:100%;">
                                                                             <tr><td align="center" class="office-info">केन्द्रीय कार्यालय</td></tr>
                                                                             <tr><td align="center" class="location">काठमाडौं, नेपाल</td></tr>
-                                                                            <tr><td align="center" class="contact">सम्पर्क नं. : ९८६४१६४८०५</td></tr>
-                                                                        </table>
+<tr><td align="center" class="contact">सम्पर्क नं. : ९८६४१६४८०५, ०१ - ५९२१६१५</td></tr>                                                                        </table>
                                                                     </td>
                                                                     <td style="width: 110px; text-align: center; vertical-align: middle;">
                                                                         <table class="photo-box" cellpadding="0" cellspacing="0" align="center">
@@ -361,14 +360,7 @@
 
                                                             <br><br><br>
 
-                                                            <!-- Membership Number (CENTER) -->
-                                                            <table cellpadding="0" cellspacing="0" style="width:100%;">
-                                                                <tr>
-                                                                    <td align="center" class="membership-no">
-                                                                        सदस्यता नं. {{ $certNumber }}
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
+                                                        
 
                                                             <br>
 
