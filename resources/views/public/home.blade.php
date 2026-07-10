@@ -90,14 +90,8 @@
     </div>
 </section>
 
-{{-- ===== TRUST BAR ===== --}}
-<section class="trust-bar" style="background:#0f172a; padding:30px 0; color:#f8fafc;">
-    <div class="container">
-        <div class="logos" style="display:flex; justify-content:space-around; align-items:center; flex-wrap:wrap; gap:30px;">
-            <span style="color:#f8fafc; font-weight:600; font-size:1.1rem; letter-spacing:0.03em;">{{ __('messages.trust_bar_title') }}</span>
-        </div>
-    </div>
-</section>
+{{-- ===== SUPPORTING ORGANIZATIONS ===== --}}
+<x-supporting-organizations :organizations="$supportingOrganizations" />
 
 {{-- ===== HOSTELS SECTION ===== --}}
 <section class="hostels-section" id="hostels" style="padding:80px 0; background:#f8fafc;">

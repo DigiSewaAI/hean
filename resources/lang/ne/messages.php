@@ -1311,5 +1311,35 @@ return [
     'total_certificates' => 'जम्मा प्रमाणपत्रहरू',
     'sort_cert_number_asc' => 'प्रमाणपत्र नं. (A-Z)',
     'sort_cert_number_desc' => 'प्रमाणपत्र नं. (Z-A)',
-    
+        // =============================================
+    // ड्यासबोर्ड (उन्नत)
+    // =============================================
+    'total_revenue' => 'जम्मा आम्दानी',
+    'active_hostels' => 'सक्रिय होस्टेल',
+    'expired' => 'म्याद गुज्रिएको',
+    'today' => 'आज',
+    'this_week' => 'यो हप्ता',
+    'this_month' => 'यो महिना',
+    'approve_pending' => 'पेन्डिङ स्वीकृत गर्नुहोस्',
+    'add_new_hostel' => 'नयाँ होस्टेल थप्नुहोस्',
+    'generate_certificate' => 'प्रमाणपत्र जेनरेट गर्नुहोस्',
+    'hostel_types' => 'होस्टेल प्रकारहरू',
+    'registration_status' => 'दर्ता स्थिति',
+    'monthly_revenue' => 'मासिक आम्दानी',
+    'recent_registrations' => 'पछिल्ला दर्ताहरू',
+    'recent_payments' => 'पछिल्ला भुक्तानीहरू',
+    'recent_certificates' => 'पछिल्ला प्रमाणपत्रहरू',
+    'no_recent_registrations' => 'कुनै पछिल्लो दर्ता छैन।',
+    'no_recent_payments' => 'कुनै पछिल्लो भुक्तानी छैन।',
+    'no_recent_certificates' => 'कुनै पछिल्लो प्रमाणपत्र छैन।',
+    'generated' => 'जेनरेट गरियो',
+    'view_all' => 'सबै हेर्नुहोस्',
+    'certificates' => 'प्रमाणपत्रहरू',
+    'registrations' => 'दर्ताहरू',
+    'revenue' => 'आम्दानी',
+    'pending_registrations' => 'पर्खिरहेको दर्ताहरू',
+    'inspections_pending' => 'पर्खिरहेको निरीक्षण',
+    // Supporting Organizations (सहयोगी संस्थाहरू)
+'supporting_org_title' => 'सहयोगी संस्थाहरू',
+'supporting_org_desc' => 'HEAN ले आफ्ना सदस्यहरूलाई उत्कृष्ट मूल्य र विशेष सुविधाहरू प्रदान गर्न विश्वसनीय स्वास्थ्य, प्रविधि, बैंकिङ र व्यावसायिक संस्थाहरूसँग गर्वका साथ सहकार्य गर्दछ।',
 ];

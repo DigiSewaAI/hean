@@ -1285,5 +1285,36 @@ return [
     // =============================================
     'total_certificates' => 'Total Certificates',
     'sort_cert_number_asc' => 'Certificate Number (A-Z)',
-    'sort_cert_number_desc' => 'Certificate Number (Z-A)', 
+    'sort_cert_number_desc' => 'Certificate Number (Z-A)',
+        // =============================================
+    // Dashboard (Advanced Upgrade)
+    // =============================================
+    'total_revenue' => 'Total Revenue',
+    'active_hostels' => 'Active Hostels',
+    'expired' => 'Expired',
+    'today' => 'Today',
+    'this_week' => 'This Week',
+    'this_month' => 'This Month',
+    'approve_pending' => 'Approve Pending',
+    'add_new_hostel' => 'Add New Hostel',
+    'generate_certificate' => 'Generate Certificate',
+    'hostel_types' => 'Hostel Types',
+    'registration_status' => 'Registration Status',
+    'monthly_revenue' => 'Monthly Revenue',
+    'recent_registrations' => 'Recent Registrations',
+    'recent_payments' => 'Recent Payments',
+    'recent_certificates' => 'Recent Certificates',
+    'no_recent_registrations' => 'No recent registrations.',
+    'no_recent_payments' => 'No recent payments.',
+    'no_recent_certificates' => 'No recent certificates.',
+    'generated' => 'Generated',
+    'view_all' => 'View All',
+    'certificates' => 'Certificates',
+    'registrations' => 'Registrations',
+    'revenue' => 'Revenue',
+    'pending_registrations' => 'Pending Registrations',
+    'inspections_pending' => 'Inspections Pending',
+    // Supporting Organizations
+'supporting_org_title' => 'Supporting Organizations',
+'supporting_org_desc' => 'HEAN proudly collaborates with trusted healthcare, technology, banking and business organizations to deliver greater value and exclusive benefits to its members.', 
 ];

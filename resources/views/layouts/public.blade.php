@@ -6,6 +6,16 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('messages.home') . ' - HEAN')</title>
 
+            {{-- 🔥 HEAN Favicon (RealFaviconGenerator) --}}
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon-96x96.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+    <meta name="msapplication-TileColor" content="#0f172a">
+    <meta name="theme-color" content="#0f172a">
+
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
