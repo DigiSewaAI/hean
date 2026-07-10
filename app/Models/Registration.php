@@ -60,6 +60,7 @@ class Registration extends Model
         'valid_until',
         'block_name',
         'local_registration_number',
+        'fee',
 
 
     ];

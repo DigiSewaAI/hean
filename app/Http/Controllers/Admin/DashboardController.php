@@ -22,7 +22,10 @@ class DashboardController extends Controller
         // ========================================================
         $totalHostels = Hostel::count();
         $pendingRegistrations = Registration::where('status', 'pending')->count();
-        $inspectionsPending = Registration::where('status', 'inspection')->count();
+        $inspectionsPending = Registration::where('status', 'active')
+    ->whereDoesntHave('inspections')
+    ->count();
+
         $members = User::where('role', '!=', 'viewer')->count();
 
         // ========================================================

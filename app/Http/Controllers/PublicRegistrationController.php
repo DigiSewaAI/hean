@@ -22,106 +22,110 @@ class PublicRegistrationController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validator = $this->validateForm($request);
-        if ($validator->fails()) {
-            return redirect()->route('register.hostel')
-                ->withErrors($validator)
-                ->withInput();
-        }
+{
+    $validator = $this->validateForm($request);
+    if ($validator->fails()) {
+        return redirect()->route('register.hostel')
+            ->withErrors($validator)
+            ->withInput();
+    }
 
-        // Get names from IDs (province, district, municipality)
-        $provinceName = Province::find($request->province)?->name;
-        $districtName = District::find($request->district)?->name;
-        $municipalityName = Municipality::find($request->municipality)?->name;
+    // Get names from IDs (province, district, municipality)
+    $provinceName = Province::find($request->province)?->name;
+    $districtName = District::find($request->district)?->name;
+    $municipalityName = Municipality::find($request->municipality)?->name;
 
-        // ✅ डुप्लिकेट जाँच – province पठाउनु हुँदैन
-        $duplicate = Hostel::checkDuplicate(
-            $request->hostel_name,          // नाम (नेपाली/अंग्रेजी दुवै खोज्छ)
-            $districtName,                  // जिल्लाको नाम
-            $municipalityName,              // नगरपालिकाको नाम
-            $request->ward,
-            $request->street,
-            $request->block_name ?? null    // वैकल्पिक ब्लक
-        );
+    // ✅ Fee calculation
+    $fee = $this->calculateFee($request, $districtName);
 
-        if ($duplicate) {
-            return back()->withErrors([
-                'hostel_name' => 'यसै नाम र ठेगानामा अर्को होस्टल पहिले नै दर्ता भएको छ। यदि यो फरक ब्लक हो भने कृपया "ब्लक / भवन नाम" भर्नुहोस्।'
-            ])->withInput();
-        }
+    // ✅ डुप्लिकेट जाँच
+    $duplicate = Hostel::checkDuplicate(
+        $request->hostel_name,
+        $districtName,
+        $municipalityName,
+        $request->ward,
+        $request->street,
+        $request->block_name ?? null
+    );
 
-        DB::beginTransaction();
-        try {
-            $registration = Registration::create([
-                'source' => 'public',
-                'submitted_at' => now(),
-                'status' => 'pending',
-                // Hostel details
-                'hostel_name' => $request->hostel_name,
-                'hostel_name_english' => $request->hostel_name_english,
-                'hostel_type' => $request->hostel_type,
-                'capacity' => $request->capacity,
-                'rooms' => $request->rooms,
-                'established_year' => $request->established_year,
-                'contact' => $request->contact_number,
-                'email' => $request->email,
-                'website' => $request->website,
-                'description' => $request->description,
-                // Owner
-                'operator_name' => $request->owner_name,
-                // Address (store names from dropdown)
-                'province' => $provinceName,
-                'district' => $districtName,
-                'municipality' => $municipalityName,
-                'ward' => $request->ward,
-                'street' => $request->street,
-                'landmark' => $request->landmark,
-                'pan' => $request->pan,
-                // ✅ block_name थपियो (यो होस्टलमा मात्र होइन, यहाँ पनि)
-                'block_name' => $request->block_name,
-                'local_registration_number' => $request->local_registration_number,
-            ]);
+    if ($duplicate) {
+        return back()->withErrors([
+            'hostel_name' => 'यसै नाम र ठेगानामा अर्को होस्टल पहिले नै दर्ता भएको छ। यदि यो फरक ब्लक हो भने कृपया "ब्लक / भवन नाम" भर्नुहोस्।'
+        ])->withInput();
+    }
 
-            // Documents
-            $docTypes = ['registration_certificate', 'citizenship_copy', 'pan_certificate', 'signboard', 'other_documents'];
-            foreach ($docTypes as $type) {
-                if ($request->hasFile("documents.{$type}")) {
-                    $file = $request->file("documents.{$type}");
-                    $path = $file->store('public/documents/' . $registration->id, 'public');
-                    Document::create([
-                        'registration_id' => $registration->id,
-                        'type' => $type,
-                        'file_path' => $path,
-                        'uploaded_at' => now(),
-                    ]);
-                }
-            }
+    DB::beginTransaction();
+    try {
+        $registration = Registration::create([
+            'source' => 'public',
+            'submitted_at' => now(),
+            'status' => 'pending',
+            // Hostel details
+            'hostel_name' => $request->hostel_name,
+            'hostel_name_english' => $request->hostel_name_english,
+            'hostel_type' => $request->hostel_type,
+            'capacity' => $request->capacity,
+            'rooms' => $request->rooms,
+            'established_year' => $request->established_year,
+            'contact' => $request->contact_number,
+            'email' => $request->email,
+            'website' => $request->website,
+            'description' => $request->description,
+            // Owner
+            'operator_name' => $request->owner_name,
+            // Address (store names from dropdown)
+            'province' => $provinceName,
+            'district' => $districtName,
+            'municipality' => $municipalityName,
+            'ward' => $request->ward,
+            'street' => $request->street,
+            'landmark' => $request->landmark,
+            'pan' => $request->pan,
+            'block_name' => $request->block_name,
+            'local_registration_number' => $request->local_registration_number,
+            // ✅ fee store
+            'fee' => $fee,
+        ]);
 
-            // Payment
-            if ($request->filled('payment_method')) {
-                Payment::create([
+        // Documents
+        $docTypes = ['registration_certificate', 'citizenship_copy', 'pan_certificate', 'signboard', 'other_documents'];
+        foreach ($docTypes as $type) {
+            if ($request->hasFile("documents.{$type}")) {
+                $file = $request->file("documents.{$type}");
+                $path = $file->store('public/documents/' . $registration->id, 'public');
+                Document::create([
                     'registration_id' => $registration->id,
-                    'method' => $request->payment_method,
-                    'transaction_id' => $request->transaction_id,
-                    'amount' => $request->payment_amount ?? 1500,
-                    'payment_date' => $request->payment_date ?? now(),
-                    'bank_name' => $request->bank_name,
-                    'bank_account' => $request->bank_account,
+                    'type' => $type,
+                    'file_path' => $path,
+                    'uploaded_at' => now(),
                 ]);
             }
-
-            DB::commit();
-
-            return redirect()->route('registration.success', ['id' => $registration->id])
-                ->with('success', 'Registration submitted successfully!');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Public registration failed: ' . $e->getMessage());
-            return back()->withErrors(['general' => 'An error occurred: ' . $e->getMessage()])->withInput();
         }
+
+        // Payment
+        if ($request->filled('payment_method')) {
+            Payment::create([
+                'registration_id' => $registration->id,
+                'method' => $request->payment_method,
+                'transaction_id' => $request->transaction_id,
+                'amount' => $request->payment_amount ?? $fee,
+                'payment_date' => $request->payment_date ?? now(),
+                'bank_name' => $request->bank_name,
+                'bank_account' => $request->bank_account,
+            ]);
+        }
+
+        DB::commit();
+
+        return redirect()->route('registration.success', ['id' => $registration->id])
+            ->with('success', 'Registration submitted successfully!');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Public registration failed: ' . $e->getMessage());
+        return back()->withErrors(['general' => 'An error occurred: ' . $e->getMessage()])->withInput();
     }
+}
 
     public function success($id)
     {
@@ -168,4 +172,36 @@ class PublicRegistrationController extends Controller
 
         return Validator::make($request->all(), $rules);
     }
+ /**
+ * Calculate registration fee based on multiple factors
+ */
+private function calculateFee($request, $districtName = null)
+{
+    // 🎯 Base fee
+    $baseFee = 1500;
+
+    // 🎯 Hostel type adjustment
+    $typeFeeMap = [
+        'boys' => 2000,
+        'girls' => 2500,
+        'co-ed' => 1800,
+    ];
+    
+    $fee = $typeFeeMap[$request->hostel_type] ?? $baseFee;
+
+    // 🎯 Capacity adjustment
+    if ($request->capacity > 50) {
+        $fee += 500;
+    }
+
+    // 🎯 District adjustment (using name, not ID)
+    $districtFeeMap = [
+        'Kathmandu' => 500,
+        'Lalitpur' => 400,
+        'Bhaktapur' => 300,
+    ];
+    $fee += $districtFeeMap[$districtName] ?? 0;
+
+    return $fee;
+}
 }

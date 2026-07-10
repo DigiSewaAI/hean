@@ -1342,4 +1342,6 @@ return [
     // Supporting Organizations (सहयोगी संस्थाहरू)
 'supporting_org_title' => 'सहयोगी संस्थाहरू',
 'supporting_org_desc' => 'HEAN ले आफ्ना सदस्यहरूलाई उत्कृष्ट मूल्य र विशेष सुविधाहरू प्रदान गर्न विश्वसनीय स्वास्थ्य, प्रविधि, बैंकिङ र व्यावसायिक संस्थाहरूसँग गर्वका साथ सहकार्य गर्दछ।',
+'stats_districts_number' => 'धेरै',
+'stats_community_number' => 'बढ्दो',
 ];

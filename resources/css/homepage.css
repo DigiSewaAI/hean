@@ -600,7 +600,7 @@ body {
     font-size: 1.1rem;
   }
 }
-/* ====== Supporting Organizations ====== */
+/* ====== Supporting Organizations – FORCED HORIZONTAL MARQUEE ====== */
 .supporting-organizations {
     padding: 80px 0;
     background: #f8fafc;
@@ -626,32 +626,36 @@ body {
     line-height: 1.7;
 }
 
-/* Scroll container */
+/* ------ SCROLL CONTAINER ------ */
 .supporting-organizations .scroll-container {
-    overflow: hidden;
+    overflow: hidden !important;
     position: relative;
     width: 100%;
     mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
 }
 
+/* ------ TRACK – HORIZONTAL ROW, NO WRAP ------ */
 .supporting-organizations .scroll-track {
-    display: flex;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    flex-direction: row !important;
+    align-items: center !important;
     gap: 30px;
-    width: max-content;
+    width: max-content !important;
     animation: scroll-partners 45s linear infinite;
     will-change: transform;
 }
 
-/* Pause on hover over the entire track */
+/* Pause on hover */
 .supporting-organizations .scroll-container:hover .scroll-track {
     animation-play-state: paused;
 }
 
-/* Individual card */
+/* ------ EACH CARD – FIXED WIDTH, NEVER SHRINK ------ */
 .supporting-organizations .partner-card {
-    flex: 0 0 auto;
-    width: 260px;
+    flex: 0 0 auto !important;
+    width: 260px !important;
     background: #ffffff;
     border-radius: 20px;
     padding: 20px 18px;
@@ -693,12 +697,11 @@ body {
     width: auto;
     height: auto;
     object-fit: contain;
-    filter: grayscale(0) brightness(1);
     transition: filter 0.3s;
 }
 
 .supporting-organizations .partner-card:hover .logo-wrapper img {
-    filter: grayscale(0) brightness(1.05);
+    filter: brightness(1.05);
 }
 
 /* Text */
@@ -722,7 +725,7 @@ body {
     margin-top: 4px;
 }
 
-/* External link icon – appears on hover */
+/* External link icon */
 .supporting-organizations .external-icon {
     position: absolute;
     top: 12px;
@@ -739,7 +742,7 @@ body {
     transform: translateY(0);
 }
 
-/* Keyframes */
+/* ------ KEYFRAMES – smooth R→L scroll ------ */
 @keyframes scroll-partners {
     0% {
         transform: translateX(0);
@@ -749,10 +752,10 @@ body {
     }
 }
 
-/* Responsive */
+/* ------ RESPONSIVE – card width adjusts, remains horizontal ------ */
 @media (max-width: 992px) {
     .supporting-organizations .partner-card {
-        width: 220px;
+        width: 220px !important;
         padding: 16px 14px;
     }
     .supporting-organizations .logo-wrapper {
@@ -770,7 +773,7 @@ body {
 
 @media (max-width: 768px) {
     .supporting-organizations .partner-card {
-        width: 180px;
+        width: 180px !important;
         padding: 14px 12px;
     }
     .supporting-organizations .logo-wrapper {
@@ -795,7 +798,7 @@ body {
 
 @media (max-width: 480px) {
     .supporting-organizations .partner-card {
-        width: 150px;
+        width: 150px !important;
         padding: 12px 10px;
     }
     .supporting-organizations .logo-wrapper {

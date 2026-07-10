@@ -191,21 +191,21 @@ if ($request->hasFile('photos')) {
     }
 
     /**
-     * ✅ निरीक्षणको लागि योग्य दर्ताहरूको सूची (New Inspection button बाट)
-     * ✅ FIXED: अब active र approved status पनि समावेश गरियो।
-     * ✅ पहिले नै scheduled/completed भएका registrations हटाइयो।
-     */
-    public function select()
-    {
-        $registrations = Registration::whereIn('status', ['pending', 'approved', 'active', 'inspection'])
-            ->whereDoesntHave('inspections', function($q) {
-                $q->whereIn('status', ['scheduled', 'completed']);
-            })
-            ->latest()
-            ->get();
+ * ✅ निरीक्षणको लागि योग्य दर्ताहरूको सूची (New Inspection button बाट)
+ * ✅ Active र Approved registrations मात्र (pending होइन)
+ * ✅ पहिले नै scheduled/completed भएका registrations हटाइयो।
+ */
+public function select()
+{
+    $registrations = Registration::whereIn('status', ['approved', 'active'])
+        ->whereDoesntHave('inspections', function($q) {
+            $q->whereIn('status', ['scheduled', 'completed']);
+        })
+        ->latest()
+        ->get();
 
-        return view('admin.inspections.select', compact('registrations'));
-    }
+    return view('admin.inspections.select', compact('registrations'));
+}
 
     /**
      * View a completed inspection report.

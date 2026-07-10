@@ -8,7 +8,8 @@ use App\Services\PaymentService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 
-class ActivateRegistrationIfPaid implements ShouldQueue
+class ActivateRegistrationIfPaid
+
 {
     public function handle(PaymentVerified $event)
     {

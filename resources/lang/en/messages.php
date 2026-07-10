@@ -1317,4 +1317,6 @@ return [
     // Supporting Organizations
 'supporting_org_title' => 'Supporting Organizations',
 'supporting_org_desc' => 'HEAN proudly collaborates with trusted healthcare, technology, banking and business organizations to deliver greater value and exclusive benefits to its members.', 
+'stats_districts_number' => 'Multiple',
+'stats_community_number' => 'Growing',
 ];

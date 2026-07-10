@@ -353,17 +353,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Helper: safe key-value data (for status)
-    function safeData(data, defaultLabels, defaultValues) {
-        if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
-            return { labels: defaultLabels, values: defaultValues };
-        }
-        return {
-            labels: Object.keys(data).map(k => k.charAt(0).toUpperCase() + k.replace('_', ' ')),
-            values: Object.values(data)
-        };
-    }
-
     // =============================================================
     // 1. MONTHLY REGISTRATIONS (Line Chart)
     // =============================================================
@@ -402,27 +391,19 @@ document.addEventListener('DOMContentLoaded', function() {
     @endif
 
     // =============================================================
-    // 2. HOSTEL TYPES (Doughnut Chart) - FIXED COLORS!
+    // 2. HOSTEL TYPES (Doughnut Chart) - FIXED!
     // =============================================================
     @if($hasTypeData)
     const typeData = @json($typeDistribution ?? []);
-    // Get original keys from data (they are already lowercase: 'boys', 'girls', 'co-ed')
     const typeKeys = Object.keys(typeData);
     const typeValues = Object.values(typeData);
-    
-    // Capitalize labels for display: 'boys' -> 'Boys'
     const typeLabels = typeKeys.map(k => k.charAt(0).toUpperCase() + k.slice(1));
-    
-    // Color map for original keys (lowercase)
     const typeColorsMap = {
-        'boys': '#3B82F6',    // Blue
-        'girls': '#EC4899',   // Pink
-        'co-ed': '#8B5CF6'    // Purple
+        'boys': '#3B82F6',
+        'girls': '#EC4899',
+        'co-ed': '#8B5CF6'
     };
-    
-    // Map colors based on original keys
     const typeColors = typeKeys.map(key => typeColorsMap[key] || '#94a3b8');
-    
     const typeCtx = document.getElementById('typeDistributionChart');
     if (typeCtx) {
         new Chart(typeCtx.getContext('2d'), {
@@ -458,75 +439,84 @@ document.addEventListener('DOMContentLoaded', function() {
     @endif
 
     // =============================================================
-// 3. REGISTRATION STATUS (Bar Chart) - FIXED COLORS!
-// =============================================================
-@if($hasStatusData)
-const statusData = @json($statusDistribution ?? []);
-// Get original keys from data (lowercase: 'pending', 'approved', 'active', etc.)
-const statusKeys = Object.keys(statusData);
-const statusValues = Object.values(statusData);
-
-// Capitalize labels for display: 'pending' -> 'Pending', 'approved' -> 'Approved', etc.
-const statusLabels = statusKeys.map(k => k.charAt(0).toUpperCase() + k.replace('_', ' '));
-
-// Color map for original keys (lowercase)
-const statusColorsMap = {
-    'pending': '#F59E0B',       // Yellow/Orange
-    'approved': '#22C55E',      // Green
-    'active': '#3B82F6',        // Blue
-    'rejected': '#EF4444',      // Red
-    'duplicate': '#8B5CF6',     // Purple
-    'awaiting_payment': '#F59E0B', // Yellow/Orange
-    'inspection': '#8B5CF6',    // Purple
-    'completed': '#10B981',     // Emerald
-    'scheduled': '#F59E0B',     // Yellow
-    'cancelled': '#EF4444'      // Red
-};
-
-// Map colors based on original keys
-const statusColors = statusKeys.map(key => statusColorsMap[key] || '#94a3b8');
-
-const statusCtx = document.getElementById('statusDistributionChart');
-if (statusCtx) {
-    new Chart(statusCtx.getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: statusLabels,
-            datasets: [{
-                label: '{{ __('messages.registrations') }}',
-                data: statusValues,
-                backgroundColor: statusColors,
-                borderRadius: 6,
-                borderSkipped: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { 
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.parsed.y + ' registrations';
+    // 3. REGISTRATION STATUS (Bar Chart) - FIXED!
+    // =============================================================
+    @if($hasStatusData)
+    const statusData = @json($statusDistribution ?? []);
+    const statusKeys = Object.keys(statusData);
+    const statusValues = Object.values(statusData);
+    
+    // 🔥 FIX: Clean labels - remove any extra leading characters
+    const statusLabels = statusKeys.map(k => {
+        let clean = k;
+        if (k.length > 1 && k[0] === k[1]) {
+            clean = k.substring(1); // Remove first duplicate character
+        }
+        return clean.charAt(0).toUpperCase() + clean.slice(1);
+    });
+    
+    const statusColorsMap = {
+        'pending': '#F59E0B',
+        'approved': '#22C55E',
+        'active': '#3B82F6',
+        'rejected': '#EF4444',
+        'duplicate': '#8B5CF6',
+        'awaiting_payment': '#F59E0B',
+        'inspection': '#8B5CF6',
+        'completed': '#10B981',
+        'scheduled': '#F59E0B',
+        'cancelled': '#EF4444'
+    };
+    
+    const statusColors = statusKeys.map(key => {
+        let cleanKey = key;
+        if (key.length > 1 && key[0] === key[1]) {
+            cleanKey = key.substring(1);
+        }
+        return statusColorsMap[cleanKey] || '#94a3b8';
+    });
+    
+    const statusCtx = document.getElementById('statusDistributionChart');
+    if (statusCtx) {
+        new Chart(statusCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    label: '{{ __('messages.registrations') }}',
+                    data: statusValues,
+                    backgroundColor: statusColors,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' registrations';
+                            }
                         }
                     }
-                }
-            },
-            scales: { 
-                y: { 
-                    beginAtZero: true, 
-                    ticks: { stepSize: 1 },
-                    grid: { color: 'rgba(0,0,0,0.05)' }
                 },
-                x: {
-                    grid: { display: false }
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1 },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
                 }
             }
-        }
-    });
-}
-@endif
+        });
+    }
+    @endif
 
     // =============================================================
     // 4. MONTHLY REVENUE (Line Chart)

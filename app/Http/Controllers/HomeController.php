@@ -28,43 +28,43 @@ class HomeController extends Controller
 
     // ========== नयाँ थपिएको: Supporting Organizations ==========
     $supportingOrganizations = [
-        [
-            'name' => 'HostelHub Nepal',
-            'logo' => asset('images/partners/hostelhub.png'),
-            'partner_type' => '💻 Official Technology Partner',
-            'url' => 'https://hostelhub.com.np',
-        ],
-        [
-            'name' => 'Everest Hospital',
-            'logo' => asset('images/partners/everest.png'),
-            'partner_type' => '🏥 Healthcare Partner',
-            'url' => 'https://everesthospital.com',
-        ],
-        [
-            'name' => 'WorldLink',
-            'logo' => asset('images/partners/worldlink.png'),
-            'partner_type' => '🌐 Connectivity Partner',
-            'url' => 'https://worldlink.com.np',
-        ],
-        [
-            'name' => 'NIC Asia Bank',
-            'logo' => asset('images/partners/nicasia.png'),
-            'partner_type' => '🏦 Banking Partner',
-            'url' => 'https://nicasiabank.com',
-        ],
-        [
-            'name' => 'Prabhu Insurance',
-            'logo' => asset('images/partners/prabhu.png'),
-            'partner_type' => '🛡️ Insurance Partner',
-            'url' => 'https://prabhuinsurance.com',
-        ],
-        [
-            'name' => 'Kantipur Media',
-            'logo' => asset('images/partners/kantipur.png'),
-            'partner_type' => '📰 Media Partner',
-            'url' => 'https://kantipur.com',
-        ],
-    ];
+    [
+        'name' => 'HostelHub Nepal',
+        'logo' => asset('images/partners/hostelhub.png'),
+        'partner_type' => '💻 Official Technology Partner',
+        'url' => 'https://www.hostelhubnepal.com',  // ✅ EXACT
+    ],
+    [
+        'name' => 'Everest Hospital',
+        'logo' => asset('images/partners/everest.png'),
+        'partner_type' => '🏥 Healthcare Partner',
+        'url' => 'https://www.findhealthclinics.org/NP/Kathmandu/368333303375550/Everest-Hospital',  // ✅ EXACT
+    ],
+    [
+        'name' => 'WorldLink',
+        'logo' => asset('images/partners/worldlink.png'),
+        'partner_type' => '🌐 Connectivity Partner',
+        'url' => 'https://worldlink.com.np/',  // ✅ EXACT
+    ],
+    [
+        'name' => 'NIC Asia Bank',
+        'logo' => asset('images/partners/nicasia.png'),
+        'partner_type' => '🏦 Banking Partner',
+        'url' => 'https://www.nicasiacapital.com/',  // ✅ EXACT
+    ],
+    [
+        'name' => 'Prabhu Insurance',
+        'logo' => asset('images/partners/prabhu.png'),
+        'partner_type' => '🛡️ Insurance Partner',
+        'url' => 'https://www.prabhubank.com/',  // ✅ EXACT
+    ],
+    [
+        'name' => 'Kantipur Media',
+        'logo' => asset('images/partners/kantipur.png'),
+        'partner_type' => '📰 Media Partner',
+        'url' => 'https://kantipurtv.com/',  // ✅ EXACT
+    ],
+];
     // =========================================================
 
     return view('public.home', compact('hostels', 'notices', 'committee', 'gallery', 'stats', 'supportingOrganizations'));

@@ -34,23 +34,23 @@
 
         {{-- Stats Dashboard --}}
         <div class="hero-dashboard" style="display:grid; grid-template-columns:1fr 1fr; gap:24px; background:rgba(255,255,255,0.7); backdrop-filter:blur(10px); padding:30px; border-radius:20px; border:1px solid rgba(255,255,255,0.5);">
-            <div class="dash-stat" style="text-align:center;">
-                <div class="number" style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">600+</div>
-                <div class="label" style="font-size:0.85rem; color:#64748b; font-weight:500; letter-spacing:0.03em;">@lang('messages.stats_hostels')</div>
-            </div>
-            <div class="dash-stat" style="text-align:center;">
-                <div class="number" style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">600+</div>
-                <div class="label" style="font-size:0.85rem; color:#64748b; font-weight:500; letter-spacing:0.03em;">@lang('messages.stats_members')</div>
-            </div>
-            <div class="dash-stat" style="text-align:center;">
-                <div class="number" style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">Multiple</div>
-                <div class="label" style="font-size:0.85rem; color:#64748b; font-weight:500; letter-spacing:0.03em;">@lang('messages.stats_districts')</div>
-            </div>
-            <div class="dash-stat" style="text-align:center;">
-                <div class="number" style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">Growing</div>
-                <div class="label" style="font-size:0.85rem; color:#64748b; font-weight:500; letter-spacing:0.03em;">{{ __('messages.stats_community') }}</div>
-            </div>
-        </div>
+    <div class="dash-stat" style="text-align:center;">
+        <div class="number" style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">{{ $stats['hostels'] ?? '0' }}+</div>
+        <div class="label" style="font-size:0.85rem; color:#64748b; font-weight:500; letter-spacing:0.03em;">@lang('messages.stats_hostels')</div>
+    </div>
+    <div class="dash-stat" style="text-align:center;">
+        <div class="number" style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">{{ $stats['members'] ?? '0' }}+</div>
+        <div class="label" style="font-size:0.85rem; color:#64748b; font-weight:500; letter-spacing:0.03em;">@lang('messages.stats_members')</div>
+    </div>
+    <div class="dash-stat" style="text-align:center;">
+        <div class="number" style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">{{ $stats['districts'] ?? '0' }}</div>
+        <div class="label" style="font-size:0.85rem; color:#64748b; font-weight:500; letter-spacing:0.03em;">@lang('messages.stats_districts')</div>
+    </div>
+    <div class="dash-stat" style="text-align:center;">
+        <div class="number" style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">{{ $stats['growth'] ?? '0' }}%</div>
+        <div class="label" style="font-size:0.85rem; color:#64748b; font-weight:500; letter-spacing:0.03em;">{{ __('messages.stats_community') }}</div>
+    </div>
+</div>
     </div>
 </section>
 
