@@ -99,10 +99,10 @@ class Registration extends Model
         return $this->belongsTo(User::class, 'inspector_id');
     }
 
-    public function documents(): HasMany
-    {
-        return $this->hasMany(Document::class);
-    }
+    public function uploadedDocuments(): HasMany
+{
+    return $this->hasMany(Document::class);
+}
 
     public function payments(): HasMany
     {

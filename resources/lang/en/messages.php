@@ -1319,4 +1319,13 @@ return [
 'supporting_org_desc' => 'HEAN proudly collaborates with trusted healthcare, technology, banking and business organizations to deliver greater value and exclusive benefits to its members.', 
 'stats_districts_number' => 'Multiple',
 'stats_community_number' => 'Growing',
+'missing' => 'Missing',
+'document_preview' => 'Document Preview',
+'hostel_photos' => 'Hostel Photos',
+'previous' => 'Previous',
+'next' => 'Next',
+'files' => 'files',
+'view' => 'View',
+'download' => 'Download',
+
 ];

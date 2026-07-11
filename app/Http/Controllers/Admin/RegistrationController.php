@@ -120,7 +120,7 @@ public function index(Request $request)
         $registration->load([
             'owner',
             'hostel',
-            'documents',
+            'uploadedDocuments',
             'payments' => function($q) {
                 $q->latest();
             },
@@ -350,7 +350,7 @@ public function index(Request $request)
 
             // ✅ 2. Copy image from documents (signboard or photos)
             $imagePath = null;
-            $doc = $registration->documents()->whereIn('type', ['signboard', 'photos'])->first();
+            $doc = $registration->uploadedDocuments()->whereIn('type', ['signboard', 'photos'])->first();
             if ($doc && Storage::disk('public')->exists($doc->file_path)) {
                 $filename = uniqid() . '_' . basename($doc->file_path);
                 $newPath = 'hostels/' . $filename;
@@ -417,7 +417,7 @@ public function index(Request $request)
 
         // Copy image from documents (signboard or photos)
         $imagePath = null;
-        $doc = $registration->documents()->whereIn('type', ['signboard', 'photos'])->first();
+        $doc = $registration->uploadedDocuments()->whereIn('type', ['signboard', 'photos'])->first();
         if ($doc && Storage::disk('public')->exists($doc->file_path)) {
             $filename = uniqid() . '_' . basename($doc->file_path);
             $newPath = 'hostels/' . $filename;

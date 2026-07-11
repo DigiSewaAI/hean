@@ -402,30 +402,53 @@
 {{-- ============================================================ --}}
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;">
 
-    {{-- Documents --}}
-    <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
-        <div style="background:linear-gradient(135deg, #64748B, #475569); color:#fff; padding:12px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
-            <i class="fas fa-file-pdf"></i> {{ __('messages.documents') }}
-            <span style="font-size:0.8rem; font-weight:400; opacity:0.8;">({{ $registration->documents?->count() ?? 0 }})</span>
-        </div>
-        <div style="padding:16px;">
-            @if($registration->documents?->count())
-                @foreach($registration->documents as $doc)
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #e2e8f0;">
-                        <div>
-                            <span style="font-weight:500;">{{ ucfirst(str_replace('_', ' ', $doc->type)) }}</span>
-                            <span style="font-size:0.7rem; color:#94a3b8; margin-left:8px;">{{ $doc->created_at->format('M d, Y') }}</span>
-                        </div>
-                        <a href="{{ route('admin.documents.download', $doc->id) }}" style="background:#0EA5E9; color:#fff; padding:2px 12px; border-radius:50px; text-decoration:none; font-size:0.7rem; font-weight:600;">
-                            <i class="fas fa-download"></i>
-                        </a>
-                    </div>
-                @endforeach
-            @else
-                <div style="text-align:center; padding:20px; color:#94a3b8; font-size:0.85rem;">{{ __('messages.no_documents_uploaded') }}</div>
-            @endif
-        </div>
+    {{-- ============================================================ --}}
+{{-- DOCUMENTS (UPGRADED) --}}
+{{-- ============================================================ --}}
+<div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
+    <div style="background:linear-gradient(135deg, #64748B, #475569); color:#fff; padding:12px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
+        <i class="fas fa-file-pdf"></i> {{ __('messages.documents') }}
+        <span style="font-size:0.8rem; font-weight:400; opacity:0.8; margin-left:auto;">
+            {{ $registration->uploadedDocuments->count() }} {{ __('messages.files') }}
+        </span>
     </div>
+    <div style="padding:16px;">
+        @php
+            // Group documents by type, and define labels/icons
+            $docGroups = [
+                'pan_certificate' => ['label' => 'PAN Certificate', 'icon' => 'fa-file-invoice'],
+                'citizenship_copy' => ['label' => 'Citizenship Copy', 'icon' => 'fa-id-card'],
+                'license' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],
+                'municipality' => ['label' => 'Municipality Certificate', 'icon' => 'fa-certificate'],
+                'signboard' => ['label' => 'Signboard / Building Image', 'icon' => 'fa-image'],
+                'photos' => ['label' => 'Hostel Photos', 'icon' => 'fa-images'],
+                'additional' => ['label' => 'Additional Documents', 'icon' => 'fa-paperclip'],
+            ];
+        @endphp
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:16px;">
+            @foreach($docGroups as $type => $info)
+                @php
+                    $docs = $registration->uploadedDocuments->where('type', $type);
+                @endphp
+                @include('admin.registrations.partials._document_card', [
+                    'type' => $type,
+                    'docs' => $docs,
+                    'label' => $info['label'],
+                    'icon' => $info['icon']
+                ])
+            @endforeach
+        </div>
+
+        {{-- If no documents at all --}}
+        @if($registration->uploadedDocuments->isEmpty())
+            <div style="text-align:center; padding:20px; color:#94a3b8; font-size:0.85rem;">
+                <i class="fas fa-file-alt" style="font-size:2rem; display:block; margin-bottom:8px; color:#cbd5e1;"></i>
+                {{ __('messages.no_documents_uploaded') }}
+            </div>
+        @endif
+    </div>
+</div>
 
     {{-- Inspections --}}
     <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
@@ -661,5 +684,11 @@
 
     </div>
 </div>
+{{-- ===== MODALS ===== --}}
+@include('admin.registrations.partials._document_modal')
+@include('admin.registrations.partials._photo_gallery_modal')
 
+@push('scripts')
+    <script src="{{ asset('js/admin-document-manager.js') }}"></script>
+@endpush
 @endsection

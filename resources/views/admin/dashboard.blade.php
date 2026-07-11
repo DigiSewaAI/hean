@@ -126,28 +126,16 @@
 </div>
 
 {{-- =============================================================
-    QUICK ACTION BUTTONS
+    QUICK ACTION BUTTONS (Only Approve Pending)
     ============================================================= --}}
-<div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px;">
+<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:24px;">
     @if($pendingRegistrations > 0)
         <a href="{{ route('admin.registrations.index', ['status' => 'pending']) }}" 
-           style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; padding:8px 18px; border-radius:50px; text-decoration:none; font-weight:600; font-size:0.8rem; box-shadow:0 2px 10px rgba(245,158,11,0.25);">
+           style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; padding:10px 22px; border-radius:50px; text-decoration:none; font-weight:600; font-size:0.85rem; box-shadow:0 4px 15px rgba(245,158,11,0.3); transition:0.3s;">
             <i class="fas fa-check-circle"></i> {{ __('messages.approve_pending') }}
-            <span style="background:rgba(255,255,255,0.2); padding:1px 8px; border-radius:50px; font-size:0.7rem;">{{ $pendingRegistrations }}</span>
+            <span style="background:rgba(255,255,255,0.2); padding:2px 10px; border-radius:50px; font-size:0.75rem;">{{ $pendingRegistrations }}</span>
         </a>
     @endif
-    <a href="{{ route('admin.hostels.create') }}" 
-       style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; padding:8px 18px; border-radius:50px; text-decoration:none; font-weight:600; font-size:0.8rem; box-shadow:0 2px 10px rgba(14,165,233,0.25);">
-        <i class="fas fa-plus-circle"></i> {{ __('messages.add_new_hostel') }}
-    </a>
-    <a href="{{ route('admin.certificate.index') }}" 
-       style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, #8B5CF6, #7C3AED); color:#fff; padding:8px 18px; border-radius:50px; text-decoration:none; font-weight:600; font-size:0.8rem; box-shadow:0 2px 10px rgba(139,92,246,0.25);">
-        <i class="fas fa-certificate"></i> {{ __('messages.generate_certificate') }}
-    </a>
-    <a href="{{ route('admin.invoices.index') }}" 
-       style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, #EF4444, #DC2626); color:#fff; padding:8px 18px; border-radius:50px; text-decoration:none; font-weight:600; font-size:0.8rem; box-shadow:0 2px 10px rgba(239,68,68,0.25);">
-        <i class="fas fa-file-invoice"></i> {{ __('messages.generate_invoice') }}
-    </a>
 </div>
 
 {{-- =============================================================

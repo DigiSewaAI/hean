@@ -1,74 +1,64 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Console\Commands;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Console\Command;
 use App\Models\Hostel;
 use App\Models\Registration;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Receipt;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use Illuminate\Support\Facades\Log;
 
-class ImportController extends Controller
+class ImportHostels extends Command
 {
-    public function index()
-    {
-        return view('admin.import.index');
-    }
+    protected $signature = 'import:hostels {file}';
+    protected $description = 'Import hostels from CSV file (UTF-8 support)';
 
-    public function prepare(Request $request)
+    public function handle()
     {
-        return back()->with('info', 'Import preparation is under development.');
-    }
+        $file = $this->argument('file');
 
-    /**
-     * Execute import – from CSV/Excel
-     * ✅ Handles empty fields with defaults
-     * ✅ Auto-generates HEAN-YYYY-XXXXXX
-     * ✅ Saves old registration number (S.N.) as old_registration_number
-     */
-    public function store(Request $request)
-    {
-        $filePath = session('import_file');
-        if (!$filePath || !Storage::disk('public')->exists($filePath)) {
-            return redirect()->route('admin.import.index')
-                ->with('error', 'Import file not found. Please upload again.');
+        if (!file_exists($file)) {
+            $this->error("File not found: $file");
+            return 1;
         }
 
-        $fullPath = Storage::disk('public')->path($filePath);
-        $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
+        $this->info("📂 Reading file: $file");
 
-        // Read file
-        if ($extension === 'csv') {
-            $rows = [];
-            if (($handle = fopen($fullPath, 'r')) !== false) {
-                $headers = fgetcsv($handle); // Skip headers
-                while (($data = fgetcsv($handle)) !== false) {
-                    $rows[] = $data;
-                }
-                fclose($handle);
-            }
-        } else {
-            $spreadsheet = IOFactory::load($fullPath);
-            $sheet = $spreadsheet->getActiveSheet();
-            $rows = $sheet->toArray();
-            array_shift($rows); // Remove headers
+        // ✅ Read file as UTF-8
+        $content = file_get_contents($file);
+        $content = mb_convert_encoding($content, 'UTF-8', 'auto');
+        $lines = explode("\n", $content);
+
+        if (count($lines) < 2) {
+            $this->error("File is empty or invalid.");
+            return 1;
         }
+
+        // Get headers
+        $header = str_getcsv($lines[0]);
+        $this->line("Headers: " . implode(', ', $header));
 
         $imported = 0;
         $errors = [];
+        $rowNumber = 1;
 
         DB::beginTransaction();
+
         try {
-            foreach ($rows as $index => $row) {
+            for ($i = 1; $i < count($lines); $i++) {
+                $line = trim($lines[$i]);
+                if (empty($line)) continue;
+
+                $row = str_getcsv($line);
+                $rowNumber++;
+
                 // ================================================
                 // 1. EXTRACT DATA WITH DEFAULTS
                 // ================================================
-                $oldRegNumber = trim($row[0] ?? ''); // S.N. (पुरानो HEAN नम्बर)
+                $oldRegNumber = trim($row[0] ?? '');
                 $hostelNameEnglish = trim($row[1] ?? '');
                 $hostelNameNepali = trim($row[2] ?? '');
                 $address = trim($row[3] ?? '');
@@ -76,13 +66,24 @@ class ImportController extends Controller
                 $contact = trim($row[5] ?? '');
                 $pan = trim($row[6] ?? '');
                 $ward = trim($row[7] ?? '');
-                $capacity = (int) ($row[13] ?? 0); // Cap column
+                $capacity = (int) ($row[13] ?? 0);
                 $remarks = trim($row[14] ?? '');
 
-                // ================================================
-                // 2. FALLBACK LOGIC FOR EMPTY FIELDS
-                // ================================================
-                // Hostel Name
+                // ✅ Convert to UTF-8 if needed
+                if (!mb_check_encoding($hostelNameNepali, 'UTF-8')) {
+                    $hostelNameNepali = mb_convert_encoding($hostelNameNepali, 'UTF-8', 'auto');
+                }
+                if (!mb_check_encoding($hostelNameEnglish, 'UTF-8')) {
+                    $hostelNameEnglish = mb_convert_encoding($hostelNameEnglish, 'UTF-8', 'auto');
+                }
+                if (!mb_check_encoding($ownerName, 'UTF-8')) {
+                    $ownerName = mb_convert_encoding($ownerName, 'UTF-8', 'auto');
+                }
+                if (!mb_check_encoding($address, 'UTF-8')) {
+                    $address = mb_convert_encoding($address, 'UTF-8', 'auto');
+                }
+
+                // Fallbacks
                 if (empty($hostelNameNepali) && !empty($hostelNameEnglish)) {
                     $hostelNameNepali = $hostelNameEnglish;
                 } elseif (empty($hostelNameNepali) && empty($hostelNameEnglish)) {
@@ -90,34 +91,13 @@ class ImportController extends Controller
                     $hostelNameEnglish = 'Unknown Hostel';
                 }
 
-                // Owner Name
-                if (empty($ownerName)) {
-                    $ownerName = 'Unknown';
-                }
+                if (empty($ownerName)) $ownerName = 'Unknown';
+                if (empty($contact)) $contact = 'N/A';
+                if (empty($ward)) $ward = '0';
+                if (empty($oldRegNumber)) $oldRegNumber = 'N/A';
+                if ($capacity <= 0) $capacity = 0;
 
-                // Contact
-                if (empty($contact)) {
-                    $contact = 'N/A';
-                }
-
-                // Ward
-                if (empty($ward)) {
-                    $ward = '0';
-                }
-
-                // Old Registration Number
-                if (empty($oldRegNumber)) {
-                    $oldRegNumber = 'N/A';
-                }
-
-                // Capacity
-                if ($capacity <= 0) {
-                    $capacity = 0;
-                }
-
-                // ================================================
-                // 3. DETECT HOSTEL TYPE FROM NAME
-                // ================================================
+                // Detect type
                 $type = 'co-ed';
                 $nameLower = strtolower($hostelNameNepali . ' ' . $hostelNameEnglish);
                 if (strpos($nameLower, 'girls') !== false || strpos($nameLower, 'girl') !== false) {
@@ -126,34 +106,27 @@ class ImportController extends Controller
                     $type = 'boys';
                 }
 
-                // ================================================
-                // 4. DEFAULT DISTRICT & MUNICIPALITY
-                // ================================================
+                // Default district & municipality
                 $district = 'Kathmandu';
                 $municipality = 'Kathmandu Metropolitan City';
 
-                // ================================================
-                // 5. SKIP IF NO VALID DATA
-                // ================================================
                 if (empty($hostelNameNepali) && empty($hostelNameEnglish)) {
-                    $errors[] = "Row " . ($index + 2) . ": Hostel name is empty. Skipped.";
+                    $errors[] = "Row $rowNumber: Hostel name empty. Skipped.";
                     continue;
                 }
 
-                // ================================================
-                // 6. CHECK DUPLICATE BY CONTACT OR OLD REG NUMBER
-                // ================================================
+                // Check duplicate
                 $existing = Registration::where('contact', $contact)
                     ->orWhere('old_registration_number', $oldRegNumber)
                     ->first();
 
                 if ($existing) {
-                    $errors[] = "Row " . ($index + 2) . ": Duplicate found (Contact/Old Reg#). Skipped.";
+                    $errors[] = "Row $rowNumber: Duplicate (Contact/Old Reg#). Skipped.";
                     continue;
                 }
 
                 // ================================================
-                // 7. CREATE REGISTRATION (WITHOUT registration_number)
+                // 2. CREATE REGISTRATION & HOSTEL
                 // ================================================
                 $registration = Registration::create([
                     'hostel_name' => $hostelNameNepali,
@@ -175,12 +148,8 @@ class ImportController extends Controller
                     'approved_at' => now(),
                     'valid_from' => now(),
                     'valid_until' => now()->addYear(),
-                    // ❌ NO registration_number – event handles it
                 ]);
 
-                // ================================================
-                // 8. CREATE HOSTEL (event auto-generates registration_number)
-                // ================================================
                 $hostel = Hostel::create([
                     'name_nepali' => $hostelNameNepali,
                     'name_english' => $hostelNameEnglish,
@@ -200,23 +169,14 @@ class ImportController extends Controller
                     'owner_id' => null,
                 ]);
 
-                // ================================================
-                // 9. REFRESH & COPY registration_number
-                // ================================================
                 $hostel->refresh();
-
                 $registration->hostel_id = $hostel->id;
-
-                // ✅ Guard – copy only if empty
                 if (empty($registration->registration_number)) {
                     $registration->registration_number = $hostel->registration_number;
                 }
-
                 $registration->save();
 
-                // ================================================
-                // 10. CREATE INVOICE, PAYMENT, RECEIPT (Optional)
-                // ================================================
+                // Dummy invoice/payment/receipt
                 $invoiceNumber = 'INV-' . date('Y') . '-' . str_pad(Invoice::max('id') + 1, 6, '0', STR_PAD_LEFT);
                 $invoice = Invoice::create([
                     'registration_id' => $registration->id,
@@ -237,8 +197,8 @@ class ImportController extends Controller
                     'payment_date' => now(),
                     'status' => 'verified',
                     'verified_at' => now(),
-                    'verified_by' => auth()->id(),
-                    'remarks' => 'Imported from Excel',
+                    'verified_by' => 1,
+                    'remarks' => 'Imported from CSV',
                 ]);
 
                 $receiptNumber = 'RCP-' . date('Y') . '-' . str_pad(Receipt::max('id') + 1, 6, '0', STR_PAD_LEFT);
@@ -248,23 +208,31 @@ class ImportController extends Controller
                     'amount' => 0,
                     'issued_date' => now(),
                     'pdf_path' => null,
-                    'remarks' => 'Imported from Excel',
+                    'remarks' => 'Imported from CSV',
                 ]);
 
                 $imported++;
+                if ($imported % 50 == 0) {
+                    $this->line("✅ Imported $imported hostels...");
+                }
             }
 
             DB::commit();
-            session()->forget('import_file');
 
-            return redirect()->route('admin.hostels.index')
-                ->with('success', "✅ Successfully imported {$imported} hostels. Errors: " . count($errors))
-                ->with('errors', $errors);
+            $this->info("\n🎉 Successfully imported $imported hostels.");
+            if (count($errors) > 0) {
+                $this->warn("\n⚠️ Errors encountered:");
+                foreach ($errors as $err) {
+                    $this->warn($err);
+                }
+            }
+            return 0;
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Bulk import failed: ' . $e->getMessage());
-            return back()->with('error', '❌ Import failed: ' . $e->getMessage());
+            $this->error('❌ Import failed: ' . $e->getMessage());
+            Log::error('Import failed: ' . $e->getMessage());
+            return 1;
         }
     }
 }
