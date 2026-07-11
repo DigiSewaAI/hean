@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Hostel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Exports\HostelsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class HostelController extends Controller
 {
@@ -301,4 +303,16 @@ class HostelController extends Controller
             return back()->with('error', 'केही त्रुटि भयो: ' . $e->getMessage());
         }
     }
+    public function export(Request $request)
+{
+    $filters = $request->only([
+        'search', 'status', 'featured', 'visible', 'type',
+        'district', 'local_reg_number', 'capacity_min', 'capacity_max',
+        'date_from', 'date_to'
+    ]);
+
+    $export = new HostelsExport($filters);
+    return Excel::download($export, 'hostels_' . date('Y-m-d') . '.xlsx');
+}
+
 }

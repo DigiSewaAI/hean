@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\ImportController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\BulkHostelController;
 
+
 // ✅ NEW: Payment and Receipt controllers
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ReceiptController;
@@ -84,6 +85,10 @@ Route::middleware(['auth', 'admin'])
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
                 // ✅ Bulk Action – admin group भित्र, resource पछि
 Route::any('test-bulk', [AdminHostelController::class, 'bulkAction'])->name('test.bulk');
+
+// Registrations Export
+Route::get('registrations/export', [RegistrationController::class, 'export'])->name('registrations.export');
+
         // Registrations (Full Resource except destroy)
         Route::resource('registrations', RegistrationController::class)->except(['destroy']);
         // Inspection view (for completed inspections)
@@ -105,6 +110,8 @@ Route::get('inspections/{inspection}/view', [InspectionController::class, 'view'
         Route::get('inspections/{registration}', [InspectionController::class, 'create'])->name('inspections.create');
         Route::post('inspections', [InspectionController::class, 'store'])->name('inspections.store');
 
+// Hostels Export
+Route::get('hostels/export', [AdminHostelController::class, 'export'])->name('hostels.export');
 
 
         // Hostels

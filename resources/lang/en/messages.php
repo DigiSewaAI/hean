@@ -1327,5 +1327,8 @@ return [
 'files' => 'files',
 'view' => 'View',
 'download' => 'Download',
-
+'gallery' => 'Gallery',
+'loading' => 'Loading...',
+'no_photos_available' => 'No photos available.',
+'export_excel' => 'Export Excel',
 ];

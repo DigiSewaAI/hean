@@ -118,20 +118,22 @@
             </div>
 
             {{-- Buttons --}}
-            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                <button type="submit" style="background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; border:none; padding:10px 22px; border-radius:50px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(14,165,233,0.25);">
-                    <i class="fas fa-filter"></i> {{ __('messages.filter') }}
-                </button>
-                <a href="{{ route('admin.hostels.index') }}" style="background:#e2e8f0; color:#1e293b; padding:10px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem; transition:0.2s; display:inline-flex; align-items:center; gap:6px;">
-                    <i class="fas fa-undo"></i> {{ __('messages.reset') }}
-                </a>
-                {{-- ✅ Advanced Toggle Button --}}
-                <button type="button" onclick="toggleAdvancedFilters()" 
-                        style="background:#f1f5f9; color:#1e293b; border:1px solid #e2e8f0; padding:10px 16px; border-radius:50px; font-weight:500; font-size:0.85rem; cursor:pointer; transition:0.2s;">
-                    <i class="fas fa-sliders-h"></i> {{ __('messages.advanced') ?? 'Advanced' }}
-                </button>
-            </div>
-        </div>
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+    <button type="submit" style="background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; border:none; padding:10px 22px; border-radius:50px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(14,165,233,0.25);">
+        <i class="fas fa-filter"></i> {{ __('messages.filter') }}
+    </button>
+    <a href="{{ route('admin.hostels.index') }}" style="background:#e2e8f0; color:#1e293b; padding:10px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem; transition:0.2s; display:inline-flex; align-items:center; gap:6px;">
+        <i class="fas fa-undo"></i> {{ __('messages.reset') }}
+    </a>
+    <button type="button" onclick="document.getElementById('advancedFilters').style.display = (document.getElementById('advancedFilters').style.display === 'none' ? 'block' : 'none')" 
+            style="background:#f1f5f9; color:#1e293b; border:1px solid #e2e8f0; padding:10px 16px; border-radius:50px; font-weight:500; font-size:0.85rem; cursor:pointer; transition:0.2s;">
+        <i class="fas fa-sliders-h"></i> {{ __('messages.advanced') }}
+    </button>
+    <a href="{{ route('admin.hostels.export', request()->query()) }}" 
+       style="display:inline-flex; align-items:center; gap:6px; background:#22C55E; color:#fff; padding:10px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem; transition:0.2s; margin-left:4px;">
+        <i class="fas fa-file-excel"></i> {{ __('messages.export_excel') }}
+    </a>
+</div>
 
         {{-- ===== ADVANCED FILTERS (Collapsible) ===== --}}
         <div id="advancedFilters" style="display: {{ request()->hasAny(['local_reg_number', 'capacity_min', 'capacity_max', 'date_from', 'date_to', 'district']) ? 'block' : 'none' }}; margin-top:16px; padding-top:16px; border-top:1px solid #e2e8f0;">

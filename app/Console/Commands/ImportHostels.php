@@ -14,12 +14,11 @@ use Illuminate\Support\Facades\Log;
 class ImportHostels extends Command
 {
     protected $signature = 'import:hostels {file}';
-    protected $description = 'Import hostels from CSV file (UTF-8 support)';
+    protected $description = 'Import hostels from CSV file (new format)';
 
     public function handle()
     {
         $file = $this->argument('file');
-
         if (!file_exists($file)) {
             $this->error("File not found: $file");
             return 1;
@@ -27,121 +26,112 @@ class ImportHostels extends Command
 
         $this->info("📂 Reading file: $file");
 
-        // ✅ Read file as UTF-8
+        // Preeti to Unicode mapping (full)
+        $compoundMap = [
+            'xf]:6]n' => 'होस्टेल', 'un{\;' => 'गर्ल्स', 'AjfOh' => 'ब्वाइज',
+            'xf]d' => 'होस्टल', 'uN;{' => 'गर्ल्स', 'JjfO{h' => 'ब्वाइज',
+            'xf]:6n' => 'होस्टेल', 'xfd|f]' => 'हाम्रो', 'un{\\' => 'गर्ल्स',
+            'Ans' => 'ब्लक', ';L' => 'सी', 'l/l4l;l4' => 'रिद्धि सिद्धि',
+            'P; P;' => 'एस एस', 'Onfld' => 'इलामली', 'df]If' => 'मच',
+            'Go gj b\'uf{' => 'न्यू नवदुर्गा', '/fh' => 'राज', 'l;G8«]nf' => 'सिन्ड्रेला',
+            'n8 a\'4' => 'लर्ड बुद्ध', '/f]on /fKtL' => 'रोयल राप्ती',
+            ';kf b]p/fnL' => 'सुपा देउराली', 'Go :ju{åf/L' => 'न्यू स्वर्गध्वारी',
+        ];
+        $singleSearch = ['k','K','I','M',';','c','C','j','J','t','T','d','D','n','f','F','g','G','h','v','V','b','B','m','y','r','l','e','s','S','u','U','z','Z','x','a','A','i','I','u','U','E','O','w','W','q','Q','p','P','R','Y','L',']','\\','0','1','2','3','4','5','6','7','8','9'];
+        $singleReplace = ['क','ख','ग','घ','ङ','च','छ','ज','झ','ट','ठ','ड','ढ','ण','त','थ','द','ध','न','प','फ','ब','भ','म','य','र','ल','व','श','ष','स','ह','क्ष','त्र','ज्ञ','अ','आ','इ','ई','उ','ऊ','ऐ','औ','ौ','ो','ृ','ॄ','ि','ी','ु','ू','े','ै','्','०','१','२','३','४','५','६','७','८','९'];
+
+        function preetiToUnicode($text, $compoundMap, $singleSearch, $singleReplace) {
+            if (empty($text)) return $text;
+            foreach ($compoundMap as $preeti => $unicode) {
+                $text = str_replace($preeti, $unicode, $text);
+            }
+            return str_replace($singleSearch, $singleReplace, $text);
+        }
+
+        // Read CSV
         $content = file_get_contents($file);
         $content = mb_convert_encoding($content, 'UTF-8', 'auto');
         $lines = explode("\n", $content);
-
         if (count($lines) < 2) {
-            $this->error("File is empty or invalid.");
+            $this->error("CSV is empty or invalid.");
             return 1;
         }
 
-        // Get headers
         $header = str_getcsv($lines[0]);
         $this->line("Headers: " . implode(', ', $header));
 
         $imported = 0;
         $errors = [];
-        $rowNumber = 1;
+        $rowNumber = 0;
 
         DB::beginTransaction();
-
         try {
             for ($i = 1; $i < count($lines); $i++) {
                 $line = trim($lines[$i]);
                 if (empty($line)) continue;
-
                 $row = str_getcsv($line);
                 $rowNumber++;
+                if (count($row) < 11) {
+                    $errors[] = "Row $rowNumber: Insufficient columns, skipped.";
+                    continue;
+                }
 
-                // ================================================
-                // 1. EXTRACT DATA WITH DEFAULTS
-                // ================================================
-                $oldRegNumber = trim($row[0] ?? '');
-                $hostelNameEnglish = trim($row[1] ?? '');
-                $hostelNameNepali = trim($row[2] ?? '');
-                $address = trim($row[3] ?? '');
+                // Extract fields
+                $oldReg = trim($row[0] ?? '');
+                $englishName = trim($row[1] ?? '');
+                $nepaliPreeti = trim($row[2] ?? '');
+                $location = trim($row[3] ?? '');
                 $ownerName = trim($row[4] ?? '');
                 $contact = trim($row[5] ?? '');
                 $pan = trim($row[6] ?? '');
                 $ward = trim($row[7] ?? '');
-                $capacity = (int) ($row[13] ?? 0);
-                $remarks = trim($row[14] ?? '');
+                $capacity = (int) ($row[10] ?? 0);
 
-                // ✅ Convert to UTF-8 if needed
-                if (!mb_check_encoding($hostelNameNepali, 'UTF-8')) {
-                    $hostelNameNepali = mb_convert_encoding($hostelNameNepali, 'UTF-8', 'auto');
-                }
-                if (!mb_check_encoding($hostelNameEnglish, 'UTF-8')) {
-                    $hostelNameEnglish = mb_convert_encoding($hostelNameEnglish, 'UTF-8', 'auto');
-                }
-                if (!mb_check_encoding($ownerName, 'UTF-8')) {
-                    $ownerName = mb_convert_encoding($ownerName, 'UTF-8', 'auto');
-                }
-                if (!mb_check_encoding($address, 'UTF-8')) {
-                    $address = mb_convert_encoding($address, 'UTF-8', 'auto');
+                // Validate required fields
+                if (empty($englishName) && empty($nepaliPreeti)) {
+                    $errors[] = "Row $rowNumber: No hostel name, skipped.";
+                    continue;
                 }
 
-                // Fallbacks
-                if (empty($hostelNameNepali) && !empty($hostelNameEnglish)) {
-                    $hostelNameNepali = $hostelNameEnglish;
-                } elseif (empty($hostelNameNepali) && empty($hostelNameEnglish)) {
-                    $hostelNameNepali = 'Unknown Hostel';
-                    $hostelNameEnglish = 'Unknown Hostel';
-                }
+                // Convert Nepali name
+                $nepaliName = $nepaliPreeti ? preetiToUnicode($nepaliPreeti, $compoundMap, $singleSearch, $singleReplace) : $englishName;
 
-                if (empty($ownerName)) $ownerName = 'Unknown';
-                if (empty($contact)) $contact = 'N/A';
-                if (empty($ward)) $ward = '0';
-                if (empty($oldRegNumber)) $oldRegNumber = 'N/A';
-                if ($capacity <= 0) $capacity = 0;
+                // Default district, municipality
+                $district = 'Kathmandu';
+                $municipality = 'Kathmandu Metropolitan City';
 
                 // Detect type
                 $type = 'co-ed';
-                $nameLower = strtolower($hostelNameNepali . ' ' . $hostelNameEnglish);
+                $nameLower = strtolower($englishName . ' ' . $nepaliName);
                 if (strpos($nameLower, 'girls') !== false || strpos($nameLower, 'girl') !== false) {
                     $type = 'girls';
                 } elseif (strpos($nameLower, 'boys') !== false || strpos($nameLower, 'boy') !== false) {
                     $type = 'boys';
                 }
 
-                // Default district & municipality
-                $district = 'Kathmandu';
-                $municipality = 'Kathmandu Metropolitan City';
-
-                if (empty($hostelNameNepali) && empty($hostelNameEnglish)) {
-                    $errors[] = "Row $rowNumber: Hostel name empty. Skipped.";
-                    continue;
-                }
-
-                // Check duplicate
+                // Check duplicate by contact or old reg number
                 $existing = Registration::where('contact', $contact)
-                    ->orWhere('old_registration_number', $oldRegNumber)
+                    ->orWhere('old_registration_number', $oldReg)
                     ->first();
-
                 if ($existing) {
-                    $errors[] = "Row $rowNumber: Duplicate (Contact/Old Reg#). Skipped.";
+                    $errors[] = "Row $rowNumber: Duplicate (Contact/Old Reg#), skipped.";
                     continue;
                 }
 
-                // ================================================
-                // 2. CREATE REGISTRATION & HOSTEL
-                // ================================================
+                // Create Registration (without registration_number)
                 $registration = Registration::create([
-                    'hostel_name' => $hostelNameNepali,
-                    'hostel_name_english' => $hostelNameEnglish,
-                    'operator_name' => $ownerName,
-                    'contact' => $contact,
+                    'hostel_name' => $nepaliName,
+                    'hostel_name_english' => $englishName,
+                    'operator_name' => $ownerName ?: 'Unknown',
+                    'contact' => $contact ?: 'N/A',
                     'pan' => $pan ?: null,
-                    'ward' => $ward,
+                    'ward' => $ward ?: '0',
                     'capacity' => $capacity,
                     'hostel_type' => $type,
-                    'street' => $address ?: null,
+                    'street' => $location ?: null,
                     'district' => $district,
                     'municipality' => $municipality,
-                    'description' => $remarks ?: null,
-                    'old_registration_number' => $oldRegNumber,
+                    'old_registration_number' => $oldReg ?: null,
                     'status' => 'active',
                     'source' => 'import',
                     'submitted_at' => now(),
@@ -150,25 +140,26 @@ class ImportHostels extends Command
                     'valid_until' => now()->addYear(),
                 ]);
 
+                // Create Hostel (auto-generates registration_number)
                 $hostel = Hostel::create([
-                    'name_nepali' => $hostelNameNepali,
-                    'name_english' => $hostelNameEnglish,
-                    'operator_name' => $ownerName,
-                    'contact' => $contact,
-                    'ward' => $ward,
+                    'name_nepali' => $nepaliName,
+                    'name_english' => $englishName,
+                    'operator_name' => $ownerName ?: 'Unknown',
+                    'contact' => $contact ?: 'N/A',
+                    'ward' => $ward ?: '0',
                     'capacity' => $capacity,
                     'type' => $type,
-                    'street' => $address ?: null,
+                    'street' => $location ?: null,
                     'district' => $district,
                     'municipality' => $municipality,
-                    'old_registration_number' => $oldRegNumber,
-                    'description' => $remarks ?: null,
+                    'old_registration_number' => $oldReg ?: null,
                     'approved' => true,
                     'visible' => true,
                     'featured' => false,
                     'owner_id' => null,
                 ]);
 
+                // Refresh to get generated registration_number
                 $hostel->refresh();
                 $registration->hostel_id = $hostel->id;
                 if (empty($registration->registration_number)) {
@@ -176,7 +167,7 @@ class ImportHostels extends Command
                 }
                 $registration->save();
 
-                // Dummy invoice/payment/receipt
+                // Create invoice, payment, receipt (dummy)
                 $invoiceNumber = 'INV-' . date('Y') . '-' . str_pad(Invoice::max('id') + 1, 6, '0', STR_PAD_LEFT);
                 $invoice = Invoice::create([
                     'registration_id' => $registration->id,
@@ -218,12 +209,11 @@ class ImportHostels extends Command
             }
 
             DB::commit();
-
             $this->info("\n🎉 Successfully imported $imported hostels.");
-            if (count($errors) > 0) {
+            if (!empty($errors)) {
                 $this->warn("\n⚠️ Errors encountered:");
-                foreach ($errors as $err) {
-                    $this->warn($err);
+                foreach ($errors as $e) {
+                    $this->warn($e);
                 }
             }
             return 0;

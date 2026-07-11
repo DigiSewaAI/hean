@@ -39,7 +39,7 @@
     <div style="display:flex; gap:6px; flex-shrink:0;">
         @if($hasDoc)
             @if($isImage || $isPdf)
-                <button type="button" class="btn btn-sm btn-outline-primary" style="padding:4px 10px; font-size:0.7rem; border-radius:6px;" 
+                <button type="button" class="btn btn-sm btn-outline-primary" style="padding:4px 10px; font-size:0.7rem; border-radius:6px;"
                         data-bs-toggle="modal" data-bs-target="#docPreviewModal"
                         data-file-url="{{ $fileUrl }}"
                         data-file-type="{{ $fileTypeForModal }}"

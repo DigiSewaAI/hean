@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Exports\RegistrationsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RegistrationController extends Controller
 {
@@ -565,4 +567,15 @@ public function index(Request $request)
         $invoice = Invoice::findOrFail($id);
         return redirect()->route('admin.invoices.download', $invoice);
     }
+    public function export(Request $request)
+{
+    $filters = $request->only([
+        'search', 'status', 'source', 'district',
+        'local_reg_number', 'date_from', 'date_to'
+    ]);
+
+    $export = new RegistrationsExport($filters);
+    return Excel::download($export, 'registrations_' . date('Y-m-d') . '.xlsx');
+}
+
 }

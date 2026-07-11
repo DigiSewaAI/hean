@@ -87,14 +87,12 @@
 
         {{-- Basic Info Grid --}}
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; padding-top:12px; border-top:1px solid #e2e8f0;">
-            <div>
+                              <div>
                 <span style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; font-weight:600;">{{ __('messages.hostel_name') }}</span>
                 <p style="font-weight:600; color:#0f172a; margin:2px 0 0;">
-                    @if($registration->hostel_name_english)
-                        {{ $registration->hostel_name_english }}
-                        <br><span style="font-weight:400; color:#64748b; font-size:0.85rem;">{{ $registration->hostel_name ?? 'N/A' }}</span>
-                    @else
-                        {{ $registration->hostel_name ?? 'N/A' }}
+                    {{ $registration->hostel_name ?? 'N/A' }}
+                    @if($registration->hostel_name_english && $registration->hostel_name_english != $registration->hostel_name)
+                        <br><span style="font-weight:400; color:#64748b; font-size:0.85rem;">{{ $registration->hostel_name_english }}</span>
                     @endif
                 </p>
             </div>
@@ -107,7 +105,7 @@
                 <p style="font-weight:600; color:#0f172a; margin:2px 0 0;">{{ $registration->district ?? 'N/A' }}</p>
             </div>
         </div>
-        {{-- Local Registration Number --}}
+                {{-- Local Registration Number --}}
 <div style="grid-column:1/-1; background:#f0f9ff; padding:10px 14px; border-radius:8px; border-left:4px solid #0EA5E9;">
     <label style="font-size:0.7rem; text-transform:uppercase; color:#0EA5E9; font-weight:700;">
         {{ __('messages.local_registration_number') }}
@@ -116,6 +114,17 @@
         {{ $registration->local_registration_number ?? __('messages.not_available') }}
     </p>
 </div>
+{{-- ✅ पुरानो दर्ता नम्बर (Excel S.N.) --}}
+@if($registration->old_registration_number)
+    <div style="grid-column:1/-1; background:#f0f9ff; padding:10px 14px; border-radius:8px; border-left:4px solid #0EA5E9; margin-top:8px;">
+        <label style="font-size:0.7rem; text-transform:uppercase; color:#0EA5E9; font-weight:700;">
+            पुरानो दर्ता नम्बर
+        </label>
+        <p style="font-weight:700; color:#0f172a; margin:2px 0 0; font-size:1.1rem;">
+            {{ $registration->old_registration_number }}
+        </p>
+    </div>
+@endif
     </div>
 
     
@@ -403,7 +412,8 @@
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;">
 
     {{-- ============================================================ --}}
-{{-- DOCUMENTS (UPGRADED) --}}
+{{-- ============================================================ --}}
+{{-- DOCUMENTS (UPGRADED - No Gallery) --}}
 {{-- ============================================================ --}}
 <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
     <div style="background:linear-gradient(135deg, #64748B, #475569); color:#fff; padding:12px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
@@ -431,12 +441,29 @@
                 @php
                     $docs = $registration->uploadedDocuments->where('type', $type);
                 @endphp
-                @include('admin.registrations.partials._document_card', [
-                    'type' => $type,
-                    'docs' => $docs,
-                    'label' => $info['label'],
-                    'icon' => $info['icon']
-                ])
+
+                @if($type === 'photos')
+                    {{-- प्रत्येक photo को लागि छुट्टै card --}}
+                    @foreach($docs as $doc)
+                        @php
+                            $singleDoc = collect([$doc]);
+                        @endphp
+                        @include('admin.registrations.partials._document_card', [
+                            'type' => 'photo_single',
+                            'docs' => $singleDoc,
+                            'label' => 'Photo ' . ($loop->iteration),
+                            'icon' => 'fa-image'
+                        ])
+                    @endforeach
+                @else
+                    {{-- अन्य types: पहिले जस्तै --}}
+                    @include('admin.registrations.partials._document_card', [
+                        'type' => $type,
+                        'docs' => $docs,
+                        'label' => $info['label'],
+                        'icon' => $info['icon']
+                    ])
+                @endif
             @endforeach
         </div>
 
@@ -449,7 +476,6 @@
         @endif
     </div>
 </div>
-
     {{-- Inspections --}}
     <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
         <div style="background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; padding:12px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
@@ -686,7 +712,6 @@
 </div>
 {{-- ===== MODALS ===== --}}
 @include('admin.registrations.partials._document_modal')
-@include('admin.registrations.partials._photo_gallery_modal')
 
 @push('scripts')
     <script src="{{ asset('js/admin-document-manager.js') }}"></script>

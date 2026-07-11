@@ -98,20 +98,22 @@
             </div>
 
             {{-- Buttons --}}
-            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                <button type="submit" style="background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; border:none; padding:10px 22px; border-radius:50px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(14,165,233,0.25);">
-                    <i class="fas fa-filter"></i> {{ __('messages.filter') }}
-                </button>
-                <a href="{{ route('admin.registrations.index') }}" style="background:#e2e8f0; color:#1e293b; padding:10px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem; transition:0.2s; display:inline-flex; align-items:center; gap:6px;">
-                    <i class="fas fa-undo"></i> {{ __('messages.reset') }}
-                </a>
-                <button type="button" onclick="document.getElementById('advancedFilters').style.display = (document.getElementById('advancedFilters').style.display === 'none' ? 'block' : 'none')" 
-                        style="background:#f1f5f9; color:#1e293b; border:1px solid #e2e8f0; padding:10px 16px; border-radius:50px; font-weight:500; font-size:0.85rem; cursor:pointer; transition:0.2s;">
-                    <i class="fas fa-sliders-h"></i> {{ __('messages.advanced') }}
-                </button>
-            </div>
-        </div>
-
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+    <button type="submit" style="background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; border:none; padding:10px 22px; border-radius:50px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(14,165,233,0.25);">
+        <i class="fas fa-filter"></i> {{ __('messages.filter') }}
+    </button>
+    <a href="{{ route('admin.registrations.index') }}" style="background:#e2e8f0; color:#1e293b; padding:10px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem; transition:0.2s; display:inline-flex; align-items:center; gap:6px;">
+        <i class="fas fa-undo"></i> {{ __('messages.reset') }}
+    </a>
+    <button type="button" onclick="document.getElementById('advancedFilters').style.display = (document.getElementById('advancedFilters').style.display === 'none' ? 'block' : 'none')" 
+            style="background:#f1f5f9; color:#1e293b; border:1px solid #e2e8f0; padding:10px 16px; border-radius:50px; font-weight:500; font-size:0.85rem; cursor:pointer; transition:0.2s;">
+        <i class="fas fa-sliders-h"></i> {{ __('messages.advanced') }}
+    </button>
+    <a href="{{ route('admin.registrations.export', request()->query()) }}" 
+       style="display:inline-flex; align-items:center; gap:6px; background:#22C55E; color:#fff; padding:10px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem; transition:0.2s; margin-left:4px;">
+        <i class="fas fa-file-excel"></i> {{ __('messages.export_excel') }}
+    </a>
+</div>
         {{-- Advanced Filters (collapsible) --}}
         <div id="advancedFilters" style="display: {{ request()->hasAny(['local_reg_number', 'district', 'date_from', 'date_to']) ? 'block' : 'none' }}; margin-top:16px; padding-top:16px; border-top:1px solid #e2e8f0;">
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
@@ -166,9 +168,10 @@
 <div style="overflow-x:auto; background:#fff; border-radius:12px; border:1px solid #e2e8f0;">
     <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
         <thead style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
-            <tr>
+                        <tr>
                 <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">दर्ता नम्बर</th>
                 <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">स्थानीय दर्ता</th>
+                <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">पुरानो दर्ता नम्बर</th>
                 <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">{{ __('messages.hostel') }}</th>
                 <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">{{ __('messages.district') }}</th>
                 <th style="padding:12px 16px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">{{ __('messages.source') }}</th>
@@ -212,13 +215,16 @@
                         {{ $reg->registration_number ?? 'N/A' }}
                     @endif
                 </td>
-                <td style="padding:12px 16px; font-size:0.85rem; color:#475569;">
+                                <td style="padding:12px 16px; font-size:0.85rem; color:#475569;">
                     {{ $reg->local_registration_number ?? '—' }}
                 </td>
-                <td style="padding:12px 16px; font-weight:500; color:#0f172a;">
-                    {{ $reg->hostel_name_english ?: $reg->hostel_name }}
-                    @if($reg->hostel_name_english && $reg->hostel_name && $reg->hostel_name_english != $reg->hostel_name)
-                        <br><span style="font-size:0.7rem; color:#94a3b8;">{{ $reg->hostel_name }}</span>
+                <td style="padding:12px 16px; font-size:0.85rem; color:#475569;">
+                    {{ $reg->old_registration_number ?? '—' }}
+                </td>
+                                <td style="padding:12px 16px; font-weight:500; color:#0f172a;">
+                    {{ $reg->hostel_name ?? 'N/A' }}
+                    @if($reg->hostel_name_english && $reg->hostel_name_english != $reg->hostel_name)
+                        <br><span style="font-size:0.7rem; color:#94a3b8;">{{ $reg->hostel_name_english }}</span>
                     @endif
                 </td>
                 <td style="padding:12px 16px; color:#475569;">{{ $reg->district ?? __('messages.not_available') }}</td>
@@ -251,7 +257,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="7" style="padding:40px 16px; text-align:center; color:#94a3b8;">
+                                <td colspan="8" style="padding:40px 16px; text-align:center; color:#94a3b8;">
                     <i class="fas fa-file-alt" style="font-size:2rem; display:block; margin-bottom:8px; color:#cbd5e1;"></i>
                     {{ __('messages.no_registrations') }}
                 </td>

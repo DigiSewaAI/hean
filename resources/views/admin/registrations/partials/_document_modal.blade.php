@@ -10,8 +10,8 @@
                 <!-- Content will be injected by JavaScript -->
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('messages.close') }}</button>
-            </div>
+    <!-- Close button removed – use X button or click outside -->
+</div>
         </div>
     </div>
 </div>
