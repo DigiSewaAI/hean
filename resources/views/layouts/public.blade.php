@@ -201,60 +201,84 @@
             transform: rotate(-45deg) translate(7px, -6px);
         }
 
-        /* ====== MOBILE MENU – FORCE SHOW ====== */
+        /* ====== MOBILE MENU – FORCE SHOW (FIXED) ====== */
 @media (max-width: 992px) {
     .navbar-menu {
         display: none !important;
-        flex-direction: column;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        background: #ffffff;
-        padding: 20px 24px 30px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        border-radius: 0 0 16px 16px;
-        z-index: 999;
-        gap: 16px;
-        max-height: 80vh;
-        overflow-y: auto;
+        flex-direction: column !important;
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        width: 100% !important;
+        background: #ffffff !important;
+        padding: 20px 24px 30px !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+        border-radius: 0 0 16px 16px !important;
+        z-index: 9999 !important;
+        gap: 16px !important;
+        max-height: 80vh !important;
+        overflow-y: auto !important;
     }
     .navbar-menu.active {
         display: flex !important;
     }
+
     .nav-links {
         flex-direction: column !important;
         gap: 14px !important;
         width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        list-style: none !important;
+    }
+    .nav-links li {
+        width: 100% !important;
     }
     .nav-links li a {
         font-size: 1rem !important;
-        display: block;
-        padding: 8px 0;
-        white-space: normal;
+        display: block !important;
+        padding: 10px 0 !important;
+        color: #1e293b !important;
+        text-decoration: none !important;
+        font-weight: 500 !important;
+        border-bottom: 1px solid #f1f5f9 !important;
     }
+    .nav-links li a:hover,
+    .nav-links li a.active {
+        color: #0EA5E9 !important;
+    }
+
     .navbar-actions {
         flex-direction: column !important;
         align-items: flex-start !important;
         width: 100% !important;
-        padding-top: 16px;
-        border-top: 1px solid #e2e8f0;
-        gap: 12px !important;
+        padding-top: 16px !important;
+        border-top: 1px solid #e2e8f0 !important;
+        gap: 14px !important;
     }
     .auth-links {
-        flex-wrap: wrap;
-        gap: 12px;
-        justify-content: flex-start;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 12px !important;
+        justify-content: flex-start !important;
+    }
+    .auth-links a,
+    .auth-links button {
+        font-size: 0.95rem !important;
+        padding: 6px 12px !important;
     }
     .language-switcher {
-        padding-top: 4px;
+        padding-top: 4px !important;
     }
+
     .navbar-toggle {
         display: flex !important;
-        z-index: 1000;
+        z-index: 10000 !important;
+        position: relative !important;
     }
+
     .navbar-brand img {
-        height: 36px;
+        height: 36px !important;
     }
     .navbar-brand span:first-child {
         font-size: 10px !important;
@@ -739,28 +763,32 @@
         });
 
         // ===== HAMBURGER TOGGLE =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggle = document.getElementById('navbarToggle');
-            const menu = document.getElementById('navbarMenu');
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('navbarToggle');
+    const menu = document.getElementById('navbarMenu');
 
-            if (toggle && menu) {
-                toggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    menu.classList.toggle('active');
-                    toggle.classList.toggle('active');
-                });
+    if (toggle && menu) {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            menu.classList.toggle('active');
+            toggle.classList.toggle('active');
+            console.log('Menu toggled:', menu.classList.contains('active')); // Debug
+        });
 
-                // Close menu when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (menu.classList.contains('active') &&
-                        !menu.contains(e.target) &&
-                        !toggle.contains(e.target)) {
-                        menu.classList.remove('active');
-                        toggle.classList.remove('active');
-                    }
-                });
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (menu.classList.contains('active') &&
+                !menu.contains(e.target) &&
+                !toggle.contains(e.target)) {
+                menu.classList.remove('active');
+                toggle.classList.remove('active');
             }
         });
+    } else {
+        console.error('Navbar elements not found!');
+    }
+});
 
         // Scroll progress
         window.addEventListener('scroll', function() {
