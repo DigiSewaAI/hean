@@ -813,3 +813,59 @@ body {
         gap: 16px;
     }
 }
+/* ====== MOBILE FIXES ====== */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 1.8rem !important;
+    }
+    .hero p {
+        font-size: 1rem !important;
+    }
+    .hero-buttons .btn {
+        padding: 10px 24px !important;
+        font-size: 0.9rem !important;
+    }
+    .hero-dashboard {
+        grid-template-columns: 1fr 1fr !important;
+        padding: 16px 20px !important;
+        gap: 12px !important;
+    }
+    .dash-stat .number {
+        font-size: 1.6rem !important;
+    }
+    .hostel-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .gallery-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .about-content h2 {
+        font-size: 1.8rem !important;
+    }
+    .supporting-organizations .partner-card {
+        width: 160px !important;
+        padding: 12px 10px !important;
+    }
+    .footer .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 30px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .hostel-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .gallery-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .hero h1 {
+        font-size: 1.5rem !important;
+    }
+    .hero-dashboard {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .section-header h2 {
+        font-size: 1.8rem !important;
+    }
+}

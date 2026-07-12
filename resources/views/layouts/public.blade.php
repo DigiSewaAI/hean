@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('messages.home') . ' - HEAN')</title>
 
-            {{-- 🔥 HEAN Favicon (RealFaviconGenerator) --}}
+    {{-- 🔥 HEAN Favicon (RealFaviconGenerator) --}}
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
     <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon-96x96.png') }}">
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -14,7 +14,6 @@
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <meta name="msapplication-TileColor" content="#0f172a">
     <meta name="theme-color" content="#0f172a">
-
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -38,14 +37,14 @@
             padding: 0 20px;
         }
 
-        /* ====== NAVBAR ====== */
+        /* ====== NAVBAR (UPDATED) ====== */
         .navbar {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             z-index: 999;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.98);
             backdrop-filter: blur(10px);
             padding: 12px 0;
             box-shadow: 0 2px 20px rgba(0,0,0,0.04);
@@ -58,6 +57,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0 20px;
         }
 
         /* Logo */
@@ -170,29 +170,54 @@
             transform: translateY(-2px);
         }
 
-        /* Mobile toggle */
+        /* ====== HAMBURGER ICON (Pure CSS) ====== */
         .navbar-toggle {
             display: none;
-            background: none;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 30px;
+            height: 25px;
+            background: transparent;
             border: none;
-            color: #0f172a;
-            font-size: 1.5rem;
             cursor: pointer;
+            padding: 0;
+            z-index: 10;
+        }
+        .navbar-toggle span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background: #0f172a;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+        .navbar-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .navbar-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .navbar-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
         }
 
-        /* Mobile */
+        /* ====== RESPONSIVE (Mobile first) ====== */
         @media (max-width: 992px) {
             .navbar-menu {
                 display: none;
                 flex-direction: column;
-                background: #fff;
                 position: absolute;
                 top: 100%;
                 left: 0;
                 width: 100%;
-                padding: 24px 20px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+                background: #ffffff;
+                padding: 24px 20px 30px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
                 border-radius: 0 0 16px 16px;
+                gap: 20px;
+                max-height: 80vh;
+                overflow-y: auto;
             }
             .navbar-menu.active {
                 display: flex;
@@ -200,25 +225,54 @@
             .nav-links {
                 flex-direction: column;
                 gap: 14px;
+                width: 100%;
             }
             .nav-links li a {
                 font-size: 1rem;
+                display: block;
+                padding: 8px 0;
+                white-space: normal;
             }
             .navbar-actions {
-                flex-wrap: wrap;
-                justify-content: center;
-                margin-top: 16px;
-                gap: 12px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 14px;
+                width: 100%;
+                padding-top: 16px;
+                border-top: 1px solid #e2e8f0;
+                flex-wrap: nowrap;
             }
             .auth-links {
                 flex-wrap: wrap;
-                justify-content: center;
+                gap: 12px;
+                justify-content: flex-start;
+            }
+            .language-switcher {
+                padding-top: 4px;
             }
             .navbar-toggle {
-                display: block;
+                display: flex;
             }
             .navbar-brand img {
                 height: 40px;
+            }
+            .navbar-brand span:first-child {
+                font-size: 12px !important;
+            }
+            .navbar-brand span:last-child {
+                font-size: 8px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-brand img {
+                height: 32px;
+            }
+            .navbar-brand span:first-child {
+                font-size: 10px !important;
+            }
+            .navbar-brand span:last-child {
+                font-size: 7px !important;
             }
         }
 
@@ -268,15 +322,13 @@
             transition: width 0.1s;
         }
 
-        /* ====== FOOTER STYLES ====== */
+        /* ====== FOOTER STYLES (unchanged) ====== */
         .footer a {
             transition: color 0.3s;
         }
         .footer a:hover {
             color: #0EA5E9 !important;
         }
-
-        /* Footer bottom row: copyright left, tech partner right */
         .footer-bottom {
             display: flex;
             justify-content: space-between;
@@ -288,12 +340,10 @@
             border-top: 1px solid rgba(255,255,255,0.06);
             font-size: 0.85rem;
         }
-
         .footer-bottom .copyright {
             color: #94a3b8;
             text-align: left;
         }
-
         .footer-bottom .copyright a {
             color: #94a3b8;
             text-decoration: none;
@@ -301,24 +351,20 @@
         .footer-bottom .copyright a:hover {
             color: #0EA5E9;
         }
-
         .footer-bottom .tech-partner {
             color: #94a3b8;
             text-align: right;
             white-space: nowrap;
         }
-
         .footer-bottom .tech-partner a {
             color: #ffffff;
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s;
         }
-
         .footer-bottom .tech-partner a:hover {
             color: #0EA5E9;
         }
-
         @media (max-width: 768px) {
             .footer-bottom {
                 flex-direction: column;
@@ -348,15 +394,16 @@
     <nav class="navbar" id="navbar">
         <div class="container">
             <div class="navbar-brand" style="display:flex; align-items:center; gap:12px;">
-    <a href="{{ route('home') }}">
-    <img src="{{ asset('images/logo.png') }}" alt="HEAN" style="height:75px; width:auto;">
-</a>
-    <div style="display:flex; flex-direction:column; line-height:1.2;">
-        <span style="font-size:14px; font-weight:700; color:#0b2b4a;">होस्टल व्यवसायी संघ</span>
-        <span style="font-size:10px; font-weight:600; color:#1e5f8e;">Hostel Entrepreneur Association of Nepal (HEAN)</span>
-    </div>
-</div>
+                <a href="{{ route('home') }}">
+                    <img src="{{ asset('images/logo.png') }}" alt="HEAN" style="height:60px; width:auto;">
+                </a>
+                <div style="display:flex; flex-direction:column; line-height:1.2;">
+                    <span style="font-size:13px; font-weight:700; color:#0b2b4a;">होस्टल व्यवसायी संघ</span>
+                    <span style="font-size:9px; font-weight:600; color:#1e5f8e;">Hostel Entrepreneur Association of Nepal (HEAN)</span>
+                </div>
+            </div>
 
+            <!-- Desktop Menu -->
             <div class="navbar-menu" id="navbarMenu">
                 <ul class="nav-links">
                     <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">@lang('messages.home')</a></li>
@@ -372,7 +419,6 @@
                     <div class="auth-links">
                         @guest
                             <a href="{{ route('login') }}">@lang('messages.login')</a>
-                            {{-- Register link removed as per specification --}}
                         @else
                             @if(auth()->user()->role == 'admin')
                                 <a href="{{ route('admin.dashboard') }}" style="color:#0EA5E9;">@lang('messages.admin_dashboard')</a>
@@ -389,13 +435,14 @@
                         <span class="divider">|</span>
                         <a href="{{ route('lang.switch', 'ne') }}" class="{{ app()->getLocale() == 'ne' ? 'active' : '' }}">नेपाली</a>
                     </div>
-
-                    {{-- Become Member button removed – registration only via QR --}}
                 </div>
             </div>
 
-            <button class="navbar-toggle" id="navbarToggle">
-                <i class="fas fa-bars"></i>
+            <!-- ✅ Mobile Hamburger (Pure CSS) -->
+            <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
         </div>
     </nav>
@@ -408,38 +455,35 @@
     <!-- ====== FOOTER ====== -->
     <footer class="footer" style="background:#0f172a; color:#94a3b8; padding:60px 0 30px; margin-top:0;">
         <div class="container">
-
-            <!-- Footer Grid -->
             <div class="footer-grid" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px;">
                 <!-- Brand Column -->
                 <div>
-    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-<img src="{{ asset('images/logo.png') }}" alt="HEAN Logo" style="height:80px; width:auto;">
-        <div style="display:flex; flex-direction:column; line-height:1.2;">
-            <span style="font-size:12px; font-weight:700; color:#ffffff;">होस्टल व्यवसायी संघ</span>
-            <span style="font-size:9px; font-weight:600; color:#94a3b8;">Hostel Entrepreneur Association of Nepal (HEAN)</span>
-        </div>
-    </div>
-    <p style="margin-top:12px; font-size:0.95rem; line-height:1.7;">@lang('messages.footer_about')</p>
-    <!-- Social Icons (पहिले जस्तै) -->
-    <div style="display:flex; gap:14px; margin-top:20px;">
-        <a href="https://www.facebook.com/hostelentrepreneurassociationofnepalHEAN" target="_blank" rel="noopener" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-twitter"></i></a>
-        <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-instagram"></i></a>
-        <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-linkedin-in"></i></a>
-    </div>
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                        <img src="{{ asset('images/logo.png') }}" alt="HEAN Logo" style="height:80px; width:auto;">
+                        <div style="display:flex; flex-direction:column; line-height:1.2;">
+                            <span style="font-size:12px; font-weight:700; color:#ffffff;">होस्टल व्यवसायी संघ</span>
+                            <span style="font-size:9px; font-weight:600; color:#94a3b8;">Hostel Entrepreneur Association of Nepal (HEAN)</span>
+                        </div>
+                    </div>
+                    <p style="margin-top:12px; font-size:0.95rem; line-height:1.7;">@lang('messages.footer_about')</p>
+                    <div style="display:flex; gap:14px; margin-top:20px;">
+                        <a href="https://www.facebook.com/hostelentrepreneurassociationofnepalHEAN" target="_blank" rel="noopener" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-twitter"></i></a>
+                        <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-instagram"></i></a>
+                        <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
                 </div>
 
                 <!-- Quick Links -->
                 <div>
                     <h4 style="color:#f8fafc; font-weight:600; margin-bottom:20px;">@lang('messages.footer_quick_links')</h4>
                     <ul style="list-style:none; padding:0;">
-                        <li style="margin-bottom:10px;"><a href="{{ route('home') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.home')</a></li>
-                        <li style="margin-bottom:10px;"><a href="{{ route('about') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.about')</a></li>
-                        <li style="margin-bottom:10px;"><a href="{{ route('hostels.index') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.hostels')</a></li>
-                        <li style="margin-bottom:10px;"><a href="{{ route('committee.index') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.committee')</a></li>
-                        <li style="margin-bottom:10px;"><a href="{{ route('notices.index') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.notices')</a></li>
-                        <li style="margin-bottom:10px;"><a href="{{ route('gallery.index') }}" style="color:#94a3b8; text-decoration:none; transition:0.2s;">@lang('messages.gallery')</a></li>
+                        <li style="margin-bottom:10px;"><a href="{{ route('home') }}" style="color:#94a3b8; text-decoration:none;">@lang('messages.home')</a></li>
+                        <li style="margin-bottom:10px;"><a href="{{ route('about') }}" style="color:#94a3b8; text-decoration:none;">@lang('messages.about')</a></li>
+                        <li style="margin-bottom:10px;"><a href="{{ route('hostels.index') }}" style="color:#94a3b8; text-decoration:none;">@lang('messages.hostels')</a></li>
+                        <li style="margin-bottom:10px;"><a href="{{ route('committee.index') }}" style="color:#94a3b8; text-decoration:none;">@lang('messages.committee')</a></li>
+                        <li style="margin-bottom:10px;"><a href="{{ route('notices.index') }}" style="color:#94a3b8; text-decoration:none;">@lang('messages.notices')</a></li>
+                        <li style="margin-bottom:10px;"><a href="{{ route('gallery.index') }}" style="color:#94a3b8; text-decoration:none;">@lang('messages.gallery')</a></li>
                     </ul>
                 </div>
 
@@ -454,7 +498,7 @@
                     </ul>
                 </div>
 
-                <!-- Newsletter Column -->
+                <!-- Newsletter -->
                 <div>
                     <h4 style="color:#f8fafc; font-weight:600; margin-bottom:20px;">@lang('messages.footer_newsletter')</h4>
                     <p style="font-size:0.9rem; margin-bottom:15px;">@lang('messages.footer_newsletter_desc')</p>
@@ -465,8 +509,7 @@
                 </div>
             </div>
 
-            <!-- ====== FOOTER BOTTOM ROW ====== -->
-            <!-- Copyright (left) | Technology Partner (right, white) -->
+            <!-- Footer Bottom -->
             <div class="footer-bottom">
                 <div class="copyright">
                     @php $year = date('Y'); @endphp
@@ -476,7 +519,6 @@
                     &nbsp;|&nbsp;
                     <a href="#">@lang('messages.footer_terms')</a>
                 </div>
-
                 <div class="tech-partner">
                     @lang('messages.footer_tech_partner')
                     <a href="https://www.hostelhubnepal.com" target="_blank" rel="noopener">
@@ -484,14 +526,36 @@
                     </a>
                 </div>
             </div>
-
         </div>
     </footer>
 
     @stack('scripts')
 
     <script>
-        // Preloader
+        // ===== HAMBURGER TOGGLE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('navbarToggle');
+            const menu = document.getElementById('navbarMenu');
+
+            if (toggle && menu) {
+                toggle.addEventListener('click', function() {
+                    menu.classList.toggle('active');
+                    toggle.classList.toggle('active');
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (menu.classList.contains('active') &&
+                        !menu.contains(e.target) &&
+                        !toggle.contains(e.target)) {
+                        menu.classList.remove('active');
+                        toggle.classList.remove('active');
+                    }
+                });
+            }
+        });
+
+        // ===== PRELOADER =====
         window.addEventListener('load', function() {
             const preloader = document.getElementById('preloader');
             if (preloader) {
@@ -501,23 +565,7 @@
             }
         });
 
-        // Navbar toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggle = document.getElementById('navbarToggle');
-            const menu = document.getElementById('navbarMenu');
-            if (toggle && menu) {
-                toggle.addEventListener('click', function() {
-                    menu.classList.toggle('active');
-                });
-                document.addEventListener('click', function(e) {
-                    if (menu.classList.contains('active') && !menu.contains(e.target) && !toggle.contains(e.target)) {
-                        menu.classList.remove('active');
-                    }
-                });
-            }
-        });
-
-        // Scroll progress
+        // ===== SCROLL PROGRESS =====
         window.addEventListener('scroll', function() {
             const progress = document.getElementById('scroll-progress');
             if (progress) {
