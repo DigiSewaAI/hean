@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('messages.home') . ' - HEAN')</title>
 
-    {{-- 🔥 HEAN Favicon (RealFaviconGenerator) --}}
+            {{-- 🔥 HEAN Favicon (RealFaviconGenerator) --}}
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
     <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon-96x96.png') }}">
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -14,6 +14,7 @@
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <meta name="msapplication-TileColor" content="#0f172a">
     <meta name="theme-color" content="#0f172a">
+
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -169,159 +170,57 @@
             transform: translateY(-2px);
         }
 
-        /* ====== HAMBURGER ICON (Pure CSS) ====== */
+        /* Mobile toggle */
         .navbar-toggle {
             display: none;
-            flex-direction: column;
-            justify-content: space-around;
-            width: 30px;
-            height: 25px;
-            background: transparent;
+            background: none;
             border: none;
+            color: #0f172a;
+            font-size: 1.5rem;
             cursor: pointer;
-            padding: 0;
-            z-index: 10;
-        }
-        .navbar-toggle span {
-            display: block;
-            width: 100%;
-            height: 3px;
-            background: #0f172a;
-            border-radius: 3px;
-            transition: all 0.3s ease;
-            transform-origin: center;
-        }
-        .navbar-toggle.active span:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-        .navbar-toggle.active span:nth-child(2) {
-            opacity: 0;
-        }
-        .navbar-toggle.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(7px, -6px);
         }
 
-        /* ====== MOBILE MENU – FORCE SHOW (FIXED) ====== */
-@media (max-width: 992px) {
-    /* ✅ Navbar overflow visible – Menu देखाउन */
-    .navbar {
-        overflow: visible !important;
-    }
-
-    .navbar-menu {
-        display: none !important;
-        flex-direction: column !important;
-        position: absolute !important;
-        top: 100% !important;
-        left: 0 !important;
-        width: 100% !important;
-        background: #ffffff !important;
-        padding: 20px 24px 30px !important;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
-        border-radius: 0 0 16px 16px !important;
-        z-index: 9999 !important;
-        gap: 16px !important;
-        max-height: 80vh !important;
-        overflow-y: auto !important;
-    }
-    .navbar-menu.active {
-        display: flex !important;
-    }
-
-    .nav-links {
-        flex-direction: column !important;
-        gap: 14px !important;
-        width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        list-style: none !important;
-    }
-    .nav-links li {
-        width: 100% !important;
-    }
-    .nav-links li a {
-        font-size: 1rem !important;
-        display: block !important;
-        padding: 10px 0 !important;
-        color: #1e293b !important;
-        text-decoration: none !important;
-        font-weight: 500 !important;
-        border-bottom: 1px solid #f1f5f9 !important;
-    }
-    .nav-links li a:hover,
-    .nav-links li a.active {
-        color: #0EA5E9 !important;
-    }
-
-    .navbar-actions {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        width: 100% !important;
-        padding-top: 16px !important;
-        border-top: 1px solid #e2e8f0 !important;
-        gap: 14px !important;
-    }
-    .auth-links {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 12px !important;
-        justify-content: flex-start !important;
-    }
-    .auth-links a,
-    .auth-links button {
-        font-size: 0.95rem !important;
-        padding: 6px 12px !important;
-    }
-    .language-switcher {
-        padding-top: 4px !important;
-    }
-
-    .navbar-toggle {
-        display: flex !important;
-        z-index: 10000 !important;
-        position: relative !important;
-    }
-
-    .navbar-brand img {
-        height: 36px !important;
-    }
-    .navbar-brand span:first-child {
-        font-size: 10px !important;
-    }
-    .navbar-brand span:last-child {
-        font-size: 7px !important;
-    }
-
-    /* ====== Hero Stats Mobile Fix ====== */
-    .hero-dashboard {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 12px !important;
-        padding: 16px !important;
-        max-width: 100% !important;
-    }
-    .dash-stat .number {
-        font-size: 1.4rem !important;
-    }
-    .dash-stat .label {
-        font-size: 0.75rem !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .hero-dashboard {
-        gap: 8px !important;
-        padding: 12px !important;
-    }
-    .dash-stat .number {
-        font-size: 1.2rem !important;
-    }
-    .dash-stat .label {
-        font-size: 0.65rem !important;
-    }
-    .container {
-        padding: 0 12px !important;
-    }
-}
+        /* Mobile */
+        @media (max-width: 992px) {
+            .navbar-menu {
+                display: none;
+                flex-direction: column;
+                background: #fff;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                padding: 24px 20px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+                border-radius: 0 0 16px 16px;
+            }
+            .navbar-menu.active {
+                display: flex;
+            }
+            .nav-links {
+                flex-direction: column;
+                gap: 14px;
+            }
+            .nav-links li a {
+                font-size: 1rem;
+            }
+            .navbar-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+                margin-top: 16px;
+                gap: 12px;
+            }
+            .auth-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .navbar-toggle {
+                display: block;
+            }
+            .navbar-brand img {
+                height: 40px;
+            }
+        }
 
         /* Preloader */
         #preloader {
@@ -432,199 +331,6 @@
                 text-align: center;
             }
         }
-
-        /* ====== OVERFLOW FIX – MOBILE & DESKTOP ====== */
-        html, body {
-            overflow-x: hidden;
-            max-width: 100%;
-        }
-
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 0 16px;
-            box-sizing: border-box;
-        }
-
-        @media (max-width: 992px) {
-    .navbar {
-        overflow: visible !important; /* Menu देखाउन */
-    }
-
-        .navbar .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 16px;
-            box-sizing: border-box;
-            flex-wrap: nowrap;
-        }
-
-        .navbar-brand {
-            flex-shrink: 0;
-            max-width: 70%;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .navbar-brand img {
-            height: 45px;
-            width: auto;
-            flex-shrink: 0;
-        }
-        .navbar-brand span {
-            font-size: 11px !important;
-            line-height: 1.2;
-            word-break: break-word;
-            display: block;
-        }
-
-        .navbar-menu {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .nav-links {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        .nav-links li a {
-            font-size: 0.85rem;
-            white-space: nowrap;
-        }
-
-        .navbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-        .auth-links a,
-        .language-switcher a {
-            font-size: 0.8rem;
-            padding: 4px 8px;
-        }
-
-        /* ====== HERO STATS CARDS FIX ====== */
-        .hero-dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 16px;
-            width: 100%;
-            max-width: 600px;
-            margin-top: 30px;
-            padding: 20px 24px;
-            background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.5);
-            box-sizing: border-box;
-        }
-        .dash-stat {
-            text-align: center;
-        }
-        .dash-stat .number {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #0EA5E9;
-        }
-        .dash-stat .label {
-            font-size: 0.75rem;
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        /* ====== RESPONSIVE FIXES ====== */
-        @media (max-width: 992px) {
-            .navbar-menu {
-                display: none;
-                flex-direction: column;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background: #fff;
-                padding: 20px;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-                border-radius: 0 0 16px 16px;
-                gap: 16px;
-            }
-            .navbar-menu.active {
-                display: flex;
-            }
-            .nav-links {
-                flex-direction: column;
-                gap: 12px;
-                width: 100%;
-            }
-            .nav-links li a {
-                font-size: 1rem;
-                white-space: normal;
-            }
-            .navbar-actions {
-                flex-direction: column;
-                align-items: flex-start;
-                width: 100%;
-                padding-top: 16px;
-                border-top: 1px solid #e2e8f0;
-            }
-            .navbar-toggle {
-                display: flex !important;
-            }
-            .navbar-brand img {
-                height: 36px;
-            }
-            .navbar-brand span:first-child {
-                font-size: 10px !important;
-            }
-            .navbar-brand span:last-child {
-                font-size: 7px !important;
-            }
-            .hero-dashboard {
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-                padding: 16px;
-                max-width: 100%;
-            }
-            .dash-stat .number {
-                font-size: 1.4rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .navbar-brand {
-                max-width: 75%;
-            }
-            .navbar-brand img {
-                height: 28px;
-            }
-            .navbar-brand span:first-child {
-                font-size: 9px !important;
-            }
-            .navbar-brand span:last-child {
-                font-size: 6px !important;
-            }
-            .hero-dashboard {
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-                padding: 12px;
-            }
-            .dash-stat .number {
-                font-size: 1.2rem;
-            }
-            .dash-stat .label {
-                font-size: 0.65rem;
-            }
-            .container {
-                padding: 0 12px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -642,14 +348,14 @@
     <nav class="navbar" id="navbar">
         <div class="container">
             <div class="navbar-brand" style="display:flex; align-items:center; gap:12px;">
-                <a href="{{ route('home') }}">
-                    <img src="{{ asset('images/logo.png') }}" alt="HEAN" style="height:75px; width:auto;">
-                </a>
-                <div style="display:flex; flex-direction:column; line-height:1.2;">
-                    <span style="font-size:14px; font-weight:700; color:#0b2b4a;">होस्टल व्यवसायी संघ</span>
-                    <span style="font-size:10px; font-weight:600; color:#1e5f8e;">Hostel Entrepreneur Association of Nepal (HEAN)</span>
-                </div>
-            </div>
+    <a href="{{ route('home') }}">
+    <img src="{{ asset('images/logo.png') }}" alt="HEAN" style="height:75px; width:auto;">
+</a>
+    <div style="display:flex; flex-direction:column; line-height:1.2;">
+        <span style="font-size:14px; font-weight:700; color:#0b2b4a;">होस्टल व्यवसायी संघ</span>
+        <span style="font-size:10px; font-weight:600; color:#1e5f8e;">Hostel Entrepreneur Association of Nepal (HEAN)</span>
+    </div>
+</div>
 
             <div class="navbar-menu" id="navbarMenu">
                 <ul class="nav-links">
@@ -688,11 +394,8 @@
                 </div>
             </div>
 
-            <!-- ✅ CORRECTED HAMBURGER BUTTON (no extra tags) -->
-            <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle navigation">
-                <span></span>
-                <span></span>
-                <span></span>
+            <button class="navbar-toggle" id="navbarToggle">
+                <i class="fas fa-bars"></i>
             </button>
         </div>
     </nav>
@@ -710,21 +413,21 @@
             <div class="footer-grid" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px;">
                 <!-- Brand Column -->
                 <div>
-                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-                        <img src="{{ asset('images/logo.png') }}" alt="HEAN Logo" style="height:80px; width:auto;">
-                        <div style="display:flex; flex-direction:column; line-height:1.2;">
-                            <span style="font-size:12px; font-weight:700; color:#ffffff;">होस्टल व्यवसायी संघ</span>
-                            <span style="font-size:9px; font-weight:600; color:#94a3b8;">Hostel Entrepreneur Association of Nepal (HEAN)</span>
-                        </div>
-                    </div>
-                    <p style="margin-top:12px; font-size:0.95rem; line-height:1.7;">@lang('messages.footer_about')</p>
-                    <!-- Social Icons -->
-                    <div style="display:flex; gap:14px; margin-top:20px;">
-                        <a href="https://www.facebook.com/hostelentrepreneurassociationofnepalHEAN" target="_blank" rel="noopener" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-twitter"></i></a>
-                        <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-instagram"></i></a>
-                        <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-linkedin-in"></i></a>
-                    </div>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+<img src="{{ asset('images/logo.png') }}" alt="HEAN Logo" style="height:80px; width:auto;">
+        <div style="display:flex; flex-direction:column; line-height:1.2;">
+            <span style="font-size:12px; font-weight:700; color:#ffffff;">होस्टल व्यवसायी संघ</span>
+            <span style="font-size:9px; font-weight:600; color:#94a3b8;">Hostel Entrepreneur Association of Nepal (HEAN)</span>
+        </div>
+    </div>
+    <p style="margin-top:12px; font-size:0.95rem; line-height:1.7;">@lang('messages.footer_about')</p>
+    <!-- Social Icons (पहिले जस्तै) -->
+    <div style="display:flex; gap:14px; margin-top:20px;">
+        <a href="https://www.facebook.com/hostelentrepreneurassociationofnepalHEAN" target="_blank" rel="noopener" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-twitter"></i></a>
+        <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-instagram"></i></a>
+        <a href="#" style="color:#94a3b8; background:rgba(255,255,255,0.06); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;"><i class="fab fa-linkedin-in"></i></a>
+    </div>
                 </div>
 
                 <!-- Quick Links -->
@@ -798,33 +501,21 @@
             }
         });
 
-        // ===== HAMBURGER TOGGLE =====
-document.addEventListener('DOMContentLoaded', function() {
-    const toggle = document.getElementById('navbarToggle');
-    const menu = document.getElementById('navbarMenu');
-
-    if (toggle && menu) {
-        toggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            menu.classList.toggle('active');
-            toggle.classList.toggle('active');
-            console.log('Menu toggled:', menu.classList.contains('active')); // Debug
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (menu.classList.contains('active') &&
-                !menu.contains(e.target) &&
-                !toggle.contains(e.target)) {
-                menu.classList.remove('active');
-                toggle.classList.remove('active');
+        // Navbar toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('navbarToggle');
+            const menu = document.getElementById('navbarMenu');
+            if (toggle && menu) {
+                toggle.addEventListener('click', function() {
+                    menu.classList.toggle('active');
+                });
+                document.addEventListener('click', function(e) {
+                    if (menu.classList.contains('active') && !menu.contains(e.target) && !toggle.contains(e.target)) {
+                        menu.classList.remove('active');
+                    }
+                });
             }
         });
-    } else {
-        console.error('Navbar elements not found!');
-    }
-});
 
         // Scroll progress
         window.addEventListener('scroll', function() {
