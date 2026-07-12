@@ -48,3 +48,8 @@ Row 238: OldReg: 238, Contact:
 > echo "Total Skipped: " . count($skipped) . "\n";
 
 Total Skipped: 11
+
+
+yo talako pani check garnu hos: 
+174	Gaurishankar Boys Hostel	गौरिशङखर ब्वाइज होस्टेल
+175	Gaurishankar Boys Hostel	पि जी गर्ल्स होस्टेल
