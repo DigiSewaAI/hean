@@ -203,6 +203,11 @@
 
         /* ====== MOBILE MENU – FORCE SHOW (FIXED) ====== */
 @media (max-width: 992px) {
+    /* ✅ Navbar overflow visible – Menu देखाउन */
+    .navbar {
+        overflow: visible !important;
+    }
+
     .navbar-menu {
         display: none !important;
         flex-direction: column !important;
@@ -285,6 +290,36 @@
     }
     .navbar-brand span:last-child {
         font-size: 7px !important;
+    }
+
+    /* ====== Hero Stats Mobile Fix ====== */
+    .hero-dashboard {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+        padding: 16px !important;
+        max-width: 100% !important;
+    }
+    .dash-stat .number {
+        font-size: 1.4rem !important;
+    }
+    .dash-stat .label {
+        font-size: 0.75rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-dashboard {
+        gap: 8px !important;
+        padding: 12px !important;
+    }
+    .dash-stat .number {
+        font-size: 1.2rem !important;
+    }
+    .dash-stat .label {
+        font-size: 0.65rem !important;
+    }
+    .container {
+        padding: 0 12px !important;
     }
 }
 
@@ -412,10 +447,11 @@
             box-sizing: border-box;
         }
 
-        /* ====== NAVBAR FIX ====== */
-        .navbar {
-            overflow: hidden;
-        }
+        @media (max-width: 992px) {
+    .navbar {
+        overflow: visible !important; /* Menu देखाउन */
+    }
+
         .navbar .container {
             display: flex;
             justify-content: space-between;
