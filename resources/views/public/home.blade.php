@@ -334,18 +334,36 @@
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
     }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-        .hero-content h1 {
-            font-size: 2.5rem !important;
-        }
-        .about-grid {
-            grid-template-columns: 1fr !important;
-        }
-        .hero-dashboard {
-            grid-template-columns: 1fr 1fr !important;
-        }
+    /* ====== FIX: Hero Stats Mobile Overflow ====== */
+@media (max-width: 768px) {
+    .hero-dashboard {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+        padding: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
     }
+    .dash-stat .number {
+        font-size: 1.3rem !important;
+    }
+    .dash-stat .label {
+        font-size: 0.7rem !important;
+    }
+}
+@media (max-width: 480px) {
+    .hero-dashboard {
+        gap: 8px !important;
+        padding: 12px !important;
+    }
+    .dash-stat .number {
+        font-size: 1.1rem !important;
+    }
+    .dash-stat .label {
+        font-size: 0.6rem !important;
+    }
+}
     /* Gallery Scroll Animation - Right to Left */
 .gallery-scroll {
     display: flex;
