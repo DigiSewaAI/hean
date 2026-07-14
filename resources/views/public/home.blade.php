@@ -371,5 +371,20 @@
         flex: 0 0 200px !important;
     }
 }
+/* 🚀 Home page mobile overflow fix */
+@media (max-width: 768px) {
+    .hero .container {
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+    .hero-content {
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+    .hero-dashboard {
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+}
 </style>
 @endpush
