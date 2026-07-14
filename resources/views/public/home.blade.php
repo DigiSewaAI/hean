@@ -33,8 +33,7 @@
         </div>
 
         {{-- Stats Dashboard --}}
-        <div class="hero-dashboard grid grid-cols-1 sm:grid-cols-2 gap-6 background:rgba(255,255,255,0.7); backdrop-filter:blur(10px); padding:30px; border-radius:20px; border:1px solid rgba(255,255,255,0.5);">
-    <div class="dash-stat" style="text-align:center;">
+<div class="hero-dashboard grid grid-cols-1 sm:grid-cols-2 gap-6" style="background:rgba(255,255,255,0.7); backdrop-filter:blur(10px); padding:30px; border-radius:20px; border:1px solid rgba(255,255,255,0.5);">    <div class="dash-stat" style="text-align:center;">
         <div class="number" style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">{{ $stats['hostels'] ?? '0' }}+</div>
         <div class="label" style="font-size:0.85rem; color:#64748b; font-weight:500; letter-spacing:0.03em;">@lang('messages.stats_hostels')</div>
     </div>
@@ -338,7 +337,7 @@
     .hero-content h1 {
         font-size: 2.5rem !important;
     }
-    /* .about-grid र .hero-dashboard को grid-template-columns हटाउनुहोस् */
+    /* .about-grid र .hero-dashboard को grid हटाइयो – Tailwind ले नै handle गर्छ */
 }
     /* Gallery Scroll Animation - Right to Left */
 .gallery-scroll {
