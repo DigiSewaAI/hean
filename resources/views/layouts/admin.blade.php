@@ -227,7 +227,7 @@
         </nav>
     </div>
 
-    <div class="main-content">
+    <div class="main-content" style="overflow-x: hidden; width: 100%;">
         <div class="topbar">
             <div class="left-section">
                 <div class="page-title">@yield('title')</div>

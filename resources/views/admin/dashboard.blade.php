@@ -217,8 +217,8 @@
 {{-- =============================================================
     RECENT ACTIVITIES (3 Columns)
     ============================================================= --}}
-<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-bottom:18px;">
-    <div style="background:#fff; border-radius:10px; padding:14px 16px; border:1px solid #e2e8f0;">
+<div class="dashboard-recents-grid" style="display:grid; grid-template-columns:1fr; gap:18px; margin-bottom:18px;">
+        <div style="background:#fff; border-radius:10px; padding:14px 16px; border:1px solid #e2e8f0;">
         <h4 style="margin:0 0 10px 0; font-size:0.8rem; font-weight:600; color:#0f172a; display:flex; align-items:center; gap:6px;">
             <i class="fas fa-file-alt" style="color:#0EA5E9;"></i>
             {{ __('messages.recent_registrations') }}
@@ -322,6 +322,17 @@
             grid-template-columns: 1fr !important;
         }
     }
+    /* Dashboard responsive fixes */
+@media (min-width: 640px) {
+    .dashboard-recents-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+@media (min-width: 1024px) {
+    .dashboard-recents-grid {
+        grid-template-columns: 1fr 1fr 1fr !important;
+    }
+}
 </style>
 @endpush
 
