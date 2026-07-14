@@ -334,18 +334,12 @@
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
-        .hero-content h1 {
-            font-size: 2.5rem !important;
-        }
-        .about-grid {
-            grid-template-columns: 1fr !important;
-        }
-        .hero-dashboard {
-            grid-template-columns: 1fr 1fr !important;
-        }
+    .hero-content h1 {
+        font-size: 2.5rem !important;
     }
+    /* .about-grid र .hero-dashboard को grid-template-columns हटाउनुहोस् */
+}
     /* Gallery Scroll Animation - Right to Left */
 .gallery-scroll {
     display: flex;
