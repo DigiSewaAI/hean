@@ -394,9 +394,9 @@
                 </div>
             </div>
 
-            <button class="navbar-toggle" id="navbarToggle">
-                <i class="fas fa-bars"></i>
-            </button>
+            <button class="navbar-toggle" id="navbarToggle" onclick="toggleMobileMenu()">
+    <i class="fas fa-bars"></i>
+</button>
         </div>
     </nav>
 
@@ -414,7 +414,7 @@
                     <!-- Brand Column -->
                 <div>
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-<img src="{{ asset('images/logo.png') }}" alt="HEAN Logo" style="height:80px; width:auto;">
+<img src="{{ asset('images/logo.png') }}" alt="HEAN Logo" style="height:80px; width:auto; max-width:100%;">
         <div style="display:flex; flex-direction:column; line-height:1.2;">
             <span style="font-size:12px; font-weight:700; color:#ffffff;">होस्टल व्यवसायी संघ</span>
             <span style="font-size:9px; font-weight:600; color:#94a3b8;">Hostel Entrepreneur Association of Nepal (HEAN)</span>
@@ -487,6 +487,15 @@
 
         </div>
     </footer>
+
+    <script>
+function toggleMobileMenu() {
+    const menu = document.getElementById('navbarMenu');
+    if (menu) {
+        menu.classList.toggle('active');
+    }
+}
+</script>
 
     @stack('scripts')
 
