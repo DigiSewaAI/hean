@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'HEAN Admin')</title>
 
-            {{-- 🔥 HEAN Favicon (RealFaviconGenerator) --}}
+    {{-- 🔥 HEAN Favicon (RealFaviconGenerator) --}}
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
     <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon-96x96.png') }}">
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -14,7 +14,6 @@
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <meta name="msapplication-TileColor" content="#0f172a">
     <meta name="theme-color" content="#0f172a">
-
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -112,12 +111,20 @@
     </style>
 </head>
 <body class="dashboard-body">
-    <div class="sidebar">
-        <div class="brand">
-            <img src="{{ asset('images/logo.png') }}" alt="HEAN" style="height:40px;">
+    {{-- ===== SIDEBAR WITH TOGGLE ===== --}}
+    <div class="sidebar" id="sidebar">
+        {{-- Sidebar Header: Logo + Hamburger --}}
+        <div class="sidebar-header">
+            <div class="brand">
+                <img src="{{ asset('images/logo.png') }}" alt="HEAN" style="height:40px;">
+            </div>
+            <button id="sidebarToggle" class="sidebar-toggle-btn" aria-label="Toggle Sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-        <nav>
 
+        {{-- Navigation --}}
+        <nav id="sidebarNav">
             <!-- ===== MAIN ===== -->
             <div class="nav-section">{{ __('messages.main') }}</div>
             @if(auth()->user()->role == 'admin')
@@ -153,18 +160,12 @@
 
                 <!-- ===== FINANCE ===== -->
                 <div class="nav-section">{{ __('messages.finance') }}</div>
-
-                {{-- ✅ Invoices - Primary financial management --}}
                 <a href="{{ route('admin.invoices.index') }}" class="nav-item {{ request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
                     <i class="fas fa-file-invoice"></i> <span>{{ __('messages.invoices') }}</span>
                 </a>
-
-                {{-- ✅ Payments - View only (creation through invoice) --}}
                 <a href="{{ route('admin.payments.index') }}" class="nav-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
                     <i class="fas fa-credit-card"></i> <span>{{ __('messages.payments') }}</span>
                 </a>
-
-                {{-- ✅ Receipts - View only (auto-generated) --}}
                 <a href="{{ route('admin.receipts.index') }}" class="nav-item {{ request()->routeIs('admin.receipts.*') ? 'active' : '' }}">
                     <i class="fas fa-receipt"></i> <span>{{ __('messages.receipts') }}</span>
                 </a>
@@ -223,10 +224,10 @@
                     </button>
                 </form>
             </div>
-
         </nav>
     </div>
 
+    {{-- ===== MAIN CONTENT ===== --}}
     <div class="main-content" style="overflow-x: hidden; width: 100%;">
         <div class="topbar">
             <div class="left-section">
@@ -262,9 +263,38 @@
                 © {{ date('Y') }} HEAN · {{ __('messages.all_rights_reserved') }}
             </div>
         </footer>
-
     </div>
 
     @stack('scripts')
+
+    {{-- ===== TOGGLE JAVASCRIPT ===== --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const icon = toggleBtn ? toggleBtn.querySelector('i') : null;
+
+            if (toggleBtn && sidebar) {
+                // Ensure sidebar is open by default (no 'closed' class)
+                sidebar.classList.remove('closed');
+
+                toggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('closed');
+
+                    // Toggle icon between bars and times
+                    if (icon) {
+                        if (sidebar.classList.contains('closed')) {
+                            icon.classList.remove('fa-bars');
+                            icon.classList.add('fa-times');
+                        } else {
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
