@@ -5,8 +5,8 @@
 @section('content')
 
 {{-- ===== HERO SECTION (BALANCED: No cut, reduced gap) ===== --}}
-<section class="hero" id="home" style="min-height:100vh; display:flex; align-items:center; padding:120px 0 80px; position:relative; background:linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); overflow:visible;">
-<div class="container grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+<section class="hero" id="home" style="min-height:100vh; display:flex; align-items:center; padding:120px 0 80px; position:relative; background:linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); overflow:hidden;">
+    <div class="container grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <div class="hero-content" style="position:relative; z-index:2; overflow:visible;">
 
             {{-- Badge --}}
