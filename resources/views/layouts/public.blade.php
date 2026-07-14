@@ -410,8 +410,8 @@
         <div class="container">
 
             <!-- Footer Grid -->
-            <div class="footer-grid" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px;">
-                <!-- Brand Column -->
+<div class="footer-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+                    <!-- Brand Column -->
                 <div>
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
 <img src="{{ asset('images/logo.png') }}" alt="HEAN Logo" style="height:80px; width:auto;">

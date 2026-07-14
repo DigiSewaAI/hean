@@ -6,8 +6,8 @@
 
 {{-- ===== HERO SECTION (BALANCED: No cut, reduced gap) ===== --}}
 <section class="hero" id="home" style="min-height:100vh; display:flex; align-items:center; padding:120px 0 80px; position:relative; background:linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); overflow:visible;">
-    <div class="container" style="display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;">
-        <div class="hero-content" style="position:relative; z-index:2; overflow:visible;">
+<div class="container grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <div class="hero-content" style="position:relative; z-index:2; overflow:visible;">
 
             {{-- Badge --}}
             <span class="hero-badge" style="display:inline-block; background:rgba(14,165,233,0.12); color:#0EA5E9; padding:8px 20px; border-radius:50px; font-size:0.85rem; font-weight:600; letter-spacing:0.5px; margin-bottom:16px;">
@@ -33,7 +33,7 @@
         </div>
 
         {{-- Stats Dashboard --}}
-        <div class="hero-dashboard" style="display:grid; grid-template-columns:1fr 1fr; gap:24px; background:rgba(255,255,255,0.7); backdrop-filter:blur(10px); padding:30px; border-radius:20px; border:1px solid rgba(255,255,255,0.5);">
+        <div class="hero-dashboard grid grid-cols-1 sm:grid-cols-2 gap-6 background:rgba(255,255,255,0.7); backdrop-filter:blur(10px); padding:30px; border-radius:20px; border:1px solid rgba(255,255,255,0.5);">
     <div class="dash-stat" style="text-align:center;">
         <div class="number" style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">{{ $stats['hostels'] ?? '0' }}+</div>
         <div class="label" style="font-size:0.85rem; color:#64748b; font-weight:500; letter-spacing:0.03em;">@lang('messages.stats_hostels')</div>
@@ -57,8 +57,8 @@
 {{-- ===== ABOUT SECTION ===== --}}
 <section class="about-section" id="about" style="padding:80px 0; background:#ffffff;">
     <div class="container">
-        <div class="about-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;">
-            <div class="about-image">
+<div class="about-grid grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div class="about-image">
                 <img src="{{ asset('images/about.jpg') }}" alt="About HEAN" style="width:100%; border-radius:24px; box-shadow:0 20px 60px rgba(0,0,0,0.08);">
             </div>
             <div class="about-content">
