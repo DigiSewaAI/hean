@@ -71,8 +71,8 @@
                 <p style="color:#475569; line-height:1.8; margin-bottom:16px; letter-spacing:0.02em; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">
                     {{ __('messages.about_desc') }}
                 </p>
-                <div class="about-features" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
-                    <div class="item" style="display:flex; align-items:center; gap:10px; font-weight:500; color:#1e293b; letter-spacing:0.02em; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">
+<div class="about-features grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
+                        <div class="item" style="display:flex; align-items:center; gap:10px; font-weight:500; color:#1e293b; letter-spacing:0.02em; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">
                         {!! __('messages.about_feature_1') !!}
                     </div>
                     <div class="item" style="display:flex; align-items:center; gap:10px; font-weight:500; color:#1e293b; letter-spacing:0.02em; font-family:'Noto Sans Devanagari', 'Inter', sans-serif;">

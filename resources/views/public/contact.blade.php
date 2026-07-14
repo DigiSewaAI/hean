@@ -29,7 +29,7 @@
         @endif
 
         {{-- ===== TWO COLUMN: FORM + MAP ===== --}}
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
 
             {{-- LEFT: Contact Form --}}
             <div style="background:#f8fafc; border-radius:20px; padding:40px; box-shadow:0 4px 20px rgba(0,0,0,0.04);">

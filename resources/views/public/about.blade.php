@@ -35,7 +35,7 @@
                 <p style="color:#475569; line-height:1.8; font-size:1.05rem;">
                     {{ __('messages.about_full_desc') }}
                 </p>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:25px;">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
                     <div style="display:flex; align-items:center; gap:10px; font-weight:500; color:#1e293b;">
                         <span style="color:#0EA5E9; font-size:1.2rem;">✅</span>
                         {{ __('messages.about_feature_1') }}
@@ -57,8 +57,8 @@
         </div>
 
         <!-- ===== VISION & MISSION ===== -->
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-bottom:60px;">
-            <div style="background:#f8fafc; border-radius:20px; padding:35px; border-left:6px solid #0EA5E9;">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                <div style="background:#f8fafc; border-radius:20px; padding:35px; border-left:6px solid #0EA5E9;">
                 <h3 style="font-size:1.8rem; font-weight:700; color:#0f172a; margin-bottom:16px;">
                     <i class="fas fa-eye" style="color:#0EA5E9; margin-right:10px;"></i> {{ __('messages.vision') }}
                 </h3>
