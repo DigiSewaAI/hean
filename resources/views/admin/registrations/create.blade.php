@@ -151,7 +151,7 @@ value="{{ old('local_registration_number') }}"
                     </small>
                 </div>
                 <div class="form-group">
-                    <label for="website">{{ __('messages.website_optional') }}</label>
+                    <label for="website">वेबसाइट <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
                     <input type="url" name="website" id="website" value="{{ old('website') }}" placeholder="{{ __('messages.placeholder_website') }}">
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_website') }}</small>
                 </div>
@@ -200,13 +200,13 @@ value="{{ old('local_registration_number') }}"
     <input type="text" name="street" id="street" value="{{ old('street') }}">
 </div>
                 <div class="form-group">
-                    <label for="landmark">{{ __('messages.landmark_optional') }}</label>
+                    <label for="landmark">स्थलचिन्ह <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
                     <input type="text" name="landmark" id="landmark" value="{{ old('landmark') }}" placeholder="{{ __('messages.placeholder_landmark') }}">
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_landmark') }}</small>
                 </div>
             </div>
             <div class="form-group">
-                <label for="description">{{ __('messages.description_facilities_optional') }}</label>
+                <label for="description">विवरण / सुविधाहरू <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
                 <textarea name="description" id="description" rows="3">{{ old('description') }}</textarea>
             </div>
         </div>
@@ -266,7 +266,7 @@ value="{{ old('local_registration_number') }}"
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="payment_method">{{ __('messages.payment_method_optional') }}</label>
+                    <label for="payment_method">भुक्तानी विधि <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
                     <select name="payment_method" id="payment_method">
                         <option value="">{{ __('messages.select') }}</option>
                         <option value="bank">{{ __('messages.payment_bank_transfer') }}</option>
@@ -276,8 +276,7 @@ value="{{ old('local_registration_number') }}"
                 </div>
             </div>
             <div class="form-group">
-                <label for="payment_transaction_id">{{ __('messages.transaction_id_optional') }}</label>
-                <input type="text" name="payment_transaction_id" id="payment_transaction_id" value="{{ old('payment_transaction_id') }}" placeholder="{{ __('messages.placeholder_transaction_id') }}">
+<label for="payment_transaction_id">कारोबार ID <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>                <input type="text" name="payment_transaction_id" id="payment_transaction_id" value="{{ old('payment_transaction_id') }}" placeholder="{{ __('messages.placeholder_transaction_id') }}">
             </div>
         </div>
 

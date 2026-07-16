@@ -197,8 +197,8 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="website" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        Website <span style="color:#64748b; font-weight:400;">(Optional)</span>
-                                    </label>
+    वेबसाइट <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+</label>
                                     <input type="url" name="website" id="website" value="{{ old('website') }}"
                                            style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
                                            class="form-control @error('website') is-invalid @enderror" placeholder="https://example.com">
@@ -210,8 +210,8 @@
                             <div class="col-12">
                                 <div class="form-group">
                                     <label for="description" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        Description <span style="color:#64748b; font-weight:400;">(Optional)</span>
-                                    </label>
+    विवरण <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+</label>
                                     <textarea name="description" id="description" rows="3"
                                               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
                                               class="form-control @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
@@ -340,8 +340,8 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="landmark" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        Landmark <span style="color:#64748b; font-weight:400;">(Optional)</span>
-                                    </label>
+    स्थलचिन्ह <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+</label>
                                     <input type="text" name="landmark" id="landmark" value="{{ old('landmark') }}"
                                            style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
                                            class="form-control @error('landmark') is-invalid @enderror" placeholder="e.g. Near Bus Park">
@@ -438,8 +438,8 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="payment_method" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        Payment Method
-                                    </label>
+    भुक्तानी विधि <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+</label>
                                     <select name="payment_method" id="payment_method"
                                             style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;"
                                             class="form-select @error('payment_method') is-invalid @enderror">

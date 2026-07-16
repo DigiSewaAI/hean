@@ -431,7 +431,7 @@
                 'license' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],
                 'municipality' => ['label' => 'Municipality Certificate', 'icon' => 'fa-certificate'],
                 'signboard' => ['label' => __('messages.signboard_building_image'), 'icon' => 'fa-image'],
-                'photos' => ['label' => 'Hostel Photos', 'icon' => 'fa-images'],
+                'photos' => ['label' => 'होस्टेल तस्बिरहरू', 'icon' => 'fa-images'],
                 'additional' => ['label' => 'Additional Documents', 'icon' => 'fa-paperclip'],
             ];
         @endphp

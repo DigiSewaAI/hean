@@ -142,14 +142,12 @@
     </small>
 </div>
                 <div>
-                    <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.website_optional') }}</label>
-                    <input type="url" name="website" value="{{ old('website', $registration->website) }}" 
+<label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">वेबसाइट <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>                    <input type="url" name="website" value="{{ old('website', $registration->website) }}" 
                            style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;" placeholder="https://example.com">
                 </div>
             </div>
             <div style="margin-top:12px;">
-                <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.description_facilities_optional') }}</label>
-                <textarea name="description" rows="3" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s; resize:vertical;">{{ old('description', $registration->description) }}</textarea>
+<label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">विवरण / सुविधाहरू <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>                <textarea name="description" rows="3" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s; resize:vertical;">{{ old('description', $registration->description) }}</textarea>
             </div>
         </div>
 
@@ -214,8 +212,7 @@
            style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;">
 </div>
                 <div>
-                    <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.landmark_optional') }}</label>
-                    <input type="text" name="landmark" value="{{ old('landmark', $registration->landmark) }}" 
+<label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">स्थलचिन्ह <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>                    <input type="text" name="landmark" value="{{ old('landmark', $registration->landmark) }}" 
                            style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;" placeholder="e.g. Near Bus Park">
                 </div>
             </div>
