@@ -257,8 +257,8 @@ value="{{ old('local_registration_number') }}"
             </h4>
             <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div class="form-group">
-                    <label for="payment_status">{{ __('messages.payment_status') }} <span style="color:#dc2626;">*</span></label>
-                    <select name="payment_status" id="payment_status" required>
+                    <label for="payment_status">{{ __('messages.payment_status') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+<select name="payment_status" id="payment_status">
                         <option value="pending" selected>{{ __('messages.payment_pending') }}</option>
                         <option value="submitted">{{ __('messages.payment_submitted') }}</option>
                         <option value="verified">{{ __('messages.payment_verified') }}</option>
