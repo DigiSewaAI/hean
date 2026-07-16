@@ -1331,4 +1331,9 @@ return [
 'loading' => 'Loading...',
 'no_photos_available' => 'No photos available.',
 'export_excel' => 'Export Excel',
+// Invoice Types (नयाँ थपियो)
+'invoice_type_log_book' => 'Log Book',
+'invoice_type_leave_form' => 'Leave Form',
+'invoice_type_student_admission_form' => 'Student Admission Form',
+'invoice_type_code_of_conduct_board' => 'Code of Conduct Board',
 ];

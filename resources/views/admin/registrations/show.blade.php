@@ -681,14 +681,19 @@
                     <div>
                         <label style="font-weight:600; color:#1e293b; font-size:0.8rem; display:block; margin-bottom:4px;">{{ __('messages.invoice_type') }} <span style="color:#dc2626;">*</span></label>
                         <select name="invoice_type" required style="width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#fff;">
-                            <option value="new_registration">{{ __('messages.invoice_type_new_registration') }}</option>
-                            <option value="renewal">{{ __('messages.invoice_type_renewal') }}</option>
-                            <option value="membership_fee">{{ __('messages.invoice_type_membership_fee') }}</option>
-                            <option value="inspection_fee">{{ __('messages.invoice_type_inspection_fee') }}</option>
-                            <option value="certificate_fee">{{ __('messages.invoice_type_certificate_fee') }}</option>
-                            <option value="penalty">{{ __('messages.invoice_type_penalty') }}</option>
-                            <option value="other">{{ __('messages.invoice_type_other') }}</option>
-                        </select>
+    <option value="new_registration">{{ __('messages.invoice_type_new_registration') }}</option>
+    <option value="renewal">{{ __('messages.invoice_type_renewal') }}</option>
+    {{-- <option value="membership_fee">{{ __('messages.invoice_type_membership_fee') }}</option> --}} {{-- यो हटाइयो --}}
+    <option value="inspection_fee">{{ __('messages.invoice_type_inspection_fee') }}</option>
+    <option value="certificate_fee">{{ __('messages.invoice_type_certificate_fee') }}</option>
+    <option value="penalty">{{ __('messages.invoice_type_penalty') }}</option>
+    {{-- नयाँ ४ वटा थपियो --}}
+    <option value="log_book">{{ __('messages.invoice_type_log_book') }}</option>
+    <option value="leave_form">{{ __('messages.invoice_type_leave_form') }}</option>
+    <option value="student_admission_form">{{ __('messages.invoice_type_student_admission_form') }}</option>
+    <option value="code_of_conduct_board">{{ __('messages.invoice_type_code_of_conduct_board') }}</option>
+    <option value="other">{{ __('messages.invoice_type_other') }}</option>
+</select>
                     </div>
                     <div>
                         <label style="font-weight:600; color:#1e293b; font-size:0.8rem; display:block; margin-bottom:4px;">{{ __('messages.amount_npr') }} <span style="color:#dc2626;">*</span></label>

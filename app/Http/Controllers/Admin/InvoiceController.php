@@ -55,8 +55,12 @@ class InvoiceController extends Controller
 
         try {
             // ===== GENERATE PDF =====
-            $html = view('pdf.invoice', compact('registration', 'invoiceNumber', 'request'))->render();
-
+$html = view('pdf.invoice', [
+    'registration' => $registration,
+    'invoiceNumber' => $invoiceNumber,
+    'request' => $request,
+    'invoice_type' => $request->invoice_type ?? 'new_registration', // ✅ invoice_type पास गरियो
+])->render();
             $tempDir = storage_path('app/mpdf');
             if (!file_exists($tempDir)) {
                 mkdir($tempDir, 0755, true);
@@ -134,13 +138,14 @@ public function download($id)
                 
                 // Prepare data for PDF view
                 $html = view('pdf.invoice', [
-                    'registration' => $registration,
-                    'invoiceNumber' => $invoice->invoice_number,
-                    'request' => (object) [
-                        'amount' => $invoice->amount,
-                        'due_date' => $invoice->due_date
-                    ]
-                ])->render();
+    'registration' => $registration,
+    'invoiceNumber' => $invoice->invoice_number,
+    'request' => (object) [
+        'amount' => $invoice->amount,
+        'due_date' => $invoice->due_date
+    ],
+    'invoice_type' => $invoice->invoice_type ?? 'new_registration', // ✅ थपियो
+])->render();
                 
                 // ✅ MPDF Config (same as generate)
                 $tempDir = storage_path('app/mpdf');

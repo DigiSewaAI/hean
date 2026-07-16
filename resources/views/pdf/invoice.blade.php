@@ -300,7 +300,7 @@
             <tbody>
                 <tr>
                     <td class="text-center">1</td>
-                    <td>Membership Registration Fee</td>
+                    <td>{{ __('messages.invoice_type_' . ($invoice_type ?? 'new_registration')) }}</td>
                     <td class="text-right">NPR {{ number_format($request->amount, 2) }}</td>
                 </tr>
             </tbody>

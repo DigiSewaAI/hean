@@ -1356,4 +1356,9 @@ return [
 'loading' => 'लोड हुँदै...',
 'no_photos_available' => 'कुनै तस्वीर उपलब्ध छैन।',
 'export_excel' => 'एक्सेल निर्यात गर्नुहोस्',
+// Invoice Types (नयाँ थपियो - नेपाली)
+'invoice_type_log_book' => 'लग बुक',
+'invoice_type_leave_form' => 'बिदा फारम',
+'invoice_type_student_admission_form' => 'विद्यार्थी भर्ना फारम',
+'invoice_type_code_of_conduct_board' => 'आचार संहिता बोर्ड',
 ];
