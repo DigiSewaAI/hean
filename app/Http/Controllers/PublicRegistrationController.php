@@ -141,9 +141,9 @@ class PublicRegistrationController extends Controller
             'hostel_type' => 'required|in:boys,girls,co-ed',
             'capacity' => 'required|integer|min:1',
             'rooms' => 'required|integer|min:1',
-            'established_year' => 'required|integer|min:1900|max:' . date('Y'),
+            'established_year' => 'nullable|integer|min:1900|max:' . date('Y'),
             'contact_number' => 'required|string|max:20',      // ✅ 'unique' हटाइयो (पहिले नै थिएन)
-            'email' => 'required|email|max:255',               // ✅ 'unique' हटाइयो
+            'email' => 'nullable|email|max:255',
             'website' => 'nullable|url|max:255',
             'description' => 'nullable|string|max:1000',
             'owner_name' => 'required|string|max:255',
@@ -151,13 +151,13 @@ class PublicRegistrationController extends Controller
             'district' => 'required|exists:districts,id',
             'municipality' => 'required|exists:municipalities,id',
             'ward' => 'required|integer|min:1|max:32',
-            'street' => 'required|string|max:255',
+            'street' => 'nullable|string|max:255',
             'landmark' => 'nullable|string|max:255',
-            'pan' => 'required|string|max:50',                // ✅ 'unique' हटाइयो
+            'pan' => 'nullable|string|max:50',
             'block_name' => 'nullable|string|max:255',        // ✅ नयाँ: वैकल्पिक ब्लक
             'documents.registration_certificate' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'documents.citizenship_copy' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'documents.pan_certificate' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'documents.pan_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'documents.signboard' => 'required|file|mimes:jpg,jpeg,png|max:2048',
             'documents.other_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'payment_method' => 'nullable|in:bank,esewa,khalti',
@@ -166,7 +166,7 @@ class PublicRegistrationController extends Controller
             'payment_date' => 'nullable|date',
             'bank_name' => 'nullable|string|max:255',
             'bank_account' => 'nullable|string|max:255',
-            'local_registration_number' => 'required|string|max:100',
+            'local_registration_number' => 'nullable|string|max:100',
 
         ];
 

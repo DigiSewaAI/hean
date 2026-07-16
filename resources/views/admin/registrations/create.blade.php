@@ -59,13 +59,12 @@
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
     <div style="grid-column: span 2;">
         <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">
-            {{ __('messages.local_registration_number') }} <span style="color:#dc2626;">*</span>
+            {{ __('messages.local_registration_number') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
         </label>
         <input type="text" name="local_registration_number"
 value="{{ old('local_registration_number') }}"
                placeholder="{{ __('messages.placeholder_local_registration_number') }}"
-               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
-               required>
+               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
         @error('local_registration_number')
             <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
         @enderror
@@ -88,22 +87,21 @@ value="{{ old('local_registration_number') }}"
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_select_type') }}</small>
                 </div>
                 <div class="form-group">
-                    <label for="established_year">{{ __('messages.established_year') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="number" name="established_year" id="established_year" value="{{ old('established_year') }}" min="1900" max="{{ date('Y') }}" required>
-                    <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_established_year') }}</small>
-                </div>
+    <label for="established_year">{{ __('messages.established_year') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+    <input type="number" name="established_year" id="established_year" value="{{ old('established_year') }}" min="1900" max="{{ date('Y') }}">
+    <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_established_year') }}</small>
+</div>
             </div>
 
             <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div class="form-group">
-                    <label for="pan">{{ __('messages.pan_number') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="text" name="pan" id="pan" value="{{ old('pan') }}" placeholder="{{ __('messages.placeholder_pan') }}" required>
-                    {{-- ✅ 8.2: PAN helper message --}}
-                    <small style="color:#64748b; font-size:0.75rem;">
-                        <i class="fas fa-info-circle"></i> 
-                        PAN नम्बर केवल प्रमाणीकरणको लागि हो। एउटै PAN मा धेरै होस्टल दर्ता गर्न सकिन्छ।
-                    </small>
-                </div>
+    <label for="pan">{{ __('messages.pan_number') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+    <input type="text" name="pan" id="pan" value="{{ old('pan') }}" placeholder="{{ __('messages.placeholder_pan') }}">
+    <small style="color:#64748b; font-size:0.75rem;">
+        <i class="fas fa-info-circle"></i> 
+        PAN नम्बर केवल प्रमाणीकरणको लागि हो। एउटै PAN मा धेरै होस्टल दर्ता गर्न सकिन्छ।
+    </small>
+</div>
                 <div class="form-group">
                     {{-- Registration Number will be auto-generated --}}
                 </div>
@@ -134,14 +132,13 @@ value="{{ old('local_registration_number') }}"
                     <input type="text" name="operator_name" id="operator_name" value="{{ old('operator_name') }}" required>
                 </div>
                 <div class="form-group">
-                    <label for="email">{{ __('messages.email_address') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="email" name="email" id="email" value="{{ old('email') }}" placeholder="{{ __('messages.placeholder_email') }}" required>
-                    {{-- ✅ 8.2: Email helper message --}}
-                    <small style="color:#64748b; font-size:0.75rem;">
-                        <i class="fas fa-info-circle"></i> 
-                        इमेल सञ्चार र प्रमाणीकरणको लागि हो। एउटै इमेल धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
-                    </small>
-                </div>
+    <label for="email">{{ __('messages.email_address') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+    <input type="email" name="email" id="email" value="{{ old('email') }}" placeholder="{{ __('messages.placeholder_email') }}">
+    <small style="color:#64748b; font-size:0.75rem;">
+        <i class="fas fa-info-circle"></i> 
+        इमेल सञ्चार र प्रमाणीकरणको लागि हो। एउटै इमेल धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
+    </small>
+</div>
             </div>
             <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div class="form-group">
@@ -199,9 +196,9 @@ value="{{ old('local_registration_number') }}"
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_ward_number') }}</small>
                 </div>
                 <div class="form-group">
-                    <label for="street">{{ __('messages.street_tole') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="text" name="street" id="street" value="{{ old('street') }}" required>
-                </div>
+    <label for="street">{{ __('messages.street_tole') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+    <input type="text" name="street" id="street" value="{{ old('street') }}">
+</div>
                 <div class="form-group">
                     <label for="landmark">{{ __('messages.landmark_optional') }}</label>
                     <input type="text" name="landmark" id="landmark" value="{{ old('landmark') }}" placeholder="{{ __('messages.placeholder_landmark') }}">
@@ -221,26 +218,22 @@ value="{{ old('local_registration_number') }}"
             </h4>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div class="form-group">
-                    <label for="document_pan">{{ __('messages.pan_certificate') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="file" name="documents[pan]" id="document_pan" accept=".jpg,.jpeg,.png,.pdf" required>
-                </div>
+    <label for="document_pan">{{ __('messages.pan_certificate') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+    <input type="file" name="documents[pan]" id="document_pan" accept=".jpg,.jpeg,.png,.pdf">
+</div>
                 <div class="form-group">
                     <label for="document_citizenship">{{ __('messages.citizenship_copy') }} <span style="color:#dc2626;">*</span></label>
                     <input type="file" name="documents[citizenship]" id="document_citizenship" accept=".jpg,.jpeg,.png,.pdf" required>
                 </div>
                 <div class="form-group">
-                    <label for="document_license">{{ __('messages.business_registration_certificate') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="file" name="documents[license]" id="document_license" accept=".jpg,.jpeg,.png,.pdf" required>
-                </div>
+    <label for="document_license">{{ __('messages.business_registration_certificate') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+    <input type="file" name="documents[license]" id="document_license" accept=".jpg,.jpeg,.png,.pdf">
+</div>
                 <div class="form-group">
-                    <label for="document_municipality">{{ __('messages.municipality_certificate') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="file" name="documents[municipality]" id="document_municipality" accept=".jpg,.jpeg,.png,.pdf" required>
-                </div>
-                <div class="form-group" style="grid-column:1/2;">
-                    <label for="document_photos">{{ __('messages.hostel_photos') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="file" name="documents[photos]" id="document_photos" accept=".jpg,.jpeg,.png" multiple required>
-                    <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_hostel_photos') }}</small>
-                </div>
+    <label for="document_municipality">{{ __('messages.municipality_certificate') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+    <input type="file" name="documents[municipality]" id="document_municipality" accept=".jpg,.jpeg,.png,.pdf">
+</div>
+                
                 <div class="form-group" style="grid-column:2/3;">
                     <label for="document_signboard">{{ __('messages.signboard_building_image') }} <span style="color:#dc2626;">*</span></label>
                     <input type="file" name="documents[signboard]" id="document_signboard" accept=".jpg,.jpeg,.png" required>

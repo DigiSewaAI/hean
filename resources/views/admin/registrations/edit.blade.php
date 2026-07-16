@@ -66,13 +66,12 @@
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
     <div style="grid-column: span 2;">
         <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">
-            {{ __('messages.local_registration_number') }} <span style="color:#dc2626;">*</span>
+            {{ __('messages.local_registration_number') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
         </label>
         <input type="text" name="local_registration_number"
                value="{{ old('local_registration_number', $registration->local_registration_number) }}"
                placeholder="{{ __('messages.placeholder_local_registration_number') }}"
-               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
-               required>
+               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
         @error('local_registration_number')
             <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
         @enderror
@@ -107,10 +106,10 @@
                     </select>
                 </div>
                 <div>
-                    <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.established_year') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="number" name="established_year" value="{{ old('established_year', $registration->established_year) }}" 
-                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;" min="1900" max="{{ date('Y') }}" required>
-                </div>
+    <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.established_year') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+    <input type="number" name="established_year" value="{{ old('established_year', $registration->established_year) }}" 
+           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;" min="1900" max="{{ date('Y') }}">
+</div>
                 <div>
                     <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.total_beds') }} <span style="color:#dc2626;">*</span></label>
                     <input type="number" name="capacity" value="{{ old('capacity', $registration->capacity) }}" 
@@ -134,15 +133,14 @@
                     </small>
                 </div>
                 <div>
-                    <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.email_address') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="email" name="email" value="{{ old('email', $registration->email) }}" 
-                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;" required>
-                    {{-- ✅ 8.2: Email helper message --}}
-                    <small style="color:#64748b; font-size:0.75rem;">
-                        <i class="fas fa-info-circle"></i> 
-                        इमेल सञ्चार र प्रमाणीकरणको लागि हो। एउटै इमेल धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
-                    </small>
-                </div>
+    <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.email_address') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+    <input type="email" name="email" value="{{ old('email', $registration->email) }}" 
+           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;">
+    <small style="color:#64748b; font-size:0.75rem;">
+        <i class="fas fa-info-circle"></i> 
+        इमेल सञ्चार र प्रमाणीकरणको लागि हो। एउटै इमेल धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
+    </small>
+</div>
                 <div>
                     <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.website_optional') }}</label>
                     <input type="url" name="website" value="{{ old('website', $registration->website) }}" 
@@ -169,15 +167,14 @@
                            style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;" required>
                 </div>
                 <div>
-                    <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.pan_number') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="text" name="pan" value="{{ old('pan', $registration->pan) }}" 
-                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;" required>
-                    {{-- ✅ 8.2: PAN helper message --}}
-                    <small style="color:#64748b; font-size:0.75rem;">
-                        <i class="fas fa-info-circle"></i> 
-                        PAN नम्बर केवल प्रमाणीकरणको लागि हो। एउटै PAN मा धेरै होस्टल दर्ता गर्न सकिन्छ।
-                    </small>
-                </div>
+    <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.pan_number') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+    <input type="text" name="pan" value="{{ old('pan', $registration->pan) }}" 
+           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;">
+    <small style="color:#64748b; font-size:0.75rem;">
+        <i class="fas fa-info-circle"></i> 
+        PAN नम्बर केवल प्रमाणीकरणको लागि हो। एउटै PAN मा धेरै होस्टल दर्ता गर्न सकिन्छ।
+    </small>
+</div>
             </div>
         </div>
 
@@ -212,10 +209,10 @@
                            style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;" min="1" max="32" required>
                 </div>
                 <div>
-                    <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.street_tole') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="text" name="street" value="{{ old('street', $registration->street) }}" 
-                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;" required>
-                </div>
+    <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.street_tole') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+    <input type="text" name="street" value="{{ old('street', $registration->street) }}" 
+           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;">
+</div>
                 <div>
                     <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.landmark_optional') }}</label>
                     <input type="text" name="landmark" value="{{ old('landmark', $registration->landmark) }}" 

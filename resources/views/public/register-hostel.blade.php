@@ -83,13 +83,13 @@
 <div class="col-md-12">
     <div class="form-group">
         <label for="local_registration_number" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-            {{ __('messages.local_registration_number') }} <span style="color:#dc2626;">*</span>
+            {{ __('messages.local_registration_number') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
         </label>
         <input type="text" name="local_registration_number" id="local_registration_number"
                value="{{ old('local_registration_number') }}"
                style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
                class="form-control @error('local_registration_number') is-invalid @enderror"
-               placeholder="{{ __('messages.placeholder_local_registration_number') }}" required>
+               placeholder="{{ __('messages.placeholder_local_registration_number') }}">
         @error('local_registration_number')
             <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
         @enderror
@@ -147,16 +147,16 @@
 
                             {{-- Established Year --}}
                             <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="established_year" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        Established Year <span style="color:#dc2626;">*</span>
-                                    </label>
-                                    <input type="number" name="established_year" id="established_year" value="{{ old('established_year') }}"
-                                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
-                                           class="form-control @error('established_year') is-invalid @enderror" min="1900" max="{{ date('Y') }}" required>
-                                    @error('established_year') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
+    <div class="form-group">
+        <label for="established_year" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            Established Year <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+        </label>
+        <input type="number" name="established_year" id="established_year" value="{{ old('established_year') }}"
+               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
+               class="form-control @error('established_year') is-invalid @enderror" min="1900" max="{{ date('Y') }}">
+        @error('established_year') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+    </div>
+</div>
 
                             {{-- Contact --}}
                             <div class="col-md-4">
@@ -178,21 +178,20 @@
 
                             {{-- Email --}}
                             <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="email" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        Email Address <span style="color:#dc2626;">*</span>
-                                    </label>
-                                    <input type="email" name="email" id="email" value="{{ old('email') }}"
-                                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
-                                           class="form-control @error('email') is-invalid @enderror" required>
-                                    @error('email') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-                                    {{-- ✅ 8.2: Email helper message --}}
-                                    <small style="color:#64748b; font-size:0.75rem;">
-                                        <i class="fas fa-info-circle"></i> 
-                                        इमेल सञ्चार र प्रमाणीकरणको लागि हो। एउटै इमेल धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
-                                    </small>
-                                </div>
-                            </div>
+    <div class="form-group">
+        <label for="email" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            Email Address <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+        </label>
+        <input type="email" name="email" id="email" value="{{ old('email') }}"
+               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
+               class="form-control @error('email') is-invalid @enderror">
+        @error('email') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+        <small style="color:#64748b; font-size:0.75rem;">
+            <i class="fas fa-info-circle"></i> 
+            इमेल सञ्चार र प्रमाणीकरणको लागि हो। एउटै इमेल धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
+        </small>
+    </div>
+</div>
 
                             {{-- Website (Optional) --}}
                             <div class="col-md-4">
@@ -240,21 +239,20 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="pan" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        PAN Number <span style="color:#dc2626;">*</span>
-                                    </label>
-                                    <input type="text" name="pan" id="pan" value="{{ old('pan') }}"
-                                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
-                                           class="form-control @error('pan') is-invalid @enderror" placeholder="e.g. 123456789" required>
-                                    @error('pan') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-                                    {{-- ✅ 8.2: PAN helper message --}}
-                                    <small style="color:#64748b; font-size:0.75rem;">
-                                        <i class="fas fa-info-circle"></i> 
-                                        PAN नम्बर केवल प्रमाणीकरणको लागि हो। एउटै PAN मा धेरै होस्टल दर्ता गर्न सकिन्छ।
-                                    </small>
-                                </div>
-                            </div>
+    <div class="form-group">
+        <label for="pan" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            PAN Number <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+        </label>
+        <input type="text" name="pan" id="pan" value="{{ old('pan') }}"
+               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
+               class="form-control @error('pan') is-invalid @enderror" placeholder="e.g. 123456789">
+        @error('pan') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+        <small style="color:#64748b; font-size:0.75rem;">
+            <i class="fas fa-info-circle"></i> 
+            PAN नम्बर केवल प्रमाणीकरणको लागि हो। एउटै PAN मा धेरै होस्टल दर्ता गर्न सकिन्छ।
+        </small>
+    </div>
+</div>
                         </div>
                     </div>
 
@@ -327,16 +325,16 @@
 
                             {{-- Street / Tole --}}
                             <div class="col-md-5">
-                                <div class="form-group">
-                                    <label for="street" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        Street / Tole <span style="color:#dc2626;">*</span>
-                                    </label>
-                                    <input type="text" name="street" id="street" value="{{ old('street') }}"
-                                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
-                                           class="form-control @error('street') is-invalid @enderror" required>
-                                    @error('street') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
+    <div class="form-group">
+        <label for="street" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            Street / Tole <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+        </label>
+        <input type="text" name="street" id="street" value="{{ old('street') }}"
+               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
+               class="form-control @error('street') is-invalid @enderror">
+        @error('street') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+    </div>
+</div>
 
                             {{-- Landmark (Optional) --}}
                             <div class="col-md-4">
@@ -384,17 +382,17 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="documents_pan_certificate" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        PAN Certificate <span style="color:#dc2626;">*</span>
-                                    </label>
-                                    <input type="file" name="documents[pan_certificate]" id="documents_pan_certificate"
-                                           style="width:100%; padding:8px; border:1.5px solid #e2e8f0; border-radius:8px;"
-                                           class="form-control @error('documents.pan_certificate') is-invalid @enderror"
-                                           accept=".pdf,.jpg,.jpeg,.png" required>
-                                    @error('documents.pan_certificate') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
+    <div class="form-group">
+        <label for="documents_pan_certificate" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            PAN Certificate <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+        </label>
+        <input type="file" name="documents[pan_certificate]" id="documents_pan_certificate"
+               style="width:100%; padding:8px; border:1.5px solid #e2e8f0; border-radius:8px;"
+               class="form-control @error('documents.pan_certificate') is-invalid @enderror"
+               accept=".pdf,.jpg,.jpeg,.png">
+        @error('documents.pan_certificate') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+    </div>
+</div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="documents_signboard" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">

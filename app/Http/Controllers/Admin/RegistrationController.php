@@ -183,7 +183,7 @@ public function index(Request $request)
             'hostel_name' => 'required|string|max:255',
             'hostel_name_english' => 'nullable|string|max:255',
             'hostel_type' => 'required|in:boys,girls,co-ed',
-            'established_year' => 'required|integer|min:1900|max:' . date('Y'),
+            'established_year' => 'nullable|integer|min:1900|max:' . date('Y'),
             'pan' => 'nullable|string|max:50',              // ✅ 'unique' हटाइयो (पहिले नै थिएन)
             'capacity' => 'required|integer|min:1',
             'rooms' => 'nullable|integer|min:0',
@@ -201,7 +201,7 @@ public function index(Request $request)
             'block_name' => 'nullable|string|max:255',      // ✅ नयाँ
             'documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'source' => 'sometimes|in:public,admin,import,renewal',
-            'local_registration_number' => 'required|string|max:100',
+            'local_registration_number' => 'nullable|string|max:100',
 
         ]);
 
@@ -308,7 +308,7 @@ public function index(Request $request)
             'hostel_name_english' => 'nullable|string|max:255',
             'hostel_type' => 'required|in:boys,girls,co-ed',
             'capacity' => 'required|integer|min:1',
-            'established_year' => 'required|integer|min:1900|max:' . date('Y'),
+            'established_year' => 'nullable|integer|min:1900|max:' . date('Y'),
             'contact' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
             'website' => 'nullable|url|max:255',
@@ -322,7 +322,7 @@ public function index(Request $request)
             'pan' => 'nullable|string|max:50',
             'block_name' => 'nullable|string|max:255',      // ✅ थपियो
             'status' => 'required|in:pending,approved,active,rejected,duplicate,awaiting_payment,inspection',
-            'local_registration_number' => 'required|string|max:100',
+            'local_registration_number' => 'nullable|string|max:100',
 
         ]);
 

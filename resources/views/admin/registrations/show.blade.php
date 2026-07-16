@@ -427,10 +427,10 @@
             // Group documents by type, and define labels/icons
             $docGroups = [
                 'pan_certificate' => ['label' => 'PAN Certificate', 'icon' => 'fa-file-invoice'],
-                'citizenship_copy' => ['label' => 'Citizenship Copy', 'icon' => 'fa-id-card'],
+                'citizenship_copy' => ['label' => __('messages.citizenship_copy'), 'icon' => 'fa-id-card'],
                 'license' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],
                 'municipality' => ['label' => 'Municipality Certificate', 'icon' => 'fa-certificate'],
-                'signboard' => ['label' => 'Signboard / Building Image', 'icon' => 'fa-image'],
+                'signboard' => ['label' => __('messages.signboard_building_image'), 'icon' => 'fa-image'],
                 'photos' => ['label' => 'Hostel Photos', 'icon' => 'fa-images'],
                 'additional' => ['label' => 'Additional Documents', 'icon' => 'fa-paperclip'],
             ];
