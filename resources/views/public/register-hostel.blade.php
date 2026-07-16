@@ -409,8 +409,8 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="documents_other_documents" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        Other Supporting Documents <span style="color:#64748b; font-weight:400;">(Optional)</span>
-                                    </label>
+    अन्य सहायक कागजातहरू <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+</label>
                                     <input type="file" name="documents[other_documents]" id="documents_other_documents"
                                            style="width:100%; padding:8px; border:1.5px solid #e2e8f0; border-radius:8px;"
                                            class="form-control @error('documents.other_documents') is-invalid @enderror"
@@ -428,8 +428,8 @@
                     {{-- ===== Section 5: Payment (Optional) ===== --}}
                     <div style="background:#f8fafc; padding:20px; border-radius:12px; margin-bottom:24px; border-left:4px solid #EF4444;">
                         <h4 style="margin:0 0 16px 0; color:#EF4444;">
-                            <i class="fas fa-credit-card me-2"></i> Payment <span style="font-size:0.85rem; font-weight:400; color:#64748b;">(Optional)</span>
-                        </h4>
+    <i class="fas fa-credit-card me-2"></i> भुक्तानी <span style="font-size:0.85rem; font-weight:400; color:#64748b;">(वैकल्पिक)</span>
+</h4>
                         <div class="alert alert-info" style="background:#f0f9ff; border-left:4px solid #0EA5E9; padding:12px 16px; border-radius:8px; margin-bottom:16px;">
                             <i class="fas fa-info-circle" style="color:#0EA5E9; margin-right:8px;"></i>
                             If you have already made payment, fill in the details below. Otherwise, you can pay later.
