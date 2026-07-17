@@ -58,9 +58,9 @@ class RegistrationService
 
         // ✅ Copy image from documents (signboard or photos)
         $imagePath = null;
-        $doc = $registration->documents()
-            ->whereIn('type', ['signboard', 'photos'])
-            ->first();
+        $doc = $registration->uploadedDocuments()
+    ->whereIn('type', ['signboard', 'photos'])
+    ->first();
 
         if ($doc && Storage::disk('public')->exists($doc->file_path)) {
             $filename = uniqid() . '_' . basename($doc->file_path);
