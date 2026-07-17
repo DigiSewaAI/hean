@@ -49,7 +49,7 @@
         }
     }
     
-    $downloadUrl = $hasDoc ? route('admin.documents.download', $firstDoc->id) : null;
+    $downloadUrl = $hasDoc ? route('admin.registrations.downloadDocument', $firstDoc->id) : null;
     $fileTypeForModal = $isImage ? 'image' : ($isPdf ? 'pdf' : 'other');
 @endphp
 
