@@ -426,14 +426,16 @@
         @php
             // Group documents by type, and define labels/icons
             $docGroups = [
-                'pan_certificate' => ['label' => 'PAN Certificate', 'icon' => 'fa-file-invoice'],
-                'citizenship_copy' => ['label' => __('messages.citizenship_copy'), 'icon' => 'fa-id-card'],
-                'license' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],
-                'municipality' => ['label' => 'Municipality Certificate', 'icon' => 'fa-certificate'],
-                'signboard' => ['label' => __('messages.signboard_building_image'), 'icon' => 'fa-image'],
-                'photos' => ['label' => 'होस्टेल तस्बिरहरू', 'icon' => 'fa-images'],
-                'additional' => ['label' => 'Additional Documents', 'icon' => 'fa-paperclip'],
-            ];
+    'pan_certificate' => ['label' => 'PAN Certificate', 'icon' => 'fa-file-invoice'],
+    'pan' => ['label' => 'PAN Certificate', 'icon' => 'fa-file-invoice'],  // 👈 NEW
+    'citizenship_copy' => ['label' => __('messages.citizenship_copy'), 'icon' => 'fa-id-card'],
+    'license' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],
+    'registration_certificate' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],  // 👈 NEW
+    'municipality' => ['label' => 'Municipality Certificate', 'icon' => 'fa-certificate'],
+    'signboard' => ['label' => __('messages.signboard_building_image'), 'icon' => 'fa-image'],
+    'photos' => ['label' => 'होस्टेल तस्बिरहरू', 'icon' => 'fa-images'],
+    'additional' => ['label' => 'Additional Documents', 'icon' => 'fa-paperclip'],
+];
         @endphp
 
         <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:16px;">
