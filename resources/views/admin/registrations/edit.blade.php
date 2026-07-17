@@ -38,12 +38,12 @@
 {{-- ===== MAIN CARD ===== --}}
 <div style="background:#fff; border-radius:16px; padding:30px; box-shadow:0 2px 12px rgba(0,0,0,0.04); border:1px solid #e2e8f0;">
 
-<form action="{{ route('admin.registrations.update', $registration) }}?_method=PUT" 
+<form action="{{ route('admin.registrations.update', $registration) }}" 
       method="POST" 
       enctype="multipart/form-data" 
       id="editForm">
-              @csrf
-
+    @csrf
+    <input type="hidden" name="_method" value="PUT">
         {{-- ============================================================ --}}
         {{-- SECTION 1: HOSTEL INFORMATION --}}
         {{-- ============================================================ --}}
