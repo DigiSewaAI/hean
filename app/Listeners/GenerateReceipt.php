@@ -4,14 +4,10 @@ namespace App\Listeners;
 
 use App\Events\PaymentVerified;
 use App\Services\PaymentService;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
-class GenerateReceipt implements ShouldQueue
+class GenerateReceipt
 {
-    use InteractsWithQueue;
-
     public function handle(PaymentVerified $event)
     {
         Log::info('=== GenerateReceipt Listener Called ===');
