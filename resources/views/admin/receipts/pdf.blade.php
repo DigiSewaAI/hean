@@ -296,11 +296,11 @@
             </thead>
             <tbody>
                 <tr>
-                    <td class="text-center">1</td>
-                    <td>Payment Received</td>
-                    <td>{{ $payment->invoice->invoice_number ?? 'N/A' }}</td>
-                    <td class="text-right">NPR {{ number_format($receipt->amount, 2) }}</td>
-                </tr>
+    <td class="text-center">1</td>
+    <td>{{ $payment->invoice->invoice_type ?? 'Payment Received' }}</td>
+    <td>{{ $payment->invoice->invoice_number ?? 'N/A' }}</td>
+    <td class="text-right">NPR {{ number_format($receipt->amount, 2) }}</td>
+</tr>
             </tbody>
         </table>
     </div>
