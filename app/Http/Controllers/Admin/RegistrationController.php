@@ -303,6 +303,7 @@ $path = $file->store('documents/' . $registration->id, 'cloud');
      */
 public function update(Request $request, Registration $registration)
 {
+        \Log::info('Update method called for registration: ' . $registration->id);
     $data = $request->validate([
         'hostel_name' => 'required|string|max:255',
         'hostel_name_english' => 'nullable|string|max:255',
