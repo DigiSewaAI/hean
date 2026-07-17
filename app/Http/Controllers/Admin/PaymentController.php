@@ -12,6 +12,7 @@ use App\Events\PaymentVerified;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -414,6 +415,9 @@ public function verify(Payment $payment)
             app(PaymentService::class)->updateInvoiceStatus($payment->invoice);
         }
 
+        // ✅ Dispatch event
+Log::info('[DEBUG] Payment verification reached event dispatch for payment ID: ' . $payment->id);
+event(new PaymentVerified($payment, auth()->id()));
         // ✅ Dispatch event
         event(new PaymentVerified($payment, auth()->id()));
 
