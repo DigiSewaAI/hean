@@ -38,8 +38,11 @@
 {{-- ===== MAIN CARD ===== --}}
 <div style="background:#fff; border-radius:16px; padding:30px; box-shadow:0 2px 12px rgba(0,0,0,0.04); border:1px solid #e2e8f0;">
 
-    <form action="{{ route('admin.registrations.update', $registration) }}" method="POST" enctype="multipart/form-data">
-        @csrf
+<form action="{{ route('admin.registrations.update', $registration) }}" 
+      method="POST" 
+      enctype="multipart/form-data" 
+      id="editForm">
+              @csrf
         @method('PUT')
 
         {{-- ============================================================ --}}
@@ -324,16 +327,18 @@
         </div>
 
         {{-- ============================================================ --}}
-        {{-- SUBMIT BUTTONS --}}
-        {{-- ============================================================ --}}
-        <div style="display:flex; gap:12px; margin-top:20px; padding-top:20px; border-top:1px solid #e2e8f0;">
-            <button type="submit" onclick="this.form.submit();" style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; padding:12px 32px; border:none; border-radius:50px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(245,158,11,0.3);">
-    <i class="fas fa-save"></i> {{ __('messages.update') }}
-</button>
-            <a href="{{ route('admin.registrations.show', $registration) }}" style="display:inline-flex; align-items:center; gap:6px; background:#e2e8f0; color:#1e293b; padding:12px 32px; border-radius:50px; text-decoration:none; font-weight:500; transition:0.3s;">
-                <i class="fas fa-times"></i> {{ __('messages.cancel') }}
-            </a>
-        </div>
+{{-- SUBMIT BUTTONS --}}
+{{-- ============================================================ --}}
+<div style="display:flex; gap:12px; margin-top:20px; padding-top:20px; border-top:1px solid #e2e8f0;">
+    <button type="submit" 
+            onclick="document.getElementById('editForm').submit();" 
+            style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; padding:12px 32px; border:none; border-radius:50px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(245,158,11,0.3);">
+        <i class="fas fa-save"></i> {{ __('messages.update') }}
+    </button>
+    <a href="{{ route('admin.registrations.show', $registration) }}" style="display:inline-flex; align-items:center; gap:6px; background:#e2e8f0; color:#1e293b; padding:12px 32px; border-radius:50px; text-decoration:none; font-weight:500; transition:0.3s;">
+        <i class="fas fa-times"></i> {{ __('messages.cancel') }}
+    </a>
+</div>
 
     </form>
 </div>
