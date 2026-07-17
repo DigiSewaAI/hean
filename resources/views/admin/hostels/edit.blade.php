@@ -144,13 +144,13 @@
 <div style="margin-bottom:16px;">
     <div class="form-group">
         <label for="local_registration_number" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-            {{ __('messages.local_registration_number') }} <span style="color:#dc2626;">*</span>
+            {{ __('messages.local_registration_number') }}
+            <span style="color:#64748b; font-weight:400;">({{ __('messages.optional') }})</span>
         </label>
         <input type="text" name="local_registration_number" id="local_registration_number"
                value="{{ old('local_registration_number', $hostel->local_registration_number) }}"
                placeholder="{{ __('messages.placeholder_local_registration_number') }}"
-               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
-               required>
+               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
         @error('local_registration_number')
             <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
         @enderror
@@ -160,7 +160,6 @@
         </small>
     </div>
 </div>
-
         {{-- ===== Row 6: Description ===== --}}
         <div style="margin-bottom:16px;">
             <div class="form-group">

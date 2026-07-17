@@ -149,7 +149,7 @@ class HostelController extends Controller
             'approved' => 'boolean',
             'featured' => 'boolean',
             'visible' => 'boolean',
-            'local_registration_number' => 'required|string|max:100',
+            'local_registration_number' => 'nullable|string|max:100',
         ]);
 
         if ($request->hasFile('image')) {
@@ -190,7 +190,7 @@ class HostelController extends Controller
             'approved' => 'boolean',
             'featured' => 'boolean',
             'visible' => 'boolean',
-            'local_registration_number' => 'required|string|max:100',
+            'local_registration_number' => 'nullable|string|max:100',
 
         ]);
 
