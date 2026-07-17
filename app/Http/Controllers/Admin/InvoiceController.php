@@ -99,6 +99,16 @@ class InvoiceController extends Controller
             // ===== SAVE PDF =====
             $path = 'invoices/invoice_' . uniqid() . '.pdf';
             Storage::disk('public')->put($path, $pdfContent);
+            if (Storage::disk('public')->exists($path)) {
+    Log::info('✅ Invoice PDF saved successfully: ' . $path);
+} else {
+    Log::error('❌ Invoice PDF FAILED to save: ' . $path);
+    if (Storage::disk('public')->exists('invoices')) {
+        Log::info('Invoices directory exists.');
+    } else {
+        Log::error('Invoices directory does NOT exist.');
+    }
+}
 
             $invoice->update(['pdf_path' => $path]);
 

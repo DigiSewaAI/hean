@@ -95,6 +95,18 @@ class PaymentService
         $path = 'receipts/receipt_' . uniqid() . '.pdf';
         Storage::disk('public')->put($path, $pdfContent);
 
+        if (Storage::disk('public')->exists($path)) {
+    Log::info('✅ Receipt PDF saved successfully: ' . $path);
+} else {
+    Log::error('❌ Receipt PDF FAILED to save: ' . $path);
+    // Directory existence check
+    if (Storage::disk('public')->exists('receipts')) {
+        Log::info('Receipts directory exists.');
+    } else {
+        Log::error('Receipts directory does NOT exist.');
+    }
+}
+
         // 5. Update receipt with PDF path
         $receipt->update(['pdf_path' => $path]);
 
