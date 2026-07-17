@@ -195,7 +195,7 @@ public function index(Request $request)
 
 /**
  * Download receipt PDF.
- * ✅ यदि PDF फाइल छैन भने – PaymentService bypass गरी प्रत्यक्ष रूपमा पुन: जेनरेट गरिन्छ।
+ * ✅ यदि PDF फाइल छैन भने – सिधै पुन: जेनरेट गरिन्छ (PaymentService बाट बाहिर)
  */
 public function download(Receipt $receipt)
 {
@@ -207,7 +207,7 @@ public function download(Receipt $receipt)
                 abort(404, 'Payment not found for this receipt.');
             }
 
-            // ===== प्रत्यक्ष PDF जेनरेट (PaymentService बाट हटाएर) =====
+            // ===== PDF पुन: जेनरेट गर्ने (सिधै, PaymentService bypass गरेर) =====
             // 1. HTML view बनाउने
             $html = view('admin.receipts.pdf', compact('receipt', 'payment'))->render();
 
@@ -254,8 +254,8 @@ public function download(Receipt $receipt)
 
             // 7. receipt रेकर्डलाई नयाँ pdf_path ले update गर्ने
             $receipt->update(['pdf_path' => $newPath]);
-
-            // 8. ताजा receipt डाटा लिन refresh
+            
+            // 8. ताजा डाटा ल्याउने
             $receipt->refresh();
 
             \Log::info('✅ Receipt PDF regenerated successfully: ' . $newPath . ' for receipt ID: ' . $receipt->id);
