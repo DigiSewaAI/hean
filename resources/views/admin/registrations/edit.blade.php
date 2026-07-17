@@ -249,13 +249,15 @@
                                 <i class="fas fa-download"></i>
                             </a>
                             {{-- Delete document (optional) --}}
-                            <form action="{{ route('admin.registrations.deleteDocument', $doc->id) }}" method="POST" onsubmit="return confirm('के तपाईं यो कागजात मेट्न चाहनुहुन्छ?');" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" style="background:#EF4444; color:#fff; border:none; padding:2px 8px; border-radius:4px; font-size:0.6rem; cursor:pointer;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
+{{--
+<form action="{{ route('admin.registrations.deleteDocument', $doc->id) }}" method="POST" onsubmit="return confirm('के तपाईं यो कागजात मेट्न चाहनुहुन्छ?');" style="display:inline;">
+    @csrf
+    @method('DELETE')
+    <button type="submit" style="background:#EF4444; color:#fff; border:none; padding:2px 8px; border-radius:4px; font-size:0.6rem; cursor:pointer;">
+        <i class="fas fa-trash"></i>
+    </button>
+</form>
+--}}
                         </div>
                     </div>
                 @endforeach
