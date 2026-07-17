@@ -302,42 +302,49 @@ $path = $file->store('documents/' . $registration->id, 'cloud');
      * ✅ registration_number बाहेक सबै अपडेट गरिन्छ।
      */
     public function update(Request $request, Registration $registration)
-    {
-        // ✅ registration_number validation बाट हटाइयो
-        $data = $request->validate([
-            'hostel_name' => 'required|string|max:255',
-            'hostel_name_english' => 'nullable|string|max:255',
-            'hostel_type' => 'required|in:boys,girls,co-ed',
-            'capacity' => 'required|integer|min:1',
-            'established_year' => 'nullable|integer|min:1900|max:' . date('Y'),
-            'contact' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'website' => 'nullable|url|max:255',
-            'description' => 'nullable|string|max:1000',
-            'province' => 'required|string|max:100',
-            'district' => 'required|string|max:100',
-            'municipality' => 'required|string|max:100',
-            'ward' => 'required|string|max:10',
-            'street' => 'nullable|string|max:255',
-            'landmark' => 'nullable|string|max:255',
-            'pan' => 'nullable|string|max:50',
-            'block_name' => 'nullable|string|max:255',      // ✅ थपियो
-            'status' => 'required|in:pending,approved,active,rejected,duplicate,awaiting_payment,inspection',
-            'local_registration_number' => 'nullable|string|max:100',
+{
+    $data = $request->validate([
+        'hostel_name' => 'required|string|max:255',
+        'hostel_name_english' => 'nullable|string|max:255',
+        'hostel_type' => 'required|in:boys,girls,co-ed',
+        'capacity' => 'required|integer|min:1',
+        'established_year' => 'nullable|integer|min:1900|max:' . date('Y'),
+        'contact' => 'required|string|max:20',
+        'email' => 'nullable|email|max:255',
+        'website' => 'nullable|url|max:255',
+        'description' => 'nullable|string|max:1000',
+        'province' => 'required|string|max:100',
+        'district' => 'required|string|max:100',
+        'municipality' => 'required|string|max:100',
+        'ward' => 'required|string|max:10',
+        'street' => 'nullable|string|max:255',
+        'landmark' => 'nullable|string|max:255',
+        'pan' => 'nullable|string|max:50',
+        'block_name' => 'nullable|string|max:255',
+        'status' => 'required|in:pending,approved,active,rejected,duplicate,awaiting_payment,inspection',
+        'local_registration_number' => 'nullable|string|max:100',
+    ]);
 
-        ]);
+    $data = $request->except(['registration_number', '_token', '_method']);
+    $registration->update($data);
 
-        // ✅ registration_number हटाउनुहोस् (सुरक्षाका लागि)
-        $data = $request->except(['registration_number', '_token', '_method']);
-
-        $registration->update($data);
-        if ($request->hasFile('documents')) {
-    foreach ($request->file('documents') as $type => $file) {
-        // 'additional' भएमा multiple files
-        if ($type === 'additional' && is_array($file)) {
-            foreach ($file as $f) {
-                if ($f) {
-                    $path = $f->store('documents/' . $registration->id, 'cloud');
+    if ($request->hasFile('documents')) {
+        foreach ($request->file('documents') as $type => $file) {
+            if ($type === 'additional' && is_array($file)) {
+                foreach ($file as $f) {
+                    if ($f) {
+                        $path = $f->store('documents/' . $registration->id, 'cloud');
+                        Document::create([
+                            'registration_id' => $registration->id,
+                            'type' => $type,
+                            'file_path' => $path,
+                            'uploaded_at' => now(),
+                        ]);
+                    }
+                }
+            } else {
+                if ($file) {
+                    $path = $file->store('documents/' . $registration->id, 'cloud');
                     Document::create([
                         'registration_id' => $registration->id,
                         'type' => $type,
@@ -346,24 +353,12 @@ $path = $file->store('documents/' . $registration->id, 'cloud');
                     ]);
                 }
             }
-        } else {
-            if ($file) {
-                $path = $file->store('documents/' . $registration->id, 'cloud');
-                Document::create([
-                    'registration_id' => $registration->id,
-                    'type' => $type,
-                    'file_path' => $path,
-                    'uploaded_at' => now(),
-                ]);
-            }
         }
     }
+
+    return redirect()->route('admin.registrations.index')
+        ->with('success', 'Registration updated.');
 }
-
-
-        return redirect()->route('admin.registrations.index')
-            ->with('success', 'Registration updated.');
-    }
 
     /**
      * Approve a registration.
