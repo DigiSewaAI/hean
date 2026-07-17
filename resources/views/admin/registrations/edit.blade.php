@@ -219,6 +219,83 @@
         </div>
 
         {{-- ============================================================ --}}
+{{-- SECTION: DOCUMENTS (Upload/Update) --}}
+{{-- ============================================================ --}}
+<div style="background:#f8fafc; padding:20px; border-radius:12px; margin-bottom:24px; border-left:4px solid #F59E0B;">
+    <h4 style="margin:0 0 16px 0; color:#F59E0B; display:flex; align-items:center; gap:10px;">
+        <i class="fas fa-file-upload"></i> {{ __('messages.documents') }}
+        <span style="font-size:0.75rem; font-weight:400; color:#94a3b8; margin-left:auto;">
+            {{ $registration->uploadedDocuments->count() }} {{ __('messages.files') }}
+        </span>
+    </h4>
+
+    {{-- ===== Existing Documents ===== --}}
+    @if($registration->uploadedDocuments->isNotEmpty())
+        <div style="margin-bottom:16px;">
+            <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:8px;">हालका कागजातहरू</label>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:12px;">
+                @foreach($registration->uploadedDocuments as $doc)
+                    <div style="background:#f1f5f9; padding:10px 14px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="font-size:0.8rem; font-weight:500; color:#0f172a;">{{ $doc->type }}</span>
+                            <br>
+                            <span style="font-size:0.65rem; color:#64748b;">{{ $doc->created_at->format('M d, Y') }}</span>
+                        </div>
+                        <div style="display:flex; gap:4px;">
+                            <a href="{{ route('admin.registrations.downloadDocument', $doc->id) }}" style="background:#0EA5E9; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.6rem; text-decoration:none;">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            {{-- Delete document (optional) --}}
+                            <form action="{{ route('admin.registrations.deleteDocument', $doc->id) }}" method="POST" onsubmit="return confirm('के तपाईं यो कागजात मेट्न चाहनुहुन्छ?');" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" style="background:#EF4444; color:#fff; border:none; padding:2px 8px; border-radius:4px; font-size:0.6rem; cursor:pointer;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    {{-- ===== Upload New Documents ===== --}}
+    <div>
+        <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:8px;">नयाँ कागजात अपलोड गर्नुहोस्</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+                <label style="font-size:0.75rem; font-weight:500; color:#475569;">PAN Certificate</label>
+                <input type="file" name="documents[pan]" accept=".jpg,.jpeg,.png,.pdf" style="width:100%; padding:6px; border:1px solid #e2e8f0; border-radius:6px;">
+            </div>
+            <div>
+                <label style="font-size:0.75rem; font-weight:500; color:#475569;">Citizenship Copy / National ID</label>
+                <input type="file" name="documents[citizenship]" accept=".jpg,.jpeg,.png,.pdf" style="width:100%; padding:6px; border:1px solid #e2e8f0; border-radius:6px;">
+            </div>
+            <div>
+                <label style="font-size:0.75rem; font-weight:500; color:#475569;">Business Registration Certificate</label>
+                <input type="file" name="documents[license]" accept=".jpg,.jpeg,.png,.pdf" style="width:100%; padding:6px; border:1px solid #e2e8f0; border-radius:6px;">
+            </div>
+            <div>
+                <label style="font-size:0.75rem; font-weight:500; color:#475569;">Municipality Certificate</label>
+                <input type="file" name="documents[municipality]" accept=".jpg,.jpeg,.png,.pdf" style="width:100%; padding:6px; border:1px solid #e2e8f0; border-radius:6px;">
+            </div>
+            <div>
+                <label style="font-size:0.75rem; font-weight:500; color:#475569;">Signboard / Building Image</label>
+                <input type="file" name="documents[signboard]" accept=".jpg,.jpeg,.png" style="width:100%; padding:6px; border:1px solid #e2e8f0; border-radius:6px;">
+            </div>
+            <div>
+                <label style="font-size:0.75rem; font-weight:500; color:#475569;">Additional Documents</label>
+                <input type="file" name="documents[additional]" accept=".jpg,.jpeg,.png,.pdf" style="width:100%; padding:6px; border:1px solid #e2e8f0; border-radius:6px;" multiple>
+            </div>
+        </div>
+        <small style="color:#64748b; font-size:0.7rem; display:block; margin-top:6px;">
+            <i class="fas fa-info-circle"></i> Allowed: JPG, JPEG, PNG, PDF | Max 2MB each
+        </small>
+    </div>
+</div>
+
+        {{-- ============================================================ --}}
         {{-- SECTION 4: STATUS & REGISTRATION NUMBER --}}
         {{-- ============================================================ --}}
         <div style="background:#f8fafc; padding:20px; border-radius:12px; margin-bottom:24px; border-left:4px solid #EF4444;">

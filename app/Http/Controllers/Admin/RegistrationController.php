@@ -331,6 +331,35 @@ $path = $file->store('documents/' . $registration->id, 'cloud');
         $data = $request->except(['registration_number', '_token', '_method']);
 
         $registration->update($data);
+        if ($request->hasFile('documents')) {
+    foreach ($request->file('documents') as $type => $file) {
+        // 'additional' भएमा multiple files
+        if ($type === 'additional' && is_array($file)) {
+            foreach ($file as $f) {
+                if ($f) {
+                    $path = $f->store('documents/' . $registration->id, 'cloud');
+                    Document::create([
+                        'registration_id' => $registration->id,
+                        'type' => $type,
+                        'file_path' => $path,
+                        'uploaded_at' => now(),
+                    ]);
+                }
+            }
+        } else {
+            if ($file) {
+                $path = $file->store('documents/' . $registration->id, 'cloud');
+                Document::create([
+                    'registration_id' => $registration->id,
+                    'type' => $type,
+                    'file_path' => $path,
+                    'uploaded_at' => now(),
+                ]);
+            }
+        }
+    }
+}
+
 
         return redirect()->route('admin.registrations.index')
             ->with('success', 'Registration updated.');
@@ -556,17 +585,14 @@ $path = $file->store('documents/' . $registration->id, 'cloud');
     /**
      * Download a document (for admin).
      */
-    public function downloadDocument($id)
+    public function downloadDocument(Document $document)
 {
-    $document = Document::findOrFail($id);
-
-    // Try cloud first
     $cleanPath = str_replace('public/', '', $document->file_path);
+
     if (Storage::disk('cloud')->exists($cleanPath)) {
         return Storage::disk('cloud')->download($cleanPath);
     }
 
-    // Fallback to public disk (old files)
     if (Storage::disk('public')->exists($document->file_path)) {
         return Storage::disk('public')->download($document->file_path);
     }
@@ -591,6 +617,27 @@ $path = $file->store('documents/' . $registration->id, 'cloud');
 
     $export = new RegistrationsExport($filters);
     return Excel::download($export, 'registrations_' . date('Y-m-d') . '.xlsx');
+}
+/**
+ * Delete a document (and remove file from storage).
+ */
+public function deleteDocument(Document $document)
+{
+    // File path सफा गर्नुहोस् (किनभने store गर्दा 'public/' prefix आउन सक्छ)
+    $cleanPath = str_replace('public/', '', $document->file_path);
+
+    // पहिले cloud मा छ कि जाँच गर्नुहोस् (किनभने store मा cloud प्रयोग भएको छ)
+    if (Storage::disk('cloud')->exists($cleanPath)) {
+        Storage::disk('cloud')->delete($cleanPath);
+    }
+    // पुराना public मा भएका फाइलहरूको लागि fallback
+    elseif (Storage::disk('public')->exists($document->file_path)) {
+        Storage::disk('public')->delete($document->file_path);
+    }
+
+    $document->delete();
+
+    return back()->with('success', 'Document deleted successfully.');
 }
 
 }

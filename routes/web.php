@@ -86,6 +86,10 @@ Route::middleware(['auth', 'admin'])
                 // ✅ Bulk Action – admin group भित्र, resource पछि
 Route::any('test-bulk', [AdminHostelController::class, 'bulkAction'])->name('test.bulk');
 
+// ✅ Document download (एउटा मात्र)
+Route::get('documents/{document}/download', [RegistrationController::class, 'downloadDocument'])
+    ->name('admin.registrations.downloadDocument');
+
 // Registrations Export
 Route::get('registrations/export', [RegistrationController::class, 'export'])->name('registrations.export');
 
@@ -163,9 +167,7 @@ Route::get('hostels/export', [AdminHostelController::class, 'export'])->name('ho
         Route::get('import', [ImportController::class, 'index'])->name('import.index');
         Route::post('import/prepare', [ImportController::class, 'prepare'])->name('import.prepare');
 
-        // Document download (admin)
-        Route::get('documents/{document}/download', [RegistrationController::class, 'downloadDocument'])->name('documents.download');
-
+        
         // Certificate download (admin)
         Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])->name('certificates.download');
 
