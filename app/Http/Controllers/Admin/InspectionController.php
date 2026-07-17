@@ -167,11 +167,13 @@ if ($request->hasFile('photos')) {
     $inspection->save();
 }
 
-            // ५. Registration status approve गर्ने
-            $registration->update([
-                'status'      => 'approved',
-                'approved_at' => now(),
-            ]);
+            // ५. Registration status approve गर्ने (तर active भएको छ भने नबदल्ने)
+if ($registration->status !== 'active') {
+    $registration->update([
+        'status'      => 'approved',
+        'approved_at' => now(),
+    ]);
+}
 
             DB::commit();
 
