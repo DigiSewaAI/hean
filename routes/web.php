@@ -98,7 +98,8 @@ Route::get('documents/{document}/download', [RegistrationController::class, 'dow
 Route::get('registrations/export', [RegistrationController::class, 'export'])->name('registrations.export');
 
         // Registrations (Full Resource except destroy)
-        Route::resource('registrations', RegistrationController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
+        Route::resource('registrations', RegistrationController::class)->except(['destroy']);
+Route::put('registrations/{registration}', [RegistrationController::class, 'update'])->name('registrations.update');
 
         // Inspection view (for completed inspections)
 Route::get('inspections/{inspection}/view', [InspectionController::class, 'view'])->name('inspections.view');

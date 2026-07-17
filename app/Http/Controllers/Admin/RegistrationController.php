@@ -301,14 +301,8 @@ $path = $file->store('documents/' . $registration->id, 'cloud');
      * Update registration.
      * ✅ registration_number बाहेक सबै अपडेट गरिन्छ।
      */
-    public function update(Request $request, Registration $registration)
+public function update(Request $request, Registration $registration)
 {
-        return response()->json([
-        'message' => 'Update method hit!',
-        'all_data' => $request->all(),
-        'files' => $request->allFiles()
-    ]);
-
     $data = $request->validate([
         'hostel_name' => 'required|string|max:255',
         'hostel_name_english' => 'nullable|string|max:255',
@@ -365,7 +359,6 @@ $path = $file->store('documents/' . $registration->id, 'cloud');
     return redirect()->route('admin.registrations.index')
         ->with('success', 'Registration updated.');
 }
-
     /**
      * Approve a registration.
      * ✅ Creates/updates the associated hostel and copies the first photo/signboard.
