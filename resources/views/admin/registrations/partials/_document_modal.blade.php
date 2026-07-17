@@ -9,40 +9,41 @@
             <div class="modal-body" style="text-align:center; min-height:300px;">
                 <!-- Content will be injected by JavaScript -->
             </div>
-            <div class="modal-footer">
-                <!-- Close button removed – use X button or click outside -->
-            </div>
         </div>
     </div>
 </div>
 
-@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var modal = document.getElementById('docPreviewModal');
-    if (modal) {
-        modal.addEventListener('show.bs.modal', function(event) {
+    // ✅ सरल र पक्का – Modal को लागि Event Listener
+    document.addEventListener('DOMContentLoaded', function() {
+        var modalElement = document.getElementById('docPreviewModal');
+
+        modalElement.addEventListener('show.bs.modal', function(event) {
             var button = event.relatedTarget;
             var fileUrl = button.getAttribute('data-file-url');
             var fileType = button.getAttribute('data-file-type');
-            var fileName = button.getAttribute('data-file-name');
-            var body = modal.querySelector('.modal-body');
+            var fileName = button.getAttribute('data-file-name') || 'Document';
+
+            var body = modalElement.querySelector('.modal-body');
+
+            // Clear previous content
+            body.innerHTML = '';
 
             if (fileType === 'image') {
+                // ✅ सिधै इमेज देखाउने
                 body.innerHTML = '<img src="' + fileUrl + '" style="max-width:100%; max-height:70vh; border-radius:8px;" alt="' + fileName + '">';
             } else if (fileType === 'pdf') {
                 body.innerHTML = '<embed src="' + fileUrl + '" style="width:100%; height:70vh;" type="application/pdf">';
             } else {
-                body.innerHTML = '<a href="' + fileUrl + '" target="_blank" class="btn btn-primary">Download File</a>';
+                // Fallback – download link
+                body.innerHTML = '<a href="' + fileUrl + '" target="_blank" class="btn btn-primary">View/Download File</a>';
             }
         });
 
-        // Clear content on hide to prevent flickering
-        modal.addEventListener('hidden.bs.modal', function() {
-            var body = modal.querySelector('.modal-body');
+        // Modal बन्द हुँदा content खाली गर्ने
+        modalElement.addEventListener('hidden.bs.modal', function() {
+            var body = modalElement.querySelector('.modal-body');
             body.innerHTML = '';
         });
-    }
-});
+    });
 </script>
-@endpush
