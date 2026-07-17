@@ -303,6 +303,12 @@ $path = $file->store('documents/' . $registration->id, 'cloud');
      */
     public function update(Request $request, Registration $registration)
 {
+        return response()->json([
+        'message' => 'Update method hit!',
+        'all_data' => $request->all(),
+        'files' => $request->allFiles()
+    ]);
+
     $data = $request->validate([
         'hostel_name' => 'required|string|max:255',
         'hostel_name_english' => 'nullable|string|max:255',
