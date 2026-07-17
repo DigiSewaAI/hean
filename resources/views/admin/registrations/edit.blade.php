@@ -43,7 +43,7 @@
       enctype="multipart/form-data" 
       id="editForm">
               @csrf
-        @method('PUT')
+        <input type="hidden" name="_method" value="PUT">
 
         {{-- ============================================================ --}}
         {{-- SECTION 1: HOSTEL INFORMATION --}}
@@ -251,13 +251,11 @@
     </a>
     
     {{-- Delete Button --}}
-    <form action="{{ route('admin.registrations.deleteDocument', $doc->id) }}" method="POST" onsubmit="return confirm('के तपाईं यो कागजात मेट्न चाहनुहुन्छ?');" style="display:inline;">
-        @csrf
-        @method('DELETE')
-        <button type="submit" style="background:#EF4444; color:#fff; border:none; padding:2px 8px; border-radius:4px; font-size:0.6rem; cursor:pointer;">
-            <i class="fas fa-trash"></i>
-        </button>
-    </form>
+    <button type="button" 
+        onclick="deleteDocument({{ $doc->id }})" 
+        style="background:#EF4444; color:#fff; border:none; padding:2px 8px; border-radius:4px; font-size:0.6rem; cursor:pointer;">
+    <i class="fas fa-trash"></i>
+</button>
 </div>
                     </div>
                 @endforeach
@@ -344,5 +342,35 @@
 
     </form>
 </div>
-
+@push('scripts')
+<script>
+function deleteDocument(docId) {
+    if (!confirm('के तपाईं यो कागजात मेट्न चाहनुहुन्छ?')) {
+        return;
+    }
+    
+    // Create a form dynamically and submit
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/admin/registrations/documents/' + docId;
+    
+    // CSRF token
+    var token = document.createElement('input');
+    token.type = 'hidden';
+    token.name = '_token';
+    token.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    form.appendChild(token);
+    
+    // Method spoofing
+    var method = document.createElement('input');
+    method.type = 'hidden';
+    method.name = '_method';
+    method.value = 'DELETE';
+    form.appendChild(method);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+@endpush
 @endsection
