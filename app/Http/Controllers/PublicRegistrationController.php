@@ -92,7 +92,7 @@ class PublicRegistrationController extends Controller
         foreach ($docTypes as $type) {
             if ($request->hasFile("documents.{$type}")) {
                 $file = $request->file("documents.{$type}");
-                $path = $file->store('public/documents/' . $registration->id, 'public');
+                $path = $file->store('documents/' . $registration->id, 'cloud');
                 Document::create([
                     'registration_id' => $registration->id,
                     'type' => $type,

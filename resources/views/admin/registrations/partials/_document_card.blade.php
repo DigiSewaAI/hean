@@ -5,12 +5,19 @@
     // $icon = FontAwesome icon class
     $hasDoc = $docs->isNotEmpty();
     $firstDoc = $hasDoc ? $docs->first() : null;
-    $isImage = $hasDoc && in_array(Storage::disk('public')->mimeType($firstDoc->file_path), ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
-    $isPdf = $hasDoc && Storage::disk('public')->mimeType($firstDoc->file_path) === 'application/pdf';
-    $fileSize = $hasDoc ? Storage::disk('public')->size($firstDoc->file_path) : 0;
+    
+    // ✅ 'public/' prefix हटाएर cloud डिस्कबाट URL लिने
+    $cleanPath = $hasDoc ? str_replace('public/', '', $firstDoc->file_path) : null;
+    
+    // ✅ cloud डिस्क प्रयोग गरेर mimeType, size, URL निकाल्ने
+    $isImage = $hasDoc && in_array(Storage::disk('cloud')->mimeType($cleanPath), ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif']);
+    $isPdf = $hasDoc && Storage::disk('cloud')->mimeType($cleanPath) === 'application/pdf';
+    $fileSize = $hasDoc ? Storage::disk('cloud')->size($cleanPath) : 0;
     $fileSizeFormatted = $fileSize ? number_format($fileSize / 1024, 1) . ' KB' : null;
     $uploadDate = $firstDoc ? $firstDoc->created_at->format('M d, Y') : null;
-    $fileUrl = $hasDoc ? asset('storage/' . $firstDoc->file_path) : null;
+    
+    // ✅ cloud डिस्कबाट URL
+    $fileUrl = $hasDoc ? Storage::disk('cloud')->url($cleanPath) : null;
     $downloadUrl = $hasDoc ? route('admin.documents.download', $firstDoc->id) : null;
     $fileTypeForModal = $isImage ? 'image' : ($isPdf ? 'pdf' : 'other');
 @endphp

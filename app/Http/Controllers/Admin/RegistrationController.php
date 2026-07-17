@@ -262,7 +262,8 @@ public function index(Request $request)
             $firstPhotoPath = null;
             if ($request->hasFile('documents')) {
                 foreach ($request->file('documents') as $type => $file) {
-                    $path = $file->store('public/documents/' . $registration->id, 'public');
+                    // अब (cloud डिस्क)
+$path = $file->store('documents/' . $registration->id, 'cloud');
                     Document::create([
                         'registration_id' => $registration->id,
                         'type' => $type,
@@ -353,12 +354,17 @@ public function index(Request $request)
             // ✅ 2. Copy image from documents (signboard or photos)
             $imagePath = null;
             $doc = $registration->uploadedDocuments()->whereIn('type', ['signboard', 'photos'])->first();
-            if ($doc && Storage::disk('public')->exists($doc->file_path)) {
-                $filename = uniqid() . '_' . basename($doc->file_path);
-                $newPath = 'hostels/' . $filename;
-                Storage::disk('public')->copy($doc->file_path, $newPath);
-                $imagePath = $newPath;
-            }
+            if ($doc) {
+    $cleanPath = str_replace('public/', '', $doc->file_path);
+    if (Storage::disk('cloud')->exists($cleanPath)) {
+        $filename = uniqid() . '_' . basename($doc->file_path);
+        $newPath = 'hostels/' . $filename;
+        // cloud बाट public/local मा copy गर्नु पर्छ भने (तर सामान्यतया हामी सिधा URL प्रयोग गर्छौं)
+        // यदि hostel image पनि cloud मै राख्ने हो भने:
+        Storage::disk('cloud')->copy($cleanPath, $newPath);
+        $imagePath = $newPath;
+    }
+}
 
             // ✅ 3. Update hostel with all registration data and image
             if ($registration->hostel_id) {
@@ -420,12 +426,17 @@ public function index(Request $request)
         // Copy image from documents (signboard or photos)
         $imagePath = null;
         $doc = $registration->uploadedDocuments()->whereIn('type', ['signboard', 'photos'])->first();
-        if ($doc && Storage::disk('public')->exists($doc->file_path)) {
-            $filename = uniqid() . '_' . basename($doc->file_path);
-            $newPath = 'hostels/' . $filename;
-            Storage::disk('public')->copy($doc->file_path, $newPath);
-            $imagePath = $newPath;
-        }
+        if ($doc) {
+    $cleanPath = str_replace('public/', '', $doc->file_path);
+    if (Storage::disk('cloud')->exists($cleanPath)) {
+        $filename = uniqid() . '_' . basename($doc->file_path);
+        $newPath = 'hostels/' . $filename;
+        // cloud बाट public/local मा copy गर्नु पर्छ भने (तर सामान्यतया हामी सिधा URL प्रयोग गर्छौं)
+        // यदि hostel image पनि cloud मै राख्ने हो भने:
+        Storage::disk('cloud')->copy($cleanPath, $newPath);
+        $imagePath = $newPath;
+    }
+}
 
         // ✅ Hostel सिर्जना गर्नुहोस् (block_name पनि पठाउनुहोस्)
         $hostel = Hostel::create([
@@ -546,18 +557,20 @@ public function index(Request $request)
      * Download a document (for admin).
      */
     public function downloadDocument($id)
-    {
-        $document = Document::findOrFail($id);
+{
+    $document = Document::findOrFail($id);
 
-        if (!Storage::disk('public')->exists($document->file_path)) {
-            abort(404, 'File not found.');
-        }
+    // ✅ 'public/' prefix हटाउने
+    $cleanPath = str_replace('public/', '', $document->file_path);
 
-        return response()->download(
-            storage_path('app/public/' . $document->file_path),
-            basename($document->file_path)
-        );
+    // ✅ cloud डिस्कमा file छ कि check
+    if (!Storage::disk('cloud')->exists($cleanPath)) {
+        abort(404, 'File not found in cloud storage.');
     }
+
+    // ✅ cloud डिस्कबाट download
+    return Storage::disk('cloud')->download($cleanPath);
+}
 
     /**
      * (Legacy) Download an invoice - replaced by InvoiceController.
