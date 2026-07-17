@@ -144,12 +144,13 @@
     </h4>
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px;">
         @foreach($photos as $photo)
-            {{-- Remove 'public/' prefix if present --}}
             @php
+                // 'public/' prefix भए पनि नभए पनि काम गर्छ
                 $cleanPath = str_replace('public/', '', $photo);
             @endphp
-            <div style="border-radius:8px; overflow:hidden; border:1px solid #e2e8f0;">
-                <img src="{{ asset('storage/' . $cleanPath) }}" alt="Inspection Photo" style="width:100%; height:120px; object-fit:cover;">
+            <div style="border-radius:8px; overflow:hidden; border:1px solid #e2e8f0; background:#f1f5f9;">
+                {{-- ✅ अब 'cloud' डिस्क प्रयोग --}}
+                <img src="{{ Storage::disk('cloud')->url($cleanPath) }}" alt="Inspection Photo" style="width:100%; height:120px; object-fit:cover;">
             </div>
         @endforeach
     </div>

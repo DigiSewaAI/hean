@@ -159,8 +159,8 @@ public function index(Request $request)
 if ($request->hasFile('photos')) {
     $photoPaths = [];
     foreach ($request->file('photos') as $photo) {
-        // ✅ 'inspections' मा store गर (बिना 'public/')
-        $path = $photo->store('inspections/' . $inspection->id, 'public');
+        // ✅ Cloud Storage (Laravel Cloud R2) मा store
+        $path = $photo->store('inspections/' . $inspection->id, 'cloud');
         $photoPaths[] = $path;  // path: 'inspections/4/filename.jpg'
     }
     $inspection->photos = $photoPaths;
