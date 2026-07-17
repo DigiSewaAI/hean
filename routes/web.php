@@ -88,7 +88,11 @@ Route::any('test-bulk', [AdminHostelController::class, 'bulkAction'])->name('tes
 
 // ✅ Document download (एउटा मात्र)
 Route::get('documents/{document}/download', [RegistrationController::class, 'downloadDocument'])
-    ->name('admin.registrations.downloadDocument');
+    ->name('registrations.downloadDocument');
+
+    Route::delete('registrations/documents/{document}', [RegistrationController::class, 'deleteDocument'])
+    ->name('registrations.deleteDocument');
+
 
 // Registrations Export
 Route::get('registrations/export', [RegistrationController::class, 'export'])->name('registrations.export');
