@@ -197,14 +197,27 @@ if ($registration->status !== 'active') {
  * ✅ Active र Approved registrations मात्र (pending होइन)
  * ✅ पहिले नै scheduled/completed भएका registrations हटाइयो।
  */
-public function select()
+public function select(Request $request)
 {
-    $registrations = Registration::whereIn('status', ['approved', 'active'])
+    $query = Registration::whereIn('status', ['approved', 'active'])
         ->whereDoesntHave('inspections', function($q) {
             $q->whereIn('status', ['scheduled', 'completed']);
-        })
-        ->latest()
-        ->get();
+        });
+
+    // ===== SEARCH =====
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('hostel_name', 'LIKE', "%{$search}%")
+              ->orWhere('hostel_name_english', 'LIKE', "%{$search}%")
+              ->orWhere('registration_number', 'LIKE', "%{$search}%")
+              ->orWhere('district', 'LIKE', "%{$search}%")
+              ->orWhere('operator_name', 'LIKE', "%{$search}%")
+              ->orWhere('local_registration_number', 'LIKE', "%{$search}%");
+        });
+    }
+
+    $registrations = $query->latest()->get();
 
     return view('admin.inspections.select', compact('registrations'));
 }
