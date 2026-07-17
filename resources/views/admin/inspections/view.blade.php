@@ -1,4 +1,3 @@
-@php dd($inspection->photos); @endphp
 @extends('layouts.admin')
 
 @section('title', __('messages.inspection') . ' #' . $inspection->id . ' - HEAN Admin')
