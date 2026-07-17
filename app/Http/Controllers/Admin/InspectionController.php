@@ -217,7 +217,8 @@ public function select(Request $request)
         });
     }
 
-    $registrations = $query->latest()->get();
+    // ✅ Paginate (20 per page) र search query लाई पनि सँगै राख्ने
+    $registrations = $query->latest()->paginate(20)->appends($request->query());
 
     return view('admin.inspections.select', compact('registrations'));
 }
