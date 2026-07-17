@@ -195,39 +195,83 @@ public function index(Request $request)
 
 /**
  * Download receipt PDF.
+ * ✅ यदि PDF फाइल छैन भने – PaymentService bypass गरी प्रत्यक्ष रूपमा पुन: जेनरेट गरिन्छ।
  */
 public function download(Receipt $receipt)
 {
-    // जतिसुकै भए पनि पुन: जेनरेट गर्ने (सुरक्षित)
-    try {
-        $payment = $receipt->payment;
-        if (!$payment) {
-            abort(404, 'Payment not found for this receipt.');
+    // यदि pdf_path छैन वा फाइल अवस्थित छैन भने – पुन: जेनरेट गर्ने
+    if (!$receipt->pdf_path || !Storage::disk('public')->exists($receipt->pdf_path)) {
+        try {
+            $payment = $receipt->payment;
+            if (!$payment) {
+                abort(404, 'Payment not found for this receipt.');
+            }
+
+            // ===== प्रत्यक्ष PDF जेनरेट (PaymentService बाट हटाएर) =====
+            // 1. HTML view बनाउने
+            $html = view('admin.receipts.pdf', compact('receipt', 'payment'))->render();
+
+            // 2. Mpdf कन्फिगर
+            $tempDir = storage_path('app/mpdf');
+            if (!file_exists($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
+
+            $mpdf = new \Mpdf\Mpdf([
+                'mode' => 'utf-8',
+                'format' => 'A4',
+                'orientation' => 'P',
+                'default_font_size' => 12,
+                'default_font' => 'notosansdevanagari',
+                'autoScriptToLang' => true,
+                'autoLangToFont' => true,
+                'margin_top' => 10,
+                'margin_bottom' => 10,
+                'margin_left' => 10,
+                'margin_right' => 10,
+                'tempDir' => $tempDir,
+            ]);
+
+            // 3. Watermark (यदि logo छ भने)
+            $logoPath = public_path('images/logo.png');
+            if (file_exists($logoPath)) {
+                $mpdf->SetWatermarkImage($logoPath, 0.08, 'F', 'P');
+                $mpdf->showWatermarkImage = true;
+            }
+
+            // 4. PDF कन्टेन्ट जेनरेट
+            $mpdf->WriteHTML($html);
+            $pdfContent = $mpdf->Output('', 'S');
+
+            // 5. receipts डाइरेक्टरी सुनिश्चित गर्ने
+            if (!Storage::disk('public')->exists('receipts')) {
+                Storage::disk('public')->makeDirectory('receipts', 0755, true);
+            }
+
+            // 6. नयाँ PDF सेभ गर्ने
+            $newPath = 'receipts/receipt_' . uniqid() . '.pdf';
+            Storage::disk('public')->put($newPath, $pdfContent);
+
+            // 7. receipt रेकर्डलाई नयाँ pdf_path ले update गर्ने
+            $receipt->update(['pdf_path' => $newPath]);
+
+            // 8. ताजा receipt डाटा लिन refresh
+            $receipt->refresh();
+
+            \Log::info('✅ Receipt PDF regenerated successfully: ' . $newPath . ' for receipt ID: ' . $receipt->id);
+
+        } catch (\Exception $e) {
+            \Log::error('Receipt regeneration failed: ' . $e->getMessage());
+            abort(404, 'Receipt file not found and regeneration failed: ' . $e->getMessage());
         }
-        
-        // PaymentService प्रयोग गरेर नयाँ receipt generate गर्ने
-        $paymentService = app(\App\Services\PaymentService::class);
-        $newReceipt = $paymentService->generateReceipt($payment);
-        
-        // नयाँ receipt को pdf_path प्रयोग गर्ने
-        if (!$newReceipt->pdf_path || !Storage::disk('public')->exists($newReceipt->pdf_path)) {
-            abort(404, 'Failed to generate receipt PDF.');
-        }
-        
-        $receipt = $newReceipt; // reload
-        
-    } catch (\Exception $e) {
-        \Log::error('Receipt regeneration failed: ' . $e->getMessage());
-        abort(404, 'Receipt file not found and regeneration failed.');
     }
 
-    // अब डाउनलोड गर्ने
+    // अब PDF फाइल अवस्थित छ – डाउनलोड गर्ने
     return response()->download(
         storage_path('app/public/' . $receipt->pdf_path),
         'receipt_' . $receipt->receipt_number . '.pdf'
     );
 }
-
     /**
      * Generate unique receipt number: RCP-YYYY-XXXXXX
      */
