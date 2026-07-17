@@ -37,29 +37,33 @@
                     {{-- Divider --}}
                     <div style="width:60px; height:3px; background:linear-gradient(90deg, #22C55E, #0EA5E9); border-radius:4px; margin:0 auto 24px;"></div>
 
-                    {{-- आवेदन ID --}}
-                    <div style="display:inline-block; background:#f0f9ff; border:2px dashed #0EA5E9; border-radius:16px; padding:16px 32px; margin-bottom:24px; position:relative; z-index:1;">
-                        <span style="display:block; font-size:0.75rem; text-transform:uppercase; color:#64748b; font-weight:600; letter-spacing:0.5px;">
-                            <i class="fas fa-id-card" style="color:#0EA5E9;"></i> आवेदन ID
-                        </span>
-                        <span style="display:block; font-size:2.5rem; font-weight:800; color:#0EA5E9; letter-spacing:1px;">
-                            #{{ $registration->id }}
-                        </span>
-                        <span style="display:block; font-size:0.85rem; font-weight:600; color:#F59E0B; margin-top:4px;">
-                            ⏳ स्थिति: पेन्डिङ (Pending)
-                        </span>
-                        <span style="display:block; font-size:0.7rem; color:#94a3b8; margin-top:2px;">
-                            पूर्ण दर्ता नम्बर स्वीकृत पछि प्राप्त हुनेछ
-                        </span>
-                    </div>
+                    {{-- Flex container for ID and QR --}}
+<div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:30px; margin-bottom:24px; position:relative; z-index:1;">
+    
+    {{-- आवेदन ID --}}
+    <div style="background:#f0f9ff; border:2px dashed #0EA5E9; border-radius:16px; padding:16px 32px; text-align:center; min-width:200px;">
+        <span style="display:block; font-size:0.75rem; text-transform:uppercase; color:#64748b; font-weight:600; letter-spacing:0.5px;">
+            <i class="fas fa-id-card" style="color:#0EA5E9;"></i> आवेदन ID
+        </span>
+        <span style="display:block; font-size:2.5rem; font-weight:800; color:#0EA5E9; letter-spacing:1px;">
+            #{{ $registration->id }}
+        </span>
+        <span style="display:block; font-size:0.85rem; font-weight:600; color:#F59E0B; margin-top:4px;">
+            ⏳ स्थिति: पेन्डिङ (Pending)
+        </span>
+        <span style="display:block; font-size:0.7rem; color:#94a3b8; margin-top:2px;">
+            पूर्ण दर्ता नम्बर स्वीकृत पछि प्राप्त हुनेछ
+        </span>
+    </div>
 
-                    {{-- ✅ QR Code (Only QR – No buttons) --}}
-                    <div style="margin:20px auto; display:inline-block; background:#fff; padding:12px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.06);">
-                        <img src="{{ asset('images/payment-qr.png') }}" alt="Payment QR Code" style="width:150px; height:150px; object-fit:contain; display:block;">
-                    </div>
-                    <p style="font-size:0.85rem; color:#94a3b8; margin-top:8px;">
-                        <i class="fas fa-qrcode" style="color:#0EA5E9;"></i> QR स्क्यान गरेर भुक्तानी गर्नुहोस्
-                    </p>
+    {{-- QR Code --}}
+    <div style="background:#fff; padding:12px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.06); text-align:center;">
+        <img src="{{ asset('images/payment-qr.png') }}" alt="Payment QR Code" style="width:130px; height:130px; object-fit:contain; display:block;">
+        <p style="font-size:0.75rem; color:#94a3b8; margin-top:6px; margin-bottom:0;">
+            <i class="fas fa-qrcode" style="color:#0EA5E9;"></i> QR स्क्यान गरेर भुक्तानी गर्नुहोस्
+        </p>
+    </div>
+</div>
 
                     {{-- Status Info --}}
                     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:28px; position:relative; z-index:1;">
