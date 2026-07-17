@@ -133,17 +133,17 @@
 
                             {{-- Rooms --}}
                             <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="rooms" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        Total Rooms <span style="color:#dc2626;">*</span>
-                                    </label>
-                                    <input type="number" name="rooms" id="rooms" value="{{ old('rooms') }}"
-                                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
-                                           class="form-control @error('rooms') is-invalid @enderror" min="1" required>
-                                    @error('rooms') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-                                    <small style="color:#64748b; font-size:0.75rem;">Total number of rooms in the hostel.</small>
-                                </div>
-                            </div>
+    <div class="form-group">
+        <label for="rooms" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            Total Rooms <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+        </label>
+        <input type="number" name="rooms" id="rooms" value="{{ old('rooms') }}"
+               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
+               class="form-control @error('rooms') is-invalid @enderror" min="0">
+        @error('rooms') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+        <small style="color:#64748b; font-size:0.75rem;">Total number of rooms in the hostel.</small>
+    </div>
+</div>
 
                             {{-- Established Year --}}
                             <div class="col-md-3">
@@ -358,17 +358,17 @@
                         </h4>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="documents_registration_certificate" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        Registration Certificate <span style="color:#dc2626;">*</span>
-                                    </label>
-                                    <input type="file" name="documents[registration_certificate]" id="documents_registration_certificate"
-                                           style="width:100%; padding:8px; border:1.5px solid #e2e8f0; border-radius:8px;"
-                                           class="form-control @error('documents.registration_certificate') is-invalid @enderror"
-                                           accept=".pdf,.jpg,.jpeg,.png" required>
-                                    @error('documents.registration_certificate') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
+    <div class="form-group">
+        <label for="documents_registration_certificate" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            Business Registration Certificate <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+        </label>
+        <input type="file" name="documents[registration_certificate]" id="documents_registration_certificate"
+               style="width:100%; padding:8px; border:1.5px solid #e2e8f0; border-radius:8px;"
+               class="form-control @error('documents.registration_certificate') is-invalid @enderror"
+               accept=".pdf,.jpg,.jpeg,.png">
+        @error('documents.registration_certificate') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+    </div>
+</div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="documents_citizenship_copy" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
@@ -424,6 +424,20 @@
                             Accepted formats: PDF, JPG, JPEG, PNG (max 2MB each)
                         </small>
                     </div>
+
+                    {{-- Municipality Certificate (Optional) --}}
+<div class="col-md-6">
+    <div class="form-group">
+        <label for="documents_municipality" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            Municipality Certificate <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+        </label>
+        <input type="file" name="documents[municipality]" id="documents_municipality"
+               style="width:100%; padding:8px; border:1.5px solid #e2e8f0; border-radius:8px;"
+               class="form-control @error('documents.municipality') is-invalid @enderror"
+               accept=".pdf,.jpg,.jpeg,.png">
+        @error('documents.municipality') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+    </div>
+</div>
 
                     {{-- ===== Section 5: Payment (Optional) ===== --}}
                     <div style="background:#f8fafc; padding:20px; border-radius:12px; margin-bottom:24px; border-left:4px solid #EF4444;">
