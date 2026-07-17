@@ -88,19 +88,19 @@ class PublicRegistrationController extends Controller
         ]);
 
         // Documents
-        $docTypes = ['registration_certificate', 'citizenship_copy', 'pan_certificate', 'signboard', 'other_documents'];
-        foreach ($docTypes as $type) {
-            if ($request->hasFile("documents.{$type}")) {
-                $file = $request->file("documents.{$type}");
-                $path = $file->store('documents/' . $registration->id, 'cloud');
-                Document::create([
-                    'registration_id' => $registration->id,
-                    'type' => $type,
-                    'file_path' => $path,
-                    'uploaded_at' => now(),
-                ]);
-            }
-        }
+$docTypes = ['registration_certificate', 'citizenship_copy', 'pan_certificate', 'signboard', 'other_documents', 'municipality'];
+foreach ($docTypes as $type) {
+    if ($request->hasFile("documents.{$type}")) {
+        $file = $request->file("documents.{$type}");
+        $path = $file->store('documents/' . $registration->id, 'cloud');
+        Document::create([
+            'registration_id' => $registration->id,
+            'type' => $type,
+            'file_path' => $path,
+            'uploaded_at' => now(),
+        ]);
+    }
+}
 
         // Payment
         if ($request->filled('payment_method')) {
@@ -134,44 +134,46 @@ class PublicRegistrationController extends Controller
     }
 
     protected function validateForm(Request $request)
-    {
-        $rules = [
-            'hostel_name' => 'required|string|max:255',
-            'hostel_name_english' => 'required|string|max:255',
-            'hostel_type' => 'required|in:boys,girls,co-ed',
-            'capacity' => 'required|integer|min:1',
-            'rooms' => 'required|integer|min:1',
-            'established_year' => 'nullable|integer|min:1900|max:' . date('Y'),
-            'contact_number' => 'required|string|max:20',      // ✅ 'unique' हटाइयो (पहिले नै थिएन)
-            'email' => 'nullable|email|max:255',
-            'website' => 'nullable|url|max:255',
-            'description' => 'nullable|string|max:1000',
-            'owner_name' => 'required|string|max:255',
-            'province' => 'required|exists:provinces,id',
-            'district' => 'required|exists:districts,id',
-            'municipality' => 'required|exists:municipalities,id',
-            'ward' => 'required|integer|min:1|max:32',
-            'street' => 'nullable|string|max:255',
-            'landmark' => 'nullable|string|max:255',
-            'pan' => 'nullable|string|max:50',
-            'block_name' => 'nullable|string|max:255',        // ✅ नयाँ: वैकल्पिक ब्लक
-            'documents.registration_certificate' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'documents.citizenship_copy' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'documents.pan_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'documents.signboard' => 'required|file|mimes:jpg,jpeg,png|max:2048',
-            'documents.other_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'payment_method' => 'nullable|in:bank,esewa,khalti',
-            'transaction_id' => 'nullable|string|max:255',
-            'payment_amount' => 'nullable|numeric|min:0',
-            'payment_date' => 'nullable|date',
-            'bank_name' => 'nullable|string|max:255',
-            'bank_account' => 'nullable|string|max:255',
-            'local_registration_number' => 'nullable|string|max:100',
+{
+    $rules = [
+        'hostel_name' => 'required|string|max:255',
+        'hostel_name_english' => 'required|string|max:255',
+        'hostel_type' => 'required|in:boys,girls,co-ed',
+        'capacity' => 'required|integer|min:1',
+        'rooms' => 'required|integer|min:1',
+        'established_year' => 'nullable|integer|min:1900|max:' . date('Y'),
+        'contact_number' => 'required|string|max:20',
+        'email' => 'nullable|email|max:255',
+        'website' => 'nullable|url|max:255',
+        'description' => 'nullable|string|max:1000',
+        'owner_name' => 'required|string|max:255',
+        'province' => 'required|exists:provinces,id',
+        'district' => 'required|exists:districts,id',
+        'municipality' => 'required|exists:municipalities,id',
+        'ward' => 'required|integer|min:1|max:32',
+        'street' => 'nullable|string|max:255',
+        'landmark' => 'nullable|string|max:255',
+        'pan' => 'nullable|string|max:50',
+        'block_name' => 'nullable|string|max:255',
+        // ✅ Documents – अब registration_certificate optional छ
+        'documents.registration_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        'documents.citizenship_copy' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        'documents.pan_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        'documents.signboard' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+        'documents.other_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        'documents.municipality' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048', // ✅ नयाँ
+        // Payment
+        'payment_method' => 'nullable|in:bank,esewa,khalti',
+        'transaction_id' => 'nullable|string|max:255',
+        'payment_amount' => 'nullable|numeric|min:0',
+        'payment_date' => 'nullable|date',
+        'bank_name' => 'nullable|string|max:255',
+        'bank_account' => 'nullable|string|max:255',
+        'local_registration_number' => 'nullable|string|max:100',
+    ];
 
-        ];
-
-        return Validator::make($request->all(), $rules);
-    }
+    return Validator::make($request->all(), $rules);
+}
  /**
  * Calculate registration fee based on multiple factors
  */
