@@ -35,11 +35,13 @@
             $fileSize = Storage::disk($disk)->size($disk === 'cloud' ? $cleanPath : $firstDoc->file_path);
             $fileSizeFormatted = number_format($fileSize / 1024, 1) . ' KB';
             
-            // Generate URL based on disk
+            // ✅ Generate URL based on disk
             if ($disk === 'cloud') {
                 $fileUrl = Storage::disk('cloud')->url($cleanPath);
             } else {
-                $fileUrl = asset('storage/' . $firstDoc->file_path);
+                // ✅ 'public/' prefix हटाएर storage URL बनाउने
+                $publicPath = str_replace('public/', '', $firstDoc->file_path);
+                $fileUrl = asset('storage/' . $publicPath);
             }
         } catch (\Exception $e) {
             // If error, treat as missing
