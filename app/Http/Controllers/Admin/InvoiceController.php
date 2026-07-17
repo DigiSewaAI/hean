@@ -55,18 +55,18 @@ class InvoiceController extends Controller
 
         try {
             // ===== GENERATE PDF =====
-$html = view('pdf.invoice', [
-    'registration' => $registration,
-    'invoiceNumber' => $invoiceNumber,
-    'request' => $request,
-    'invoice_type' => $request->invoice_type ?? 'new_registration', // ✅ invoice_type पास गरियो
-])->render();
+            $html = view('pdf.invoice', [
+                'registration' => $registration,
+                'invoiceNumber' => $invoiceNumber,
+                'request' => $request,
+                'invoice_type' => $request->invoice_type ?? 'new_registration',
+            ])->render();
+
             $tempDir = storage_path('app/mpdf');
             if (!file_exists($tempDir)) {
                 mkdir($tempDir, 0755, true);
             }
 
-            // ===== MPDF CONFIG (Same as Certificate) =====
             $mpdf = new Mpdf([
                 'mode' => 'utf-8',
                 'format' => 'A4',
@@ -82,7 +82,6 @@ $html = view('pdf.invoice', [
                 'tempDir' => $tempDir,
             ]);
 
-            // ===== WATERMARK IMAGE (ADDED - exactly like Certificate) =====
             $logoPath = public_path('images/logo.png');
             if (file_exists($logoPath)) {
                 $mpdf->SetWatermarkImage($logoPath, 0.08, 'F', 'P');
@@ -91,6 +90,11 @@ $html = view('pdf.invoice', [
 
             $mpdf->WriteHTML($html);
             $pdfContent = $mpdf->Output('', 'S');
+
+            // ===== Ensure invoices directory exists =====
+            if (!Storage::disk('public')->exists('invoices')) {
+                Storage::disk('public')->makeDirectory('invoices', 0755, true);
+            }
 
             // ===== SAVE PDF =====
             $path = 'invoices/invoice_' . uniqid() . '.pdf';
@@ -115,100 +119,100 @@ $html = view('pdf.invoice', [
     }
 
     /**
- * Download an invoice PDF.
- */
-public function download($id)
-{
-    try {
-        $invoice = Invoice::findOrFail($id);
-        
-        // ✅ Check if pdf_path exists
-        if (!$invoice->pdf_path) {
-            return back()->with('error', 'Invoice PDF not found. Please regenerate the invoice.');
-        }
-        
-        // ✅ Check if file exists
-        if (!Storage::disk('public')->exists($invoice->pdf_path)) {
-            // Try to regenerate PDF
-            try {
-                $registration = $invoice->registration;
-                if (!$registration) {
-                    return back()->with('error', 'Registration not found for this invoice.');
-                }
-                
-                // Prepare data for PDF view
-                $html = view('pdf.invoice', [
-    'registration' => $registration,
-    'invoiceNumber' => $invoice->invoice_number,
-    'request' => (object) [
-        'amount' => $invoice->amount,
-        'due_date' => $invoice->due_date
-    ],
-    'invoice_type' => $invoice->invoice_type ?? 'new_registration', // ✅ थपियो
-])->render();
-                
-                // ✅ MPDF Config (same as generate)
-                $tempDir = storage_path('app/mpdf');
-                if (!file_exists($tempDir)) {
-                    mkdir($tempDir, 0755, true);
-                }
-                
-                $mpdf = new \Mpdf\Mpdf([
-                    'mode' => 'utf-8',
-                    'format' => 'A4',
-                    'orientation' => 'P',
-                    'default_font_size' => 12,
-                    'default_font' => 'dejavusans',
-                    'autoScriptToLang' => true,
-                    'autoLangToFont' => true,
-                    'margin_top' => 10,
-                    'margin_bottom' => 10,
-                    'margin_left' => 10,
-                    'margin_right' => 10,
-                    'tempDir' => $tempDir,
-                ]);
-                
-                // ✅ Watermark (if logo exists)
-                $logoPath = public_path('images/logo.png');
-                if (file_exists($logoPath)) {
-                    $mpdf->SetWatermarkImage($logoPath, 0.08, 'F', 'P');
-                    $mpdf->showWatermarkImage = true;
-                }
-                
-                $mpdf->WriteHTML($html);
-                $pdfContent = $mpdf->Output('', 'S');
-                
-                // Save regenerated PDF
-                $path = 'invoices/invoice_' . uniqid() . '.pdf';
-                Storage::disk('public')->put($path, $pdfContent);
-                
-                // Update invoice record
-                $invoice->pdf_path = $path;
-                $invoice->save();
-                
-                // Download the regenerated PDF
-                return response()->download(
-                    storage_path('app/public/' . $path),
-                    'invoice_' . $invoice->invoice_number . '.pdf'
-                );
-                
-            } catch (\Exception $e) {
-                \Log::error('PDF Regeneration failed for invoice ID ' . $invoice->id . ': ' . $e->getMessage());
-                return back()->with('error', 'Failed to regenerate PDF: ' . $e->getMessage());
+     * Download an invoice PDF.
+     */
+    public function download($id)
+    {
+        try {
+            $invoice = Invoice::findOrFail($id);
+
+            if (!$invoice->pdf_path) {
+                return back()->with('error', 'Invoice PDF not found. Please regenerate the invoice.');
             }
+
+            if (!Storage::disk('public')->exists($invoice->pdf_path)) {
+                // Try to regenerate PDF
+                try {
+                    $registration = $invoice->registration;
+                    if (!$registration) {
+                        return back()->with('error', 'Registration not found for this invoice.');
+                    }
+
+                    $html = view('pdf.invoice', [
+                        'registration' => $registration,
+                        'invoiceNumber' => $invoice->invoice_number,
+                        'request' => (object) [
+                            'amount' => $invoice->amount,
+                            'due_date' => $invoice->due_date
+                        ],
+                        'invoice_type' => $invoice->invoice_type ?? 'new_registration',
+                    ])->render();
+
+                    $tempDir = storage_path('app/mpdf');
+                    if (!file_exists($tempDir)) {
+                        mkdir($tempDir, 0755, true);
+                    }
+
+                    $mpdf = new \Mpdf\Mpdf([
+                        'mode' => 'utf-8',
+                        'format' => 'A4',
+                        'orientation' => 'P',
+                        'default_font_size' => 12,
+                        'default_font' => 'dejavusans',
+                        'autoScriptToLang' => true,
+                        'autoLangToFont' => true,
+                        'margin_top' => 10,
+                        'margin_bottom' => 10,
+                        'margin_left' => 10,
+                        'margin_right' => 10,
+                        'tempDir' => $tempDir,
+                    ]);
+
+                    $logoPath = public_path('images/logo.png');
+                    if (file_exists($logoPath)) {
+                        $mpdf->SetWatermarkImage($logoPath, 0.08, 'F', 'P');
+                        $mpdf->showWatermarkImage = true;
+                    }
+
+                    $mpdf->WriteHTML($html);
+                    $pdfContent = $mpdf->Output('', 'S');
+
+                    // Ensure invoices directory exists
+                    if (!Storage::disk('public')->exists('invoices')) {
+                        Storage::disk('public')->makeDirectory('invoices', 0755, true);
+                    }
+
+                    // Save regenerated PDF
+                    $path = 'invoices/invoice_' . uniqid() . '.pdf';
+                    Storage::disk('public')->put($path, $pdfContent);
+
+                    // Update invoice record
+                    $invoice->pdf_path = $path;
+                    $invoice->save();
+
+                    // Download the regenerated PDF
+                    return response()->download(
+                        storage_path('app/public/' . $path),
+                        'invoice_' . $invoice->invoice_number . '.pdf'
+                    );
+
+                } catch (\Exception $e) {
+                    \Log::error('PDF Regeneration failed for invoice ID ' . $invoice->id . ': ' . $e->getMessage());
+                    return back()->with('error', 'Failed to regenerate PDF: ' . $e->getMessage());
+                }
+            }
+
+            // File exists – download it
+            return response()->download(
+                storage_path('app/public/' . $invoice->pdf_path),
+                'invoice_' . $invoice->invoice_number . '.pdf'
+            );
+
+        } catch (\Exception $e) {
+            \Log::error('Invoice download failed for ID ' . $id . ': ' . $e->getMessage());
+            return back()->with('error', 'Failed to download invoice: ' . $e->getMessage());
         }
-        
-        // File exists – download it
-        return response()->download(
-            storage_path('app/public/' . $invoice->pdf_path),
-            'invoice_' . $invoice->invoice_number . '.pdf'
-        );
-        
-    } catch (\Exception $e) {
-        \Log::error('Invoice download failed for ID ' . $id . ': ' . $e->getMessage());
-        return back()->with('error', 'Failed to download invoice: ' . $e->getMessage());
     }
-}
 
     /**
      * View invoice details.
@@ -220,100 +224,91 @@ public function download($id)
     }
 
     /**
- * List all invoices with advanced search/filter.
- */
-public function index(Request $request)
-{
-    $query = Invoice::with('registration');
+     * List all invoices with advanced search/filter.
+     */
+    public function index(Request $request)
+    {
+        $query = Invoice::with('registration');
 
-    // ===== 1. BASIC SEARCH (Multiple Fields) =====
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function ($q) use ($search) {
-            $q->where('invoice_number', 'LIKE', "%{$search}%")
-              ->orWhereHas('registration', function ($r) use ($search) {
-                  $r->where('hostel_name', 'LIKE', "%{$search}%")
-                    ->orWhere('hostel_name_english', 'LIKE', "%{$search}%")
-                    ->orWhere('registration_number', 'LIKE', "%{$search}%")
-                    ->orWhere('local_registration_number', 'LIKE', "%{$search}%");
-              });
-        });
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_number', 'LIKE', "%{$search}%")
+                  ->orWhereHas('registration', function ($r) use ($search) {
+                      $r->where('hostel_name', 'LIKE', "%{$search}%")
+                        ->orWhere('hostel_name_english', 'LIKE', "%{$search}%")
+                        ->orWhere('registration_number', 'LIKE', "%{$search}%")
+                        ->orWhere('local_registration_number', 'LIKE', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('invoice_type')) {
+            $query->where('invoice_type', $request->invoice_type);
+        }
+
+        if ($request->filled('amount_min')) {
+            $query->where('amount', '>=', $request->amount_min);
+        }
+        if ($request->filled('amount_max')) {
+            $query->where('amount', '<=', $request->amount_max);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('issued_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('issued_date', '<=', $request->date_to);
+        }
+
+        switch ($request->sort) {
+            case 'oldest':
+                $query->oldest();
+                break;
+            case 'amount_asc':
+                $query->orderBy('amount', 'asc');
+                break;
+            case 'amount_desc':
+                $query->orderBy('amount', 'desc');
+                break;
+            case 'status_asc':
+                $query->orderBy('status', 'asc');
+                break;
+            case 'status_desc':
+                $query->orderBy('status', 'desc');
+                break;
+            default:
+                $query->latest();
+                break;
+        }
+
+        $invoices = $query->paginate(15)->appends($request->query());
+
+        $totalInvoices = Invoice::count();
+        $paidCount = Invoice::where('status', 'paid')->count();
+        $pendingCount = Invoice::where('status', 'pending')->count();
+        $overdueCount = Invoice::where('status', 'overdue')->count();
+        $partialCount = Invoice::where('status', 'partial')->count();
+
+        $invoiceTypes = Invoice::select('invoice_type')
+            ->distinct()
+            ->orderBy('invoice_type')
+            ->pluck('invoice_type');
+
+        return view('admin.invoices.index', compact(
+            'invoices',
+            'totalInvoices',
+            'paidCount',
+            'pendingCount',
+            'overdueCount',
+            'partialCount',
+            'invoiceTypes'
+        ));
     }
-
-    // ===== 2. FILTER: Status =====
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
-
-    // ===== 3. FILTER: Invoice Type =====
-    if ($request->filled('invoice_type')) {
-        $query->where('invoice_type', $request->invoice_type);
-    }
-
-    // ===== 4. FILTER: Amount Range =====
-    if ($request->filled('amount_min')) {
-        $query->where('amount', '>=', $request->amount_min);
-    }
-    if ($request->filled('amount_max')) {
-        $query->where('amount', '<=', $request->amount_max);
-    }
-
-    // ===== 5. FILTER: Date Range (Issued Date) =====
-    if ($request->filled('date_from')) {
-        $query->whereDate('issued_date', '>=', $request->date_from);
-    }
-    if ($request->filled('date_to')) {
-        $query->whereDate('issued_date', '<=', $request->date_to);
-    }
-
-    // ===== 6. SORTING =====
-    switch ($request->sort) {
-        case 'oldest':
-            $query->oldest();
-            break;
-        case 'amount_asc':
-            $query->orderBy('amount', 'asc');
-            break;
-        case 'amount_desc':
-            $query->orderBy('amount', 'desc');
-            break;
-        case 'status_asc':
-            $query->orderBy('status', 'asc');
-            break;
-        case 'status_desc':
-            $query->orderBy('status', 'desc');
-            break;
-        default:
-            $query->latest();
-            break;
-    }
-
-    // ===== PAGINATE =====
-    $invoices = $query->paginate(15)->appends($request->query());
-
-    // ===== STATS =====
-    $totalInvoices = Invoice::count();
-    $paidCount = Invoice::where('status', 'paid')->count();
-    $pendingCount = Invoice::where('status', 'pending')->count();
-    $overdueCount = Invoice::where('status', 'overdue')->count();
-    $partialCount = Invoice::where('status', 'partial')->count();
-
-    // ===== DISTINCT INVOICE TYPES FOR DROPDOWN =====
-    $invoiceTypes = Invoice::select('invoice_type')
-        ->distinct()
-        ->orderBy('invoice_type')
-        ->pluck('invoice_type');
-
-    return view('admin.invoices.index', compact(
-        'invoices',
-        'totalInvoices',
-        'paidCount',
-        'pendingCount',
-        'overdueCount',
-        'partialCount',
-        'invoiceTypes'
-    ));
-}
 
     /**
      * Mark invoice as paid.
