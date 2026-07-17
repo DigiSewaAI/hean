@@ -129,7 +129,7 @@ class PublicRegistrationController extends Controller
 
     public function success($id)
     {
-        $registration = Registration::with('documents')->findOrFail($id);
+        $registration = Registration::with('uploadedDocuments')->findOrFail($id);
         return view('public.registration-success', compact('registration'));
     }
 
