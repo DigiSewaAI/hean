@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Mpdf\Mpdf;
 use Mpdf\MpdfException;
+use App\Services\PaymentService;
 
 class ReceiptController extends Controller
 {
@@ -193,19 +194,41 @@ public function index(Request $request)
 }
 
     /**
-     * Download receipt PDF.
-     */
-    public function download(Receipt $receipt)
-    {
-        if (!$receipt->pdf_path || !Storage::disk('public')->exists($receipt->pdf_path)) {
-            abort(404, 'Receipt file not found.');
+ * Download receipt PDF.
+ */
+public function download(Receipt $receipt)
+{
+    // यदि pdf_path छैन वा फाइल अवस्थित छैन भने पुन: जेनरेट गर्ने
+    if (!$receipt->pdf_path || !Storage::disk('public')->exists($receipt->pdf_path)) {
+        try {
+            $payment = $receipt->payment;
+            if (!$payment) {
+                abort(404, 'Payment not found for this receipt.');
+            }
+            
+            // PaymentService प्रयोग गरेर नयाँ receipt generate गर्ने
+            $paymentService = app(\App\Services\PaymentService::class);
+            $newReceipt = $paymentService->generateReceipt($payment);
+            
+            // नयाँ receipt को pdf_path प्रयोग गर्ने
+            if (!$newReceipt->pdf_path || !Storage::disk('public')->exists($newReceipt->pdf_path)) {
+                abort(404, 'Failed to generate receipt PDF.');
+            }
+            
+            $receipt = $newReceipt; // reload
+            
+        } catch (\Exception $e) {
+            \Log::error('Receipt regeneration failed: ' . $e->getMessage());
+            abort(404, 'Receipt file not found and regeneration failed.');
         }
-
-        return response()->download(
-            storage_path('app/public/' . $receipt->pdf_path),
-            'receipt_' . $receipt->receipt_number . '.pdf'
-        );
     }
+
+    // अब डाउनलोड गर्ने
+    return response()->download(
+        storage_path('app/public/' . $receipt->pdf_path),
+        'receipt_' . $receipt->receipt_number . '.pdf'
+    );
+}
 
     /**
      * Generate unique receipt number: RCP-YYYY-XXXXXX
