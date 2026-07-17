@@ -1,40 +1,73 @@
 @php
-    // $type = document type string (e.g., 'pan_certificate')
-    // $docs = collection of documents for that type
-    // $label = human readable label
-    // $icon = FontAwesome icon class
     $hasDoc = $docs->isNotEmpty();
     $firstDoc = $hasDoc ? $docs->first() : null;
     
-    // ✅ 'public/' prefix हटाएर cloud डिस्कबाट URL लिने
+    // Determine which disk to use
+    $disk = 'cloud';
     $cleanPath = $hasDoc ? str_replace('public/', '', $firstDoc->file_path) : null;
+    $fileExists = false;
     
-    // ✅ cloud डिस्क प्रयोग गरेर mimeType, size, URL निकाल्ने
-    $isImage = $hasDoc && in_array(Storage::disk('cloud')->mimeType($cleanPath), ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif']);
-    $isPdf = $hasDoc && Storage::disk('cloud')->mimeType($cleanPath) === 'application/pdf';
-    $fileSize = $hasDoc ? Storage::disk('cloud')->size($cleanPath) : 0;
-    $fileSizeFormatted = $fileSize ? number_format($fileSize / 1024, 1) . ' KB' : null;
+    if ($hasDoc) {
+        // Try cloud first
+        if (Storage::disk('cloud')->exists($cleanPath)) {
+            $disk = 'cloud';
+            $fileExists = true;
+        } elseif (Storage::disk('public')->exists($firstDoc->file_path)) {
+            // Fallback to public (old files)
+            $disk = 'public';
+            $fileExists = true;
+        }
+    }
+    
+    // Get metadata from the correct disk
+    $isImage = false;
+    $isPdf = false;
+    $fileSize = 0;
+    $fileSizeFormatted = null;
+    $fileUrl = null;
     $uploadDate = $firstDoc ? $firstDoc->created_at->format('M d, Y') : null;
     
-    // ✅ cloud डिस्कबाट URL
-    $fileUrl = $hasDoc ? Storage::disk('cloud')->url($cleanPath) : null;
+    if ($fileExists) {
+        try {
+            $mimeType = Storage::disk($disk)->mimeType($disk === 'cloud' ? $cleanPath : $firstDoc->file_path);
+            $isImage = in_array($mimeType, ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif']);
+            $isPdf = $mimeType === 'application/pdf';
+            $fileSize = Storage::disk($disk)->size($disk === 'cloud' ? $cleanPath : $firstDoc->file_path);
+            $fileSizeFormatted = number_format($fileSize / 1024, 1) . ' KB';
+            
+            // Generate URL based on disk
+            if ($disk === 'cloud') {
+                $fileUrl = Storage::disk('cloud')->url($cleanPath);
+            } else {
+                $fileUrl = asset('storage/' . $firstDoc->file_path);
+            }
+        } catch (\Exception $e) {
+            // If error, treat as missing
+            $fileExists = false;
+            $fileUrl = null;
+        }
+    }
+    
     $downloadUrl = $hasDoc ? route('admin.documents.download', $firstDoc->id) : null;
     $fileTypeForModal = $isImage ? 'image' : ($isPdf ? 'pdf' : 'other');
 @endphp
 
 <div style="background:#f8fafc; border-radius:8px; padding:14px 16px; border:1px solid #e2e8f0; display:flex; align-items:center; gap:14px; transition:0.2s;">
     {{-- Icon --}}
-    <div style="width:40px; height:40px; background:{{ $hasDoc ? '#e2e8f0' : '#f1f5f9' }}; border-radius:8px; display:flex; align-items:center; justify-content:center; color:{{ $hasDoc ? '#0EA5E9' : '#94a3b8' }}; font-size:1.2rem;">
+    <div style="width:40px; height:40px; background:{{ $fileExists ? '#e2e8f0' : '#f1f5f9' }}; border-radius:8px; display:flex; align-items:center; justify-content:center; color:{{ $fileExists ? '#0EA5E9' : '#94a3b8' }}; font-size:1.2rem;">
         <i class="fas {{ $icon }}"></i>
     </div>
     {{-- Info --}}
     <div style="flex:1; min-width:0;">
         <div style="font-weight:600; color:#0f172a; font-size:0.85rem;">{{ $label }}</div>
-        @if($hasDoc)
+        @if($fileExists)
             <div style="display:flex; gap:12px; font-size:0.7rem; color:#64748b; margin-top:2px; flex-wrap:wrap;">
                 <span>{{ $docs->count() }} file(s)</span>
                 @if($fileSizeFormatted) <span>{{ $fileSizeFormatted }}</span> @endif
                 @if($uploadDate) <span>{{ $uploadDate }}</span> @endif
+                @if($disk === 'public') 
+                    <span style="color:#f59e0b; background:#fef3c7; padding:0 6px; border-radius:4px; font-size:0.6rem;">Legacy</span>
+                @endif
             </div>
         @else
             <div style="font-size:0.7rem; color:#94a3b8; margin-top:2px;">
@@ -44,7 +77,7 @@
     </div>
     {{-- Actions --}}
     <div style="display:flex; gap:6px; flex-shrink:0;">
-        @if($hasDoc)
+        @if($fileExists)
             @if($isImage || $isPdf)
                 <button type="button" class="btn btn-sm btn-outline-primary" style="padding:4px 10px; font-size:0.7rem; border-radius:6px;"
                         data-bs-toggle="modal" data-bs-target="#docPreviewModal"

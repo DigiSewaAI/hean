@@ -560,16 +560,18 @@ $path = $file->store('documents/' . $registration->id, 'cloud');
 {
     $document = Document::findOrFail($id);
 
-    // ✅ 'public/' prefix हटाउने
+    // Try cloud first
     $cleanPath = str_replace('public/', '', $document->file_path);
-
-    // ✅ cloud डिस्कमा file छ कि check
-    if (!Storage::disk('cloud')->exists($cleanPath)) {
-        abort(404, 'File not found in cloud storage.');
+    if (Storage::disk('cloud')->exists($cleanPath)) {
+        return Storage::disk('cloud')->download($cleanPath);
     }
 
-    // ✅ cloud डिस्कबाट download
-    return Storage::disk('cloud')->download($cleanPath);
+    // Fallback to public disk (old files)
+    if (Storage::disk('public')->exists($document->file_path)) {
+        return Storage::disk('public')->download($document->file_path);
+    }
+
+    abort(404, 'File not found.');
 }
 
     /**
