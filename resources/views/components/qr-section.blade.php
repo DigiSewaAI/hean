@@ -24,7 +24,7 @@
                     <span style="color:#94a3b8; font-weight:600;">{{ __('messages.or') }}</span>
 
                     {{-- Direct Registration Button --}}
-                    <a href="{{ route('register') }}" 
+                    <a href="{{ route('register.hostel') }}" 
                        class="btn btn-primary" 
                        style="background:#0EA5E9; color:#fff; padding:14px 34px; border-radius:50px; font-weight:600; text-decoration:none; display:inline-block; transition:0.3s; box-shadow:0 4px 15px rgba(14,165,233,0.3);">
                         <i class="fas fa-pen me-2"></i> {{ __('messages.register_direct') }}
