@@ -134,27 +134,8 @@
             </div>
         </div>
 
-        {{-- ===== ✅ QR CODE SECTION – सही ठाउँमा ===== --}}
-        <div style="text-align:center; margin-top:60px; padding:40px 30px; background:#f8fafc; border-radius:16px; border:2px dashed #0EA5E9;">
-            <div style="display:inline-block; background:#0EA5E9; color:#fff; padding:6px 20px; border-radius:50px; font-size:0.85rem; font-weight:600; margin-bottom:15px;">
-                <i class="fas fa-qrcode me-2"></i> {{ __('messages.qr_about_badge') }}
-            </div>
-            <h4 style="font-weight:700; color:#0f172a; margin-bottom:10px;">
-                {{ __('messages.qr_about_heading') }}
-            </h4>
-            <p style="color:#64748b; font-size:0.95rem; max-width:400px; margin:0 auto 20px;">
-                {{ __('messages.qr_about_desc') }}
-            </p>
-            <div style="display:inline-block; background:#fff; padding:15px; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
-                <img src="{{ asset('images/qrcode.png') }}" alt="QR Code for Registration" style="width:180px; height:180px; display:block; margin:0 auto;">
-            </div>
-            <p style="color:#94a3b8; font-size:0.8rem; margin-top:12px;">
-                <i class="fas fa-camera me-1"></i> {{ __('messages.qr_about_after') }}
-            </p>
-        </div>
-
-    </div>
-</section>
+        {{-- ===== QR CODE SECTION ===== --}}
+<x-qr-section />
 
 <!-- ===== CTA – बटन परिवर्तन गरियो ===== -->
 <section style="padding:60px 0; background:linear-gradient(135deg, #0EA5E9, #10B981); color:#fff; text-align:center;">

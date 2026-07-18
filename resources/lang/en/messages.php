@@ -1339,5 +1339,7 @@ return [
 'photos' => 'photos',
 'home' => 'Home',
 'dashboard' => 'Dashboard',
+'register_direct' => 'Register via Form',
+'or' => 'OR',
 
 ];
