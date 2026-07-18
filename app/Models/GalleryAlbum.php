@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class GalleryAlbum extends Model
@@ -22,7 +23,6 @@ class GalleryAlbum extends Model
         'event_date' => 'date',
     ];
 
-    // Auto-generate slug from name
     public static function boot()
     {
         parent::boot();
@@ -35,16 +35,14 @@ class GalleryAlbum extends Model
 
     public function images()
     {
-        return $this->hasMany(GalleryImage::class);
+        return $this->hasMany(GalleryImage::class, 'album_id'); // ← महत्त्वपूर्ण
     }
 
-    // Get published images
     public function publishedImages()
     {
         return $this->images()->where('is_published', true);
     }
 
-    // Get cover image URL (fallback to first image if not set)
     public function getCoverUrlAttribute()
     {
         if ($this->cover_image) {
@@ -54,7 +52,6 @@ class GalleryAlbum extends Model
         return $first ? Storage::disk('cloud')->url($first->image) : asset('images/placeholder.jpg');
     }
 
-    // Count of published images
     public function getPhotoCountAttribute()
     {
         return $this->publishedImages()->count();

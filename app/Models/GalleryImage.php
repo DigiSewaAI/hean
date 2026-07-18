@@ -10,8 +10,7 @@ class GalleryImage extends Model
         'title',
         'image',
         'is_published',
-        'album_id',
-        // 'event_name' removed
+        'album_id', // ← यो रहनुपर्छ
     ];
 
     protected $casts = [
@@ -20,6 +19,6 @@ class GalleryImage extends Model
 
     public function album()
     {
-        return $this->belongsTo(GalleryAlbum::class);
+        return $this->belongsTo(GalleryAlbum::class, 'album_id'); // ← महत्त्वपूर्ण
     }
 }
