@@ -331,6 +331,9 @@
                 text-align: center;
             }
         }
+        main {
+    padding-top: 200px !important;
+}
     </style>
 </head>
 <body>
