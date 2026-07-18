@@ -33,18 +33,18 @@
                 <i class="fas fa-image me-2"></i> {{ __('messages.image_upload') }}
             </h4>
             <div class="form-group">
-                <label for="image" style="font-weight:600; color:#1e293b; margin-bottom:6px; display:block;">
-                    {{ __('messages.image') }} <span style="color:#dc2626;">*</span>
+<label for="images" style="font-weight:600; color:#1e293b; margin-bottom:6px; display:block;">                    {{ __('messages.image') }} <span style="color:#dc2626;">*</span>
                 </label>
-                <input type="file" name="image" id="image" accept=".jpg,.jpeg,.png,.webp" required
-                       style="width:100%; padding:10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
-                <small style="color:#64748b; font-size:0.75rem; display:block; margin-top:4px;">
-                    <i class="fas fa-info-circle"></i> 
-                    {{ __('messages.allowed_formats') }}
-                </small>
-                @error('image')
-                    <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
-                @enderror
+                <input type="file" name="images[]" id="images" accept=".jpg,.jpeg,.png,.webp" multiple required
+       style="width:100%; padding:10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                    <small style="color:#64748b; font-size:0.75rem; display:block; margin-top:4px;">
+    <i class="fas fa-info-circle"></i> 
+    {{ __('messages.allowed_formats') }}
+</small>
+
+                @error('images.*')
+    <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
+@enderror
             </div>
         </div>
 
@@ -65,6 +65,18 @@
                 @enderror
             </div>
         </div>
+
+        <div class="form-group">
+    <label for="event_name" style="font-weight:600; color:#1e293b; margin-bottom:6px; display:block;">
+        {{ __('messages.event_name') }}
+    </label>
+    <input type="text" name="event_name" id="event_name" value="{{ old('event_name') }}"
+           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.2s;"
+           placeholder="e.g. HEAN Summit 2025 – Group Photos">
+    @error('event_name')
+        <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
+    @enderror
+</div>
 
         {{-- ===== Publish Status ===== --}}
         <div style="background:#f8fafc; padding:20px; border-radius:12px; margin-bottom:24px; border-left:4px solid #10B981;">

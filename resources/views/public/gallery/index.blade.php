@@ -40,7 +40,7 @@
     </div>
 </section>
 
-{{-- ===== GALLERY GRID ===== --}}
+{{-- ===== GALLERY GRID GROUPED BY EVENT ===== --}}
 <section style="padding:60px 0; background:#ffffff;">
     <div class="container">
 
@@ -56,32 +56,54 @@
             </div>
         </div>
 
-        {{-- Gallery Grid --}}
-        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); gap:20px;">
-            @forelse($images as $image)
-            <div class="gallery-item" 
-                 style="border-radius:16px; overflow:hidden; position:relative; aspect-ratio:1/1; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.04); transition:transform 0.3s, box-shadow 0.3s;"
-                 onclick="openLightbox('{{ Storage::url($image->image) }}', '{{ $image->title ?? __('messages.gallery_image') }}', '{{ $loop->index }}')">
-                
-                <img src="{{ Storage::url($image->image) }}" 
-                     alt="{{ $image->title ?? __('messages.gallery') }}" 
-                     style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s;">
-                
-                {{-- Overlay --}}
-                <div style="position:absolute; inset:0; background:rgba(15,23,42,0.3); opacity:0; transition:opacity 0.3s; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#fff;">
-                    <i class="fas fa-search-plus" style="font-size:2rem; margin-bottom:8px;"></i>
-                    @if($image->title)
-                        <span style="font-size:0.9rem; font-weight:500; text-shadow:0 2px 10px rgba(0,0,0,0.3);">{{ $image->title }}</span>
-                    @endif
+        {{-- Grouped Gallery --}}
+        @php
+            $grouped = $images->groupBy('event_name');
+            $flatImages = [];
+            foreach ($grouped as $eventName => $eventImages) {
+                foreach ($eventImages as $image) {
+                    $flatImages[] = $image;
+                }
+            }
+        @endphp
+
+        @forelse($grouped as $eventName => $eventImages)
+            <div class="event-group" style="margin-bottom:50px;">
+                <h3 style="font-size:1.8rem; font-weight:700; color:#0f172a; margin-bottom:20px; border-left:4px solid #0EA5E9; padding-left:15px; letter-spacing:0.02em;">
+                    {{ $eventName ?? __('messages.uncategorized') }}
+                    <span style="font-size:0.9rem; font-weight:400; color:#94a3b8; margin-left:10px;">({{ $eventImages->count() }} {{ __('messages.photos') }})</span>
+                </h3>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); gap:20px;">
+                    @foreach($eventImages as $image)
+                        <div class="gallery-item" 
+                             style="border-radius:16px; overflow:hidden; position:relative; aspect-ratio:1/1; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.04); transition:transform 0.3s, box-shadow 0.3s;"
+                             data-image-index="{{ $loop->parent->index * 1000 + $loop->index }}" 
+                             onclick="openLightboxByIndex({{ $loop->parent->index * 1000 + $loop->index }})">
+                            
+                            <img src="{{ Storage::url($image->image) }}" 
+                                 alt="{{ $image->title ?? $eventName ?? __('messages.gallery') }}" 
+                                 style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s;">
+                            
+                            {{-- Overlay --}}
+                            <div class="overlay" style="position:absolute; inset:0; background:rgba(15,23,42,0.3); opacity:0; transition:opacity 0.3s; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#fff;">
+                                <i class="fas fa-search-plus" style="font-size:2rem; margin-bottom:8px;"></i>
+                                @if($image->title)
+                                    <span style="font-size:0.9rem; font-weight:500; text-shadow:0 2px 10px rgba(0,0,0,0.3);">{{ $image->title }}</span>
+                                @elseif($eventName)
+                                    <span style="font-size:0.9rem; font-weight:500; text-shadow:0 2px 10px rgba(0,0,0,0.3);">{{ $eventName }}</span>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
-            @empty
+        @empty
             <div style="grid-column:1/-1; text-align:center; padding:60px 20px; background:#f8fafc; border-radius:20px;">
                 <i class="fas fa-images" style="font-size:3rem; color:#cbd5e1; display:block; margin-bottom:15px;"></i>
                 <p style="color:#94a3b8; font-size:1.1rem;">{{ __('messages.gallery_empty') }}</p>
             </div>
-            @endforelse
-        </div>
+        @endforelse
 
         {{-- Pagination --}}
         <div class="pagination-wrapper" style="margin-top:40px; display:flex; justify-content:center;">
@@ -120,40 +142,30 @@
 
 @push('styles')
 <style>
-    /* Gallery Item Hover */
     .gallery-item:hover {
         transform: translateY(-6px);
         box-shadow: 0 12px 35px rgba(0,0,0,0.1) !important;
     }
-
     .gallery-item:hover img {
         transform: scale(1.08);
     }
-
     .gallery-item:hover .overlay {
         opacity: 1 !important;
     }
-
     .gallery-item img {
         transition: transform 0.4s ease;
     }
-
-    /* Lightbox animations */
     #lightbox {
         animation: fadeIn 0.3s ease;
     }
-
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
     }
-
     #lightbox button:hover {
         background: rgba(255,255,255,0.2) !important;
         transform: scale(1.1);
     }
-
-    /* Pagination Styling */
     .pagination-wrapper .pagination {
         display: flex;
         gap: 6px;
@@ -163,7 +175,6 @@
         flex-wrap: wrap;
         justify-content: center;
     }
-
     .pagination-wrapper .pagination .page-item .page-link {
         padding: 8px 16px;
         border: 1.5px solid #e2e8f0;
@@ -175,45 +186,64 @@
         font-size: 0.9rem;
         background: #fff;
     }
-
     .pagination-wrapper .pagination .page-item .page-link:hover {
         background: #f1f5f9;
         border-color: #0EA5E9;
     }
-
     .pagination-wrapper .pagination .page-item.active .page-link {
         background: linear-gradient(135deg, #0EA5E9, #3B82F6);
         border-color: #0EA5E9;
         color: #fff;
     }
-
     .pagination-wrapper .pagination .page-item.disabled .page-link {
         opacity: 0.5;
         cursor: not-allowed;
+    }
+    .event-group {
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 30px;
+    }
+    .event-group:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
     }
 </style>
 @endpush
 
 @push('scripts')
 <script>
-    // ===== LIGHTBOX FUNCTIONALITY =====
+    // ===== LIGHTBOX USING FLAT ORDER =====
     let lightboxImages = [];
     let lightboxTitles = [];
-    let currentIndex = 0;
 
-    // Collect all image data
-    @foreach($images as $image)
-        lightboxImages.push("{{ Storage::url($image->image) }}");
-        lightboxTitles.push("{{ $image->title ?? __('messages.gallery_image') }}");
+    @php
+        $flatImages = [];
+        foreach ($grouped as $eventName => $eventImages) {
+            foreach ($eventImages as $image) {
+                $flatImages[] = [
+                    'url' => Storage::url($image->image),
+                    'title' => $image->title ?? $eventName ?? __('messages.gallery_image')
+                ];
+            }
+        }
+    @endphp
+
+    @foreach($flatImages as $item)
+        lightboxImages.push("{{ $item['url'] }}");
+        lightboxTitles.push("{{ $item['title'] }}");
     @endforeach
 
-    function openLightbox(src, title, index) {
-        currentIndex = index;
-        document.getElementById('lightbox-img').src = src;
-        document.getElementById('lightbox-title').textContent = title;
-        document.getElementById('lightbox').style.display = 'flex';
-        document.getElementById('lightbox-counter').textContent = (currentIndex + 1) + ' / ' + lightboxImages.length;
-        document.body.style.overflow = 'hidden';
+    let currentIndex = 0;
+
+    function openLightboxByIndex(index) {
+        if (index >= 0 && index < lightboxImages.length) {
+            currentIndex = index;
+            document.getElementById('lightbox-img').src = lightboxImages[currentIndex];
+            document.getElementById('lightbox-title').textContent = lightboxTitles[currentIndex];
+            document.getElementById('lightbox').style.display = 'flex';
+            document.getElementById('lightbox-counter').textContent = (currentIndex + 1) + ' / ' + lightboxImages.length;
+            document.body.style.overflow = 'hidden';
+        }
     }
 
     function closeLightbox() {
@@ -239,24 +269,14 @@
         }
     }
 
-    // Close lightbox on Escape key
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeLightbox();
-        }
-        if (e.key === 'ArrowLeft') {
-            prevImage();
-        }
-        if (e.key === 'ArrowRight') {
-            nextImage();
-        }
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') prevImage();
+        if (e.key === 'ArrowRight') nextImage();
     });
 
-    // Close lightbox on click outside the image
     document.getElementById('lightbox').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeLightbox();
-        }
+        if (e.target === this) closeLightbox();
     });
 </script>
 @endpush

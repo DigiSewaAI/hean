@@ -21,27 +21,31 @@ class GalleryController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'nullable|string',
-            'image' => 'required|image|max:4096',
-            'is_published' => 'boolean',
-        ]);
+{
+    $request->validate([
+        'images.*' => 'required|image|max:4096',
+        'event_name' => 'nullable|string|max:255',
+        'is_published' => 'boolean',
+    ]);
 
-        $data = [
-            'title' => $request->title,
-            'is_published' => $request->boolean('is_published', true),
-        ];
+    $eventName = $request->event_name;
+    $isPublished = $request->boolean('is_published', true);
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('gallery', 'cloud');
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $image) {
+            $path = $image->store('gallery', 'cloud');
+            GalleryImage::create([
+                'image' => $path,
+                'title' => null, // optional individual title
+                'event_name' => $eventName,
+                'is_published' => $isPublished,
+            ]);
         }
-
-        GalleryImage::create($data);
-
-        return redirect()->route('admin.gallery.index')
-                         ->with('success', 'छवि थपियो।');
     }
+
+    return redirect()->route('admin.gallery.index')
+                     ->with('success', 'छविहरू थपियो।');
+}
 
     public function edit(GalleryImage $gallery)
     {

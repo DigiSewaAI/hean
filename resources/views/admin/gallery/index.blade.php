@@ -15,7 +15,14 @@
     <div style="background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.04);">
 <img src="{{ Storage::url($image->image) }}" style="width:100%; height:150px; object-fit:cover;">
         <div style="padding:12px;">
-            <p style="font-weight:600; color:#0f172a; margin-bottom:4px; font-size:0.9rem;">{{ $image->title ?? __('messages.untitled') }}</p>
+<p style="font-weight:600; color:#0f172a; margin-bottom:4px; font-size:0.9rem;">
+    {{ $image->title ?? $image->event_name ?? __('messages.untitled') }}
+</p>
+@if($image->event_name && !$image->title)
+    <span style="font-size:0.7rem; color:#0EA5E9; background:rgba(14,165,233,0.1); padding:2px 8px; border-radius:4px;">
+        {{ $image->event_name }}
+    </span>
+@endif
             <div style="display:flex; gap:8px;">
                 <a href="{{ route('admin.gallery.edit', $image) }}" class="btn-action btn-primary-sm" style="background:#0EA5E9; color:#fff; padding:4px 12px; border-radius:6px; text-decoration:none; font-size:0.7rem; display:inline-block;">{{ __('messages.edit') }}</a>
                 <form action="{{ route('admin.gallery.destroy', $image) }}" method="POST" style="display:inline;">
