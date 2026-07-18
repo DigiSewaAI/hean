@@ -1337,4 +1337,7 @@ return [
 'invoice_type_student_admission_form' => 'Student Admission Form',
 'invoice_type_code_of_conduct_board' => 'Code of Conduct Board',
 'photos' => 'photos',
+'home' => 'Home',
+'dashboard' => 'Dashboard',
+
 ];
