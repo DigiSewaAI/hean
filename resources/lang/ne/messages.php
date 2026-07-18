@@ -1361,4 +1361,5 @@ return [
 'invoice_type_leave_form' => 'बिदा फारम',
 'invoice_type_student_admission_form' => 'विद्यार्थी भर्ना फारम',
 'invoice_type_code_of_conduct_board' => 'आचार संहिता बोर्ड',
+'photos' => 'फोटोहरू',
 ];
