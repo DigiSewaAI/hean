@@ -96,8 +96,7 @@
             </div>
             <div style="padding:20px; text-align:center;">
                 @if($hostel->image)
-                    <img src="{{ asset('storage/'.$hostel->image) }}" alt="{{ $hostel->name_nepali }}" style="max-width:100%; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08);">
-                @else
+<img src="{{ Storage::url($hostel->image) }}" alt="{{ $hostel->name_nepali }}" style="max-width:100%; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08);">                @else
                     <div style="padding:30px;">
                         <i class="fas fa-image" style="font-size:3rem; color:#cbd5e1;"></i>
                         <p style="color:#94a3b8; margin-top:8px;">{{ __('messages.no_image') }}</p>
