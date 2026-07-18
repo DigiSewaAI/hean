@@ -331,13 +331,21 @@
                 text-align: center;
             }
         }
-        main {
-    padding-top: 200px !important;
+ :root {
+    --navbar-height: 80px; /* पछि JS ले यसलाई ओभरराइड गर्छ */
 }
+
+main {
+    padding-top: var(--navbar-height);
+}
+
+/* गृहपृष्ठमा प्याडिङ नदिने */
+body.homepage main {
+    padding-top: 0;
+}       
     </style>
 </head>
-<body>
-
+<body class="@yield('bodyClass')">
     <!-- Preloader -->
     <div id="preloader">
         <div class="spinner"></div>
@@ -540,5 +548,18 @@ function toggleMobileMenu() {
             }
         });
     </script>
+    <script>
+    (function() {
+        function setNavbarHeight() {
+            const navbar = document.querySelector('.navbar');
+            if (!navbar) return;
+            const height = navbar.offsetHeight;
+            document.documentElement.style.setProperty('--navbar-height', height + 'px');
+        }
+
+        document.addEventListener('DOMContentLoaded', setNavbarHeight);
+        window.addEventListener('resize', setNavbarHeight);
+    })();
+</script>
 </body>
 </html>
