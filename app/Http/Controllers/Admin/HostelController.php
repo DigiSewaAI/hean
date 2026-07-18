@@ -172,42 +172,42 @@ class HostelController extends Controller
      * ✅ registration_number बाहेक सबै अपडेट गरिन्छ (immutable)
      */
     public function update(Request $request, Hostel $hostel)
-    {
-        $data = $request->validate([
-            'name_nepali' => 'required|string',
-            'name_english' => 'nullable|string',
-            'type' => 'required|in:boys,girls,co-ed',
-            'capacity' => 'required|integer|min:0',
-            'rooms' => 'required|integer|min:0', 
-            'operator_name' => 'required|string',
-            'district' => 'required|string',
-            'municipality' => 'required|string',
-            'ward' => 'required|string',
-            'street' => 'nullable|string',
-            'contact' => 'required|string',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
-            'approved' => 'boolean',
-            'featured' => 'boolean',
-            'visible' => 'boolean',
-            'local_registration_number' => 'nullable|string|max:100',
+{
+    $data = $request->validate([
+        'name_nepali' => 'required|string',
+        'name_english' => 'nullable|string',
+        'type' => 'required|in:boys,girls,co-ed',
+        'capacity' => 'required|integer|min:0',
+        'rooms' => 'required|integer|min:0', 
+        'operator_name' => 'required|string',
+        'district' => 'required|string',
+        'municipality' => 'required|string',
+        'ward' => 'required|string',
+        'street' => 'nullable|string',
+        'contact' => 'required|string',
+        'description' => 'nullable|string',
+        'image' => 'nullable|image|max:2048',
+        'approved' => 'boolean',
+        'featured' => 'boolean',
+        'visible' => 'boolean',
+        'local_registration_number' => 'nullable|string|max:100',
+    ]);
 
-        ]);
-
-        // Image handle
-        if ($request->hasFile('image')) {
-            if ($hostel->image) {
-                Storage::disk('public')->delete($hostel->image);
-            }
-            $data['image'] = $request->file('image')->store('hostels', 'cloud');
+    // Image handle
+    if ($request->hasFile('image')) {
+        // ✅ पुरानो image cloud बाट delete गर्नुहोस् (public होइन)
+        if ($hostel->image && Storage::disk('cloud')->exists($hostel->image)) {
+            Storage::disk('cloud')->delete($hostel->image);
         }
-
-        // ✅ registration_number बाहेक update गर्ने (सुरक्षाका लागि)
-        $hostel->update($request->except(['registration_number', '_token', '_method']));
-
-        return redirect()->route('admin.hostels.index')
-                         ->with('success', 'होस्टेल अद्यावधिक गरियो।');
+        $data['image'] = $request->file('image')->store('hostels', 'cloud');
     }
+
+    // ✅ $data प्रयोग गरेर update गर्नुहोस् (registration_number बाहेक)
+    $hostel->update($data);
+
+    return redirect()->route('admin.hostels.index')
+                     ->with('success', 'होस्टेल अद्यावधिक गरियो।');
+}
 
     public function destroy(Hostel $hostel)
     {
