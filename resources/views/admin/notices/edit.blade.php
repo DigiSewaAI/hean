@@ -51,8 +51,7 @@
             <label for="image">{{ __('messages.image') }}</label>
             @if($notice->image)
                 <div style="margin-bottom:10px;">
-                    <img src="{{ asset('storage/'.$notice->image) }}" alt="{{ $notice->title }}" style="height:100px; border-radius:8px; object-fit:cover;">
-                </div>
+<img src="{{ Storage::url($notice->image) }}" alt="{{ $notice->title }}" style="height:100px; border-radius:8px; object-fit:cover;">                </div>
             @endif
             <input type="file" name="image" id="image" accept="image/*">
             <small style="color:#64748b; display:block; margin-top:4px;">{{ __('messages.upload_new_image_optional') }}</small>

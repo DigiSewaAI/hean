@@ -60,8 +60,7 @@
                 {{-- Image (if any) --}}
                 @if($notice->image)
                     <div style="margin-bottom:25px; border-radius:16px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.06);">
-                        <img src="{{ asset('storage/'.$notice->image) }}" alt="{{ $notice->title }}" style="width:100%; max-height:400px; object-fit:cover;">
-                    </div>
+<img src="{{ Storage::url($notice->image) }}" alt="{{ $notice->title }}" style="width:100%; max-height:400px; object-fit:cover;">                    </div>
                 @endif
 
                 {{-- Content --}}

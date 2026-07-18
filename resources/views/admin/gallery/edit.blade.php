@@ -34,8 +34,8 @@
                 <i class="fas fa-image me-2"></i> {{ __('messages.current_image') }}
             </h4>
             <div style="text-align:center; margin-bottom:10px;">
-                <img src="{{ asset('storage/'.$gallery->image) }}" alt="{{ $gallery->title }}" 
-                     style="max-width:300px; max-height:300px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08);">
+                <img src="{{ Storage::url($gallery->image) }}" alt="{{ $gallery->title }}" 
+     style="max-width:300px; max-height:300px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08);">
             </div>
             <div class="form-group">
                 <label for="image" style="font-weight:600; color:#1e293b; margin-bottom:6px; display:block;">

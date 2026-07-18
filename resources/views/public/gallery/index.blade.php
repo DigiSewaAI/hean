@@ -61,9 +61,9 @@
             @forelse($images as $image)
             <div class="gallery-item" 
                  style="border-radius:16px; overflow:hidden; position:relative; aspect-ratio:1/1; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.04); transition:transform 0.3s, box-shadow 0.3s;"
-                 onclick="openLightbox('{{ asset('storage/'.$image->image) }}', '{{ $image->title ?? __('messages.gallery_image') }}', '{{ $loop->index }}')">
+                 onclick="openLightbox('{{ Storage::url($image->image) }}', '{{ $image->title ?? __('messages.gallery_image') }}', '{{ $loop->index }}')">
                 
-                <img src="{{ asset('storage/'.$image->image) }}" 
+                <img src="{{ Storage::url($image->image) }}" 
                      alt="{{ $image->title ?? __('messages.gallery') }}" 
                      style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s;">
                 
@@ -203,7 +203,7 @@
 
     // Collect all image data
     @foreach($images as $image)
-        lightboxImages.push("{{ asset('storage/'.$image->image) }}");
+        lightboxImages.push("{{ Storage::url($image->image) }}");
         lightboxTitles.push("{{ $image->title ?? __('messages.gallery_image') }}");
     @endforeach
 

@@ -33,7 +33,7 @@ class NoticeController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('notices', 'public');
+            $data['image'] = $request->file('image')->store('notices', 'cloud');
         }
 
         Notice::create($data);
@@ -61,9 +61,9 @@ class NoticeController extends Controller
 
         if ($request->hasFile('image')) {
             if ($notice->image) {
-                Storage::disk('public')->delete($notice->image);
-            }
-            $data['image'] = $request->file('image')->store('notices', 'public');
+    Storage::disk('cloud')->delete($notice->image);
+}
+$data['image'] = $request->file('image')->store('notices', 'cloud');
         }
 
         $notice->update($data);
@@ -75,7 +75,7 @@ class NoticeController extends Controller
     public function destroy(Notice $notice)
     {
         if ($notice->image) {
-            Storage::disk('public')->delete($notice->image);
+            Storage::disk('cloud')->delete($notice->image);
         }
         $notice->delete();
         return back()->with('success', 'सूचना हटाइयो।');

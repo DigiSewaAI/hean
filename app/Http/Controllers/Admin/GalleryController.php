@@ -34,7 +34,7 @@ class GalleryController extends Controller
         ];
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('gallery', 'public');
+            $data['image'] = $request->file('image')->store('gallery', 'cloud');
         }
 
         GalleryImage::create($data);
@@ -63,9 +63,9 @@ class GalleryController extends Controller
 
         if ($request->hasFile('image')) {
             if ($gallery->image) {
-                Storage::disk('public')->delete($gallery->image);
-            }
-            $data['image'] = $request->file('image')->store('gallery', 'public');
+    Storage::disk('cloud')->delete($gallery->image);
+}
+$data['image'] = $request->file('image')->store('gallery', 'cloud');
         }
 
         $gallery->update($data);
@@ -77,7 +77,7 @@ class GalleryController extends Controller
     public function destroy(GalleryImage $gallery)
     {
         if ($gallery->image) {
-            Storage::disk('public')->delete($gallery->image);
+            Storage::disk('cloud')->delete($gallery->image);
         }
         $gallery->delete();
         return back()->with('success', 'छवि हटाइयो।');

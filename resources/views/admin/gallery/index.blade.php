@@ -13,7 +13,7 @@
 <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:20px;">
     @forelse($images as $image)
     <div style="background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.04);">
-        <img src="{{ asset('storage/'.$image->image) }}" style="width:100%; height:150px; object-fit:cover;">
+<img src="{{ Storage::url($image->image) }}" style="width:100%; height:150px; object-fit:cover;">
         <div style="padding:12px;">
             <p style="font-weight:600; color:#0f172a; margin-bottom:4px; font-size:0.9rem;">{{ $image->title ?? __('messages.untitled') }}</p>
             <div style="display:flex; gap:8px;">
