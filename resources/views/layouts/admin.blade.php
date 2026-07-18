@@ -230,15 +230,24 @@
     {{-- ===== MAIN CONTENT ===== --}}
     <div class="main-content" style="overflow-x: hidden; width: 100%;">
         <div class="topbar">
-            <div class="left-section">
-                <div class="page-title">@yield('title')</div>
-                <div class="language-switcher">
-                    <a href="{{ route('lang.switch', 'en') }}" style="color:{{ session('locale') == 'en' ? '#0EA5E9' : '#64748b' }};">EN</a>
-                    <span class="divider">|</span>
-                    <a href="{{ route('lang.switch', 'ne') }}" style="color:{{ session('locale') == 'ne' ? '#0EA5E9' : '#64748b' }};">नेपाली</a>
-                </div>
-            </div>
-            <div class="user-info">
+    <div class="left-section">
+        <div class="page-title">@yield('title')</div>
+
+        {{-- ✅ Home Button --}}
+        <a href="{{ route('home') }}" 
+           class="btn btn-home" 
+           style="background:#0EA5E9; color:#fff; padding:4px 14px; border-radius:50px; text-decoration:none; font-size:0.8rem; display:inline-flex; align-items:center; gap:6px; transition:0.3s; margin-left:12px;">
+            <i class="fas fa-home"></i> 
+            <span>Home</span>
+        </a>
+
+        <div class="language-switcher">
+            <a href="{{ route('lang.switch', 'en') }}" style="color:{{ session('locale') == 'en' ? '#0EA5E9' : '#64748b' }};">EN</a>
+            <span class="divider">|</span>
+            <a href="{{ route('lang.switch', 'ne') }}" style="color:{{ session('locale') == 'ne' ? '#0EA5E9' : '#64748b' }};">नेपाली</a>
+        </div>
+    </div>
+    <div class="user-info">
                 <span class="name">{{ auth()->user()->name }}</span>
                 <span class="role">{{ ucfirst(auth()->user()->role) }}</span>
                 <div class="avatar">{{ substr(auth()->user()->name, 0, 1) }}</div>
