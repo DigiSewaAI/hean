@@ -431,7 +431,7 @@
     'registration_certificate' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],  // ✅ सही
     'municipality' => ['label' => 'Municipality Certificate', 'icon' => 'fa-certificate'],
     'signboard' => ['label' => __('messages.signboard_building_image'), 'icon' => 'fa-image'],
-    'photos' => ['label' => 'होस्टेल तस्बिरहरू', 'icon' => 'fa-images'],
+    'photos' => ['label' => 'होस्टल तस्बिरहरू', 'icon' => 'fa-images'],
     'additional' => ['label' => 'Additional Documents', 'icon' => 'fa-paperclip'],
 ];
         @endphp

@@ -17,7 +17,7 @@
         @csrf
         <input type="hidden" name="registration_id" value="{{ $registration->id }}">
 
-        {{-- होस्टेल र निरीक्षक जानकारी --}}
+        {{-- होस्टल र निरीक्षक जानकारी --}}
         <div style="background:#f8fafc; padding:16px 20px; border-radius:12px; margin-bottom:24px; border-left:4px solid #8B5CF6; display:flex; flex-wrap:wrap; gap:24px;">
             <div><strong>{{ __('messages.hostel') }}:</strong> {{ $registration->hostel_name }} ({{ $registration->district ?? __('messages.not_available') }}{{ $registration->ward ? '–'.$registration->ward : '' }})</div>
             <div><strong>{{ __('messages.inspector') }}:</strong> {{ auth()->user()->name ?? __('messages.not_available') }}</div>

@@ -159,7 +159,7 @@ class HostelController extends Controller
         Hostel::create($data);
 
         return redirect()->route('admin.hostels.index')
-                         ->with('success', 'होस्टेल सफलतापूर्वक थपियो।');
+                         ->with('success', 'होस्टल सफलतापूर्वक थपियो।');
     }
 
     public function edit(Hostel $hostel)
@@ -206,7 +206,7 @@ class HostelController extends Controller
     $hostel->update($data);
 
     return redirect()->route('admin.hostels.index')
-                     ->with('success', 'होस्टेल अद्यावधिक गरियो।');
+                     ->with('success', 'होस्टल अद्यावधिक गरियो।');
 }
 
     public function destroy(Hostel $hostel)
@@ -216,14 +216,14 @@ class HostelController extends Controller
         }
         $hostel->delete();
 
-        return back()->with('success', 'होस्टेल हटाइयो।');
+        return back()->with('success', 'होस्टल हटाइयो।');
     }
 
     public function approve(Hostel $hostel)
     {
         $hostel->approved = true;
         $hostel->save();
-        return back()->with('success', 'होस्टेल स्वीकृत गरियो।');
+        return back()->with('success', 'होस्टल स्वीकृत गरियो।');
     }
 
     public function feature(Hostel $hostel)
