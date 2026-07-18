@@ -69,7 +69,7 @@
 
                 {{-- Image --}}
                 <div class="hostel-img" style="height:200px; overflow:hidden; position:relative;">
-                    <img src="{{ $hostel->image ? asset('storage/'.$hostel->image) : asset('images/hostel-placeholder.jpg') }}" 
+                    <img src="{{ $hostel->image ? Storage::url($hostel->image) : asset('images/hostel-placeholder.jpg') }}" 
                          alt="{{ $hostel->name_nepali }}" 
                          style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s;">
                     {{-- Featured Badge --}}

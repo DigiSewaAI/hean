@@ -8,7 +8,7 @@
         <div style="display:flex; gap:40px; flex-wrap:wrap; background:#fff; border-radius:24px; padding:40px; box-shadow:0 4px 30px rgba(0,0,0,0.05);">
             <div style="flex:1; min-width:300px;">
                 @if($hostel->image)
-                    <img src="{{ asset('storage/'.$hostel->image) }}" alt="{{ $hostel->name_nepali }}" style="width:100%; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+                    <img src="{{ Storage::url($hostel->image) }}" alt="{{ $hostel->name_nepali }}" style="width:100%; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.08);">
                 @else
                     <div style="background:#e2e8f0; width:100%; height:300px; border-radius:16px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:1.2rem;">
                         <i class="fas fa-hotel" style="font-size:4rem; opacity:0.3;"></i>
