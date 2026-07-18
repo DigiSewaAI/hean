@@ -338,11 +338,7 @@
 main {
     padding-top: var(--navbar-height);
 }
-
-/* गृहपृष्ठमा प्याडिङ नदिने */
-body.homepage main {
-    padding-top: 0;
-}       
+       
     </style>
 </head>
 <body class="@yield('bodyClass')">

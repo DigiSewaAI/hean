@@ -1,4 +1,3 @@
-@section('bodyClass', 'homepage')
 @extends('layouts.public')
 
 @section('title', __('messages.home') . ' - HEAN')
