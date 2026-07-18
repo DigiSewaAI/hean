@@ -46,7 +46,7 @@
                 <div style="flex: 1; min-width: 200px; position: relative;">
                     <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
                     <input type="text" name="search" value="{{ request('search') }}" 
-                           placeholder="होस्टल नाम, दर्ता नम्बर, स्थानीय दर्ता, PAN..." 
+                           placeholder="{{ __('messages.search_placeholder') }}" 
                            style="width: 100%; padding: 12px 16px 12px 44px; border: 1.5px solid #e2e8f0; border-radius: 50px; font-size: 0.95rem; background: #fff; transition: 0.3s;">
                     @if(request('search'))
                         <a href="{{ route('hostels.index') }}" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; text-decoration: none; font-size: 1.2rem;">
@@ -55,7 +55,7 @@
                     @endif
                 </div>
                 <button type="submit" style="background: #0EA5E9; color: #fff; border: none; padding: 12px 28px; border-radius: 50px; font-weight: 600; cursor: pointer; transition: 0.3s; white-space: nowrap;">
-                    <i class="fas fa-search"></i> खोज्नुहोस्
+                    <i class="fas fa-search"></i> {{ __('messages.search_button') }}
                 </button>
             </form>
         </div>
@@ -140,10 +140,10 @@
             @empty
             <div style="grid-column:1/-1; text-align:center; padding:60px 20px; background:#f8fafc; border-radius:20px;">
                 <i class="fas fa-hotel" style="font-size:3rem; color:#cbd5e1; display:block; margin-bottom:15px;"></i>
-                <p style="color:#64748b; font-size:1.1rem; margin-bottom:5px;">तपाईंको होस्टेल फेला परेन?</p>
-                <p style="color:#94a3b8; font-size:0.95rem; margin-bottom:20px;">HEAN मा आफ्नो होस्टेल दर्ता गर्नुहोस् र आधिकारिक सदस्य बन्नुहोस्।</p>
+                <p style="color:#64748b; font-size:1.1rem; margin-bottom:5px;">{{ __('messages.empty_state_title') }}</p>
+                <p style="color:#94a3b8; font-size:0.95rem; margin-bottom:20px;">{{ __('messages.empty_state_subtitle') }}</p>
                 <a href="{{ route('register.hostel') }}" style="display:inline-block; background:#0EA5E9; color:#fff; padding:12px 30px; border-radius:50px; font-weight:600; text-decoration:none; box-shadow:0 4px 15px rgba(14,165,233,0.3); transition:0.3s;">
-                    <i class="fas fa-plus-circle"></i> होस्टेल दर्ता गर्नुहोस्
+                    <i class="fas fa-plus-circle"></i> {{ __('messages.empty_state_button') }}
                 </a>
             </div>
             @endforelse

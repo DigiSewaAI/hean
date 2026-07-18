@@ -1346,4 +1346,13 @@ return [
 'payment_desc' => 'Scan the QR code or click below to pay registration, renewal, or membership fees directly to HEAN bank account.',
 'pay_now' => 'Pay Now',
 'payment_secure' => 'Secure payment via bank transfer',
+// Search
+'search_placeholder' => 'Hostel name, registration number, local registration, PAN...',
+'search_button' => 'Search',
+
+// Empty state
+'empty_state_title' => 'Can\'t find your hostel?',
+'empty_state_subtitle' => 'Register your hostel with HEAN and become an official member.',
+'empty_state_button' => 'Register Hostel',
+
 ];
