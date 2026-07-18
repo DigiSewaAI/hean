@@ -16,20 +16,20 @@
     </div>
 </section>
 
-{{-- ===== STATS BAR ===== --}}
+{{-- ===== STATS BAR (Overall) ===== --}}
 <section style="padding:30px 0; background:#f8fafc; border-bottom:1px solid #e2e8f0;">
     <div class="container">
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:20px; text-align:center;">
             <div>
-                <div style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">{{ $hostels->total() ?? 0 }}</div>
+                <div style="font-size:2.2rem; font-weight:800; color:#0EA5E9;">{{ $totalHostels ?? 0 }}</div>
                 <div style="color:#64748b; font-size:0.9rem; font-weight:500;">{{ __('messages.stats_total_hostels') }}</div>
             </div>
             <div>
-                <div style="font-size:2.2rem; font-weight:800; color:#22C55E;">{{ $hostels->pluck('district')->unique()->count() ?? 0 }}</div>
+                <div style="font-size:2.2rem; font-weight:800; color:#22C55E;">{{ $totalDistricts ?? 0 }}</div>
                 <div style="color:#64748b; font-size:0.9rem; font-weight:500;">{{ __('messages.stats_districts') }}</div>
             </div>
             <div>
-                <div style="font-size:2.2rem; font-weight:800; color:#8B5CF6;">{{ $hostels->total() ?? 0 }}</div>
+                <div style="font-size:2.2rem; font-weight:800; color:#8B5CF6;">{{ $totalHostels ?? 0 }}</div>
                 <div style="color:#64748b; font-size:0.9rem; font-weight:500;">{{ __('messages.stats_member_hostels') }}</div>
             </div>
         </div>
@@ -39,6 +39,26 @@
 {{-- ===== HOSTELS GRID ===== --}}
 <section style="padding:60px 0; background:#ffffff;">
     <div class="container">
+
+        {{-- ===== SEARCH FORM ===== --}}
+        <div style="margin-bottom: 30px;">
+            <form method="GET" action="{{ route('hostels.index') }}" id="search-form" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <div style="flex: 1; min-width: 200px; position: relative;">
+                    <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                    <input type="text" name="search" value="{{ request('search') }}" 
+                           placeholder="होस्टल नाम, दर्ता नम्बर, स्थानीय दर्ता, PAN..." 
+                           style="width: 100%; padding: 12px 16px 12px 44px; border: 1.5px solid #e2e8f0; border-radius: 50px; font-size: 0.95rem; background: #fff; transition: 0.3s;">
+                    @if(request('search'))
+                        <a href="{{ route('hostels.index') }}" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; text-decoration: none; font-size: 1.2rem;">
+                            <i class="fas fa-times-circle"></i>
+                        </a>
+                    @endif
+                </div>
+                <button type="submit" style="background: #0EA5E9; color: #fff; border: none; padding: 12px 28px; border-radius: 50px; font-weight: 600; cursor: pointer; transition: 0.3s; white-space: nowrap;">
+                    <i class="fas fa-search"></i> खोज्नुहोस्
+                </button>
+            </form>
+        </div>
 
         {{-- Section Header --}}
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:30px;">
@@ -54,10 +74,10 @@
                 <span style="color:#64748b; font-size:0.85rem; font-weight:500;">
                     <i class="fas fa-sort"></i> {{ __('messages.sort_by') }}
                 </span>
-                <select style="padding:8px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.85rem; background:#fff; color:#1e293b; cursor:pointer;">
-                    <option value="newest">{{ __('messages.sort_newest') }}</option>
-                    <option value="oldest">{{ __('messages.sort_oldest') }}</option>
-                    <option value="name">{{ __('messages.sort_name') }}</option>
+                <select name="sort" form="search-form" onchange="document.getElementById('search-form').submit();" style="padding:8px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.85rem; background:#fff; color:#1e293b; cursor:pointer;">
+                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>{{ __('messages.sort_newest') }}</option>
+                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>{{ __('messages.sort_oldest') }}</option>
+                    <option value="name" {{ request('sort') == 'name' ? 'selected' : '' }}>{{ __('messages.sort_name') }}</option>
                 </select>
             </div>
         </div>
@@ -120,7 +140,11 @@
             @empty
             <div style="grid-column:1/-1; text-align:center; padding:60px 20px; background:#f8fafc; border-radius:20px;">
                 <i class="fas fa-hotel" style="font-size:3rem; color:#cbd5e1; display:block; margin-bottom:15px;"></i>
-                <p style="color:#94a3b8; font-size:1.1rem;">{{ __('messages.no_hostels_found') }}</p>
+                <p style="color:#64748b; font-size:1.1rem; margin-bottom:5px;">तपाईंको होस्टेल फेला परेन?</p>
+                <p style="color:#94a3b8; font-size:0.95rem; margin-bottom:20px;">HEAN मा आफ्नो होस्टेल दर्ता गर्नुहोस् र आधिकारिक सदस्य बन्नुहोस्।</p>
+                <a href="{{ route('register.hostel') }}" style="display:inline-block; background:#0EA5E9; color:#fff; padding:12px 30px; border-radius:50px; font-weight:600; text-decoration:none; box-shadow:0 4px 15px rgba(14,165,233,0.3); transition:0.3s;">
+                    <i class="fas fa-plus-circle"></i> होस्टेल दर्ता गर्नुहोस्
+                </a>
             </div>
             @endforelse
         </div>
