@@ -55,6 +55,7 @@ Route::get('/notices', [NoticeController::class, 'index'])->name('notices.index'
 Route::get('/notices/{notice}', [NoticeController::class, 'show'])->name('notices.show');
 
 Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index');
+Route::get('/gallery/{album:slug}', [GalleryController::class, 'show'])->name('gallery.show');
 
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
@@ -138,6 +139,17 @@ Route::get('hostels/export', [AdminHostelController::class, 'export'])->name('ho
 
         // Gallery
         Route::resource('gallery', AdminGalleryController::class);
+        // Nested image management
+Route::prefix('gallery/{gallery}')->name('gallery.')->group(function () {
+    Route::get('/images', [AdminGalleryController::class, 'imagesIndex'])->name('images.index');
+    Route::post('/images', [AdminGalleryController::class, 'imagesStore'])->name('images.store');
+    Route::post('/cover/{image}', [AdminGalleryController::class, 'setCover'])->name('setCover');
+});
+Route::prefix('gallery/images')->name('gallery.')->group(function () {
+    Route::get('{image}/edit', [AdminGalleryController::class, 'imageEdit'])->name('images.edit');
+    Route::put('{image}', [AdminGalleryController::class, 'imageUpdate'])->name('images.update');
+    Route::delete('{image}', [AdminGalleryController::class, 'imageDestroy'])->name('images.destroy');
+});
 
         // Settings
         Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
