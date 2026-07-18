@@ -153,7 +153,7 @@ class HostelController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('hostels', 'public');
+            $data['image'] = $request->file('image')->store('hostels', 'cloud');
         }
 
         Hostel::create($data);
@@ -199,7 +199,7 @@ class HostelController extends Controller
             if ($hostel->image) {
                 Storage::disk('public')->delete($hostel->image);
             }
-            $data['image'] = $request->file('image')->store('hostels', 'public');
+            $data['image'] = $request->file('image')->store('hostels', 'cloud');
         }
 
         // ✅ registration_number बाहेक update गर्ने (सुरक्षाका लागि)
