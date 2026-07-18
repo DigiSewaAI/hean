@@ -1341,5 +1341,9 @@ return [
 'dashboard' => 'Dashboard',
 'register_direct' => 'Register via Form',
 'or' => 'OR',
-
+'payment_badge' => 'Make a Payment',
+'payment_heading' => 'Pay Your Fees Online',
+'payment_desc' => 'Scan the QR code or click below to pay registration, renewal, or membership fees directly to HEAN bank account.',
+'pay_now' => 'Pay Now',
+'payment_secure' => 'Secure payment via bank transfer',
 ];
