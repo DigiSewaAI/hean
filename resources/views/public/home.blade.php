@@ -103,8 +103,7 @@
             @forelse($hostels as $hostel)
             <div class="hostel-card" style="background:#fff; border-radius:20px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.05); transition:0.3s;">
                 <div class="hostel-img" style="height:200px; overflow:hidden;">
-                    <img src="{{ $hostel->image ? asset('storage/'.$hostel->image) : asset('images/hostel-placeholder.jpg') }}" alt="{{ $hostel->name_nepali }}" style="width:100%; height:100%; object-fit:cover; transition:0.4s;">
-                </div>
+<img src="{{ $hostel->image ? Storage::url($hostel->image) : asset('images/hostel-placeholder.jpg') }}" alt="{{ $hostel->name_english ?? $hostel->name_nepali }}" style="width:100%; height:100%; object-fit:cover; transition:0.4s;">                </div>
                 <div class="hostel-body" style="padding:20px;">
                     <h3 style="font-size:1.2rem; font-weight:700; color:#0f172a; margin-bottom:2px;">
     {{ $hostel->name_english ?? $hostel->name_nepali }}
@@ -178,9 +177,9 @@
             <div class="gallery-scroll" style="display:flex; gap:20px; animation: scrollGallery 25s linear infinite; width:max-content;">
                 @forelse($gallery as $image)
                     <div style="flex:0 0 280px; border-radius:16px; overflow:hidden; position:relative; aspect-ratio:1/1; box-shadow:0 4px 15px rgba(0,0,0,0.06);">
-                        <img src="{{ asset('storage/'.$image->image) }}" 
-                             alt="{{ $image->title ?? __('messages.gallery') }}" 
-                             style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s;">
+                        <img src="{{ Storage::url($image->image) }}" 
+     alt="{{ $image->title ?? __('messages.gallery') }}" 
+     style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s;">
                         @if($image->title)
                             <div style="position:absolute; bottom:0; left:0; right:0; padding:12px; background:linear-gradient(transparent, rgba(0,0,0,0.6)); color:#fff; font-size:0.85rem; font-weight:500; text-align:center;">
                                 {{ $image->title }}
@@ -192,19 +191,19 @@
                 @endforelse
 
                 {{-- Duplicate for seamless scrolling --}}
-                @forelse($gallery as $image)
-                    <div style="flex:0 0 280px; border-radius:16px; overflow:hidden; position:relative; aspect-ratio:1/1; box-shadow:0 4px 15px rgba(0,0,0,0.06);">
-                        <img src="{{ asset('storage/'.$image->image) }}" 
-                             alt="{{ $image->title ?? __('messages.gallery') }}" 
-                             style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s;">
-                        @if($image->title)
-                            <div style="position:absolute; bottom:0; left:0; right:0; padding:12px; background:linear-gradient(transparent, rgba(0,0,0,0.6)); color:#fff; font-size:0.85rem; font-weight:500; text-align:center;">
-                                {{ $image->title }}
-                            </div>
-                        @endif
-                    </div>
-                @empty
-                @endforelse
+@forelse($gallery as $image)
+    <div style="flex:0 0 280px; border-radius:16px; overflow:hidden; position:relative; aspect-ratio:1/1; box-shadow:0 4px 15px rgba(0,0,0,0.06);">
+        <img src="{{ Storage::url($image->image) }}" 
+             alt="{{ $image->title ?? __('messages.gallery') }}" 
+             style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s;">
+        @if($image->title)
+            <div style="position:absolute; bottom:0; left:0; right:0; padding:12px; background:linear-gradient(transparent, rgba(0,0,0,0.6)); color:#fff; font-size:0.85rem; font-weight:500; text-align:center;">
+                {{ $image->title }}
+            </div>
+        @endif
+    </div>
+@empty
+@endforelse
             </div>
         </div>
 
