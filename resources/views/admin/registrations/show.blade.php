@@ -424,17 +424,23 @@
     </div>
     <div style="padding:16px;">
         @php
-            // Group documents by type, and define labels/icons
-            $docGroups = [
-    'pan' => ['label' => 'PAN Certificate', 'icon' => 'fa-file-invoice'],  // ✅ सही
-    'citizenship' => ['label' => __('messages.citizenship_copy'), 'icon' => 'fa-id-card'],
-'license' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],
-    'municipality' => ['label' => 'Municipality Certificate', 'icon' => 'fa-certificate'],
-    'signboard' => ['label' => __('messages.signboard_building_image'), 'icon' => 'fa-image'],
-    'photos' => ['label' => 'होस्टल तस्बिरहरू', 'icon' => 'fa-images'],
-    'additional' => ['label' => 'Additional Documents', 'icon' => 'fa-paperclip'],
-];
-        @endphp
+    $docGroups = [
+        // === Admin registration ले प्रयोग गर्ने type names ===
+        'pan' => ['label' => 'PAN Certificate', 'icon' => 'fa-file-invoice'],
+        'citizenship' => ['label' => __('messages.citizenship_copy'), 'icon' => 'fa-id-card'],
+        'license' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],
+        'municipality' => ['label' => 'Municipality Certificate', 'icon' => 'fa-certificate'],
+        'signboard' => ['label' => __('messages.signboard_building_image'), 'icon' => 'fa-image'],
+        'photos' => ['label' => 'होस्टल तस्बिरहरू', 'icon' => 'fa-images'],
+        'additional' => ['label' => 'Additional Documents', 'icon' => 'fa-paperclip'],
+
+        // === Public registration ले प्रयोग गर्ने type names (create.blade.php बाट) ===
+        'pan_certificate' => ['label' => 'PAN Certificate', 'icon' => 'fa-file-invoice'],
+        'citizenship_copy' => ['label' => __('messages.citizenship_copy'), 'icon' => 'fa-id-card'],
+        'registration_certificate' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],
+        'other_documents' => ['label' => 'Additional Documents', 'icon' => 'fa-paperclip'],
+    ];
+@endphp
 
         <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:16px;">
             @foreach($docGroups as $type => $info)
