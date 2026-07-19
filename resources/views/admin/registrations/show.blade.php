@@ -424,8 +424,25 @@
     </div>
     <div style="padding:16px;">
         @php
+    // === Public type लाई Admin type मा म्याप गर्ने ===
+    $typeMapping = [
+        'pan_certificate' => 'pan',
+        'citizenship_copy' => 'citizenship',
+        'registration_certificate' => 'license',
+        'other_documents' => 'additional',
+        'additional_documents' => 'additional',
+        // यदि अरू public type छ भने यहाँ थप्नुहोस्
+    ];
+
+    // === सबै डकुमेन्टलाई म्याप गरेर समूहबद्ध गर्ने ===
+    $groupedDocs = [];
+    foreach ($registration->uploadedDocuments as $doc) {
+        $groupKey = $typeMapping[$doc->type] ?? $doc->type; // यदि mapping छैन भने आफ्नै type
+        $groupedDocs[$groupKey][] = $doc;
+    }
+
+    // === अब एउटा मात्र group definition (Admin type अनुसार) ===
     $docGroups = [
-        // === Admin registration ले प्रयोग गर्ने type names ===
         'pan' => ['label' => 'PAN Certificate', 'icon' => 'fa-file-invoice'],
         'citizenship' => ['label' => __('messages.citizenship_copy'), 'icon' => 'fa-id-card'],
         'license' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],
@@ -433,45 +450,35 @@
         'signboard' => ['label' => __('messages.signboard_building_image'), 'icon' => 'fa-image'],
         'photos' => ['label' => 'होस्टल तस्बिरहरू', 'icon' => 'fa-images'],
         'additional' => ['label' => 'Additional Documents', 'icon' => 'fa-paperclip'],
-
-        // === Public registration ले प्रयोग गर्ने type names (create.blade.php बाट) ===
-        'pan_certificate' => ['label' => 'PAN Certificate', 'icon' => 'fa-file-invoice'],
-        'citizenship_copy' => ['label' => __('messages.citizenship_copy'), 'icon' => 'fa-id-card'],
-        'registration_certificate' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],
-        'other_documents' => ['label' => 'Additional Documents', 'icon' => 'fa-paperclip'],
     ];
 @endphp
 
         <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:16px;">
-            @foreach($docGroups as $type => $info)
-                @php
-                    $docs = $registration->uploadedDocuments->where('type', $type);
-                @endphp
+    @foreach($docGroups as $type => $info)
+        @php
+            $docs = $groupedDocs[$type] ?? collect(); // म्याप गरिएको समूहबाट लिने
+        @endphp
 
-                @if($type === 'photos')
-                    {{-- प्रत्येक photo को लागि छुट्टै card --}}
-                    @foreach($docs as $doc)
-                        @php
-                            $singleDoc = collect([$doc]);
-                        @endphp
-                        @include('admin.registrations.partials._document_card', [
-                            'type' => 'photo_single',
-                            'docs' => $singleDoc,
-                            'label' => 'Photo ' . ($loop->iteration),
-                            'icon' => 'fa-image'
-                        ])
-                    @endforeach
-                @else
-                    {{-- अन्य types: पहिले जस्तै --}}
-                    @include('admin.registrations.partials._document_card', [
-                        'type' => $type,
-                        'docs' => $docs,
-                        'label' => $info['label'],
-                        'icon' => $info['icon']
-                    ])
-                @endif
+        @if($type === 'photos')
+            @foreach($docs as $doc)
+                @php $singleDoc = collect([$doc]); @endphp
+                @include('admin.registrations.partials._document_card', [
+                    'type' => 'photo_single',
+                    'docs' => $singleDoc,
+                    'label' => 'Photo ' . ($loop->iteration),
+                    'icon' => 'fa-image'
+                ])
             @endforeach
-        </div>
+        @else
+            @include('admin.registrations.partials._document_card', [
+                'type' => $type,
+                'docs' => $docs,
+                'label' => $info['label'],
+                'icon' => $info['icon']
+            ])
+        @endif
+    @endforeach
+</div>
 
         {{-- If no documents at all --}}
         @if($registration->uploadedDocuments->isEmpty())
