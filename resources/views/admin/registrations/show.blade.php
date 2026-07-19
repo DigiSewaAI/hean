@@ -427,8 +427,8 @@
             // Group documents by type, and define labels/icons
             $docGroups = [
     'pan' => ['label' => 'PAN Certificate', 'icon' => 'fa-file-invoice'],  // ✅ सही
-    'citizenship_copy' => ['label' => __('messages.citizenship_copy'), 'icon' => 'fa-id-card'],
-    'registration_certificate' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],  // ✅ सही
+    'citizenship' => ['label' => __('messages.citizenship_copy'), 'icon' => 'fa-id-card'],
+'license' => ['label' => 'Business Registration Certificate', 'icon' => 'fa-building'],
     'municipality' => ['label' => 'Municipality Certificate', 'icon' => 'fa-certificate'],
     'signboard' => ['label' => __('messages.signboard_building_image'), 'icon' => 'fa-image'],
     'photos' => ['label' => 'होस्टल तस्बिरहरू', 'icon' => 'fa-images'],
