@@ -456,7 +456,7 @@
         <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:16px;">
     @foreach($docGroups as $type => $info)
         @php
-            $docs = $groupedDocs[$type] ?? collect(); // म्याप गरिएको समूहबाट लिने
+            $docs = collect($groupedDocs[$type] ?? []);
         @endphp
 
         @if($type === 'photos')
