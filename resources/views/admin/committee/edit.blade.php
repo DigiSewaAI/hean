@@ -13,6 +13,23 @@
         @csrf
         @method('PUT')
 
+        {{-- ✅ committee_type_id (readonly/disabled if already set) --}}
+        <div class="form-row">
+            <div class="form-group">
+                <label for="committee_type_id">{{ __('messages.committee_type') }} <span style="color:#dc2626;">*</span></label>
+                <select name="committee_type_id" id="committee_type_id" required 
+                        style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; cursor:pointer;">
+                    <option value="1" {{ old('committee_type_id', $committee->committee_type_id ?? 1) == 1 ? 'selected' : '' }}>{{ __('messages.central') }}</option>
+                    <option value="2" {{ old('committee_type_id', $committee->committee_type_id) == 2 ? 'selected' : '' }}>{{ __('messages.district') }}</option>
+                </select>
+            </div>
+            <div class="form-group" id="districtField" style="{{ old('committee_type_id', $committee->committee_type_id) == 2 ? 'display:block;' : 'display:none;' }}">
+                <label for="district">{{ __('messages.district_name') }}</label>
+                <input type="text" name="district" id="district" value="{{ old('district', $committee->district ?? '') }}" 
+                       placeholder="{{ __('messages.district_placeholder') }}">
+            </div>
+        </div>
+
         <div class="form-row">
             <div class="form-group">
                 <label for="name">{{ __('messages.name') }} <span style="color:#dc2626;">*</span></label>
@@ -25,12 +42,12 @@
         </div>
 
         <div class="form-row">
-    <div class="form-group">
-        <label for="facebook">{{ __('messages.facebook_link') }}</label>
-        <input type="url" name="facebook" id="facebook" value="{{ old('facebook', $committee->facebook) }}" placeholder="{{ __('messages.facebook_placeholder') }}">
-    </div>
-    {{-- linkedin हटाइयो --}}
-</div>
+            <div class="form-group">
+                <label for="facebook">{{ __('messages.facebook_link') }}</label>
+                <input type="url" name="facebook" id="facebook" value="{{ old('facebook', $committee->facebook) }}" placeholder="{{ __('messages.facebook_placeholder') }}">
+            </div>
+            {{-- ✅ linkedin हटाइयो --}}
+        </div>
 
         <div class="form-row">
             <div class="form-group">
@@ -46,10 +63,10 @@
         <div class="form-group">
             <label for="image">{{ __('messages.photo') }}</label>
             @if($committee->image)
-    <div style="margin-bottom:10px;">
-        <img src="{{ $committee->image_url }}" alt="{{ $committee->name }}" style="height:80px; width:80px; object-fit:cover; border-radius:50%;">
-    </div>
-@endif
+                <div style="margin-bottom:10px;">
+                    <img src="{{ $committee->image_url }}" alt="{{ $committee->name }}" style="height:80px; width:80px; object-fit:cover; border-radius:50%;">
+                </div>
+            @endif
             <input type="file" name="image" id="image" accept="image/*">
             <small style="color:#64748b; display:block; margin-top:4px;">{{ __('messages.upload_new_photo_optional') }}</small>
         </div>
@@ -62,4 +79,19 @@
         </div>
     </form>
 </div>
+
+{{-- ✅ JavaScript: District field toggle --}}
+@push('scripts')
+<script>
+    document.getElementById('committee_type_id').addEventListener('change', function() {
+        var districtField = document.getElementById('districtField');
+        if (this.value == '2') {
+            districtField.style.display = 'block';
+        } else {
+            districtField.style.display = 'none';
+        }
+    });
+</script>
+@endpush
+
 @endsection

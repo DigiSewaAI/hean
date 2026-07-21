@@ -1390,4 +1390,10 @@ return [
 'go' => 'जानुहोस्',
 'page' => 'पृष्ठ',
 'go_to_page_placeholder' => 'पृष्ठ नम्बर लेख्नुहोस्',
+'committee_type' => 'समिति प्रकार',
+'central' => 'केन्द्रीय',
+'district' => 'जिल्ला',
+'district_name' => 'जिल्लाको नाम',
+'district_placeholder' => 'जिल्लाको नाम लेख्नुहोस् (जस्तै: काठमाडौं)',
+'position_hint' => 'जिल्लाको लागि: "President (Kathmandu)" फर्म्याट प्रयोग गर्नुहोस्। पूर्व/संस्थापकको लागि: "President (Founder)" प्रयोग गर्नुहोस्।',
 ];

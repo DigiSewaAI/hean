@@ -1365,5 +1365,11 @@ return [
 'go' => 'Go',
 'page' => 'Page',
 'go_to_page_placeholder' => 'Enter page number',
+'committee_type' => 'Committee Type',
+'central' => 'Central',
+'district' => 'District',
+'district_name' => 'District Name',
+'district_placeholder' => 'Enter district name (e.g. Kathmandu)',
+'position_hint' => 'For District: use format "President (Kathmandu)". For Former/Founder: use "President (Founder)".',
 
 ];
