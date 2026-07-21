@@ -1396,4 +1396,6 @@ return [
 'district_name' => 'जिल्लाको नाम',
 'district_placeholder' => 'जिल्लाको नाम लेख्नुहोस् (जस्तै: काठमाडौं)',
 'position_hint' => 'जिल्लाको लागि: "President (Kathmandu)" फर्म्याट प्रयोग गर्नुहोस्। पूर्व/संस्थापकको लागि: "President (Founder)" प्रयोग गर्नुहोस्।',
+'members' => 'सदस्यहरू',
+
 ];

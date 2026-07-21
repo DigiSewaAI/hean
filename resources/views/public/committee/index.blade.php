@@ -64,10 +64,10 @@
                 <div class="committee-card" style="background:#fff; border-radius:20px; padding:28px 20px 22px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.05); transition:all 0.35s ease; border:1px solid #f1f5f9; position:relative;">
                     {{-- Badge --}}
                     @if($member->position == 'President')
-                        <div style="position:absolute; top:12px; right:12px; background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; padding:2px 14px; border-radius:50px; font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
-                            <i class="fas fa-crown"></i> {{ __('messages.leader') }}
-                        </div>
-                    @endif
+    <div style="position:absolute; top:12px; right:12px; background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; box-shadow:0 2px 10px rgba(245,158,11,0.3);">
+        <i class="fas fa-crown"></i>
+    </div>
+@endif
                     <div style="position:relative; display:inline-block; margin-bottom:15px;">
                         <img src="{{ $member->image_url }}" 
                              alt="{{ $member->name }}" 
