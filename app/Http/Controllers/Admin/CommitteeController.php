@@ -96,7 +96,6 @@ class CommitteeController extends Controller
             'position' => 'required|string',
             'image' => 'nullable|image|max:2048',
             'facebook' => 'nullable|url',
-            'linkedin' => 'nullable|url',
             'is_published' => 'boolean',
             'order' => 'nullable|integer',
         ]);
@@ -123,7 +122,6 @@ class CommitteeController extends Controller
             'position' => 'required|string',
             'image' => 'nullable|image|max:2048',
             'facebook' => 'nullable|url',
-            'linkedin' => 'nullable|url',
             'is_published' => 'boolean',
             'order' => 'nullable|integer',
         ]);

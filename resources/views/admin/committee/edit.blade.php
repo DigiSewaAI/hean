@@ -25,15 +25,12 @@
         </div>
 
         <div class="form-row">
-            <div class="form-group">
-                <label for="facebook">{{ __('messages.facebook_link') }}</label>
-                <input type="url" name="facebook" id="facebook" value="{{ old('facebook', $committee->facebook) }}" placeholder="{{ __('messages.facebook_placeholder') }}">
-            </div>
-            <div class="form-group">
-                <label for="linkedin">{{ __('messages.linkedin_link') }}</label>
-                <input type="url" name="linkedin" id="linkedin" value="{{ old('linkedin', $committee->linkedin) }}" placeholder="{{ __('messages.linkedin_placeholder') }}">
-            </div>
-        </div>
+    <div class="form-group">
+        <label for="facebook">{{ __('messages.facebook_link') }}</label>
+        <input type="url" name="facebook" id="facebook" value="{{ old('facebook', $committee->facebook) }}" placeholder="{{ __('messages.facebook_placeholder') }}">
+    </div>
+    {{-- linkedin हटाइयो --}}
+</div>
 
         <div class="form-row">
             <div class="form-group">

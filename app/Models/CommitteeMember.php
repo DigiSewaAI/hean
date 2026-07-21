@@ -11,7 +11,6 @@ class CommitteeMember extends Model
         'position',
         'image',
         'facebook',
-        'linkedin',
         'is_published',
         'order'
     ];
