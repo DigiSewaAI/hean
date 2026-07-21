@@ -127,12 +127,12 @@
                 <td style="padding:12px 16px; font-weight:500; color:#0f172a;">{{ $loop->iteration + ($members->currentPage() - 1) * $members->perPage() }}</td>
                 <td style="padding:12px 16px;">
                     @if($member->image)
-                        <img src="{{ asset('storage/'.$member->image) }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #e2e8f0;">
-                    @else
-                        <div style="width:40px; height:40px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.7rem;">
-                            <i class="fas fa-user"></i>
-                        </div>
-                    @endif
+    <img src="{{ $member->image_url }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #e2e8f0;">
+@else
+    <div style="width:40px; height:40px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.7rem;">
+        <i class="fas fa-user"></i>
+    </div>
+@endif
                 </td>
                 <td style="padding:12px 16px; font-weight:500; color:#0f172a;">{{ $member->name }}</td>
                 <td style="padding:12px 16px;">

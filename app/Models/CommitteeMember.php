@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+
 
 class CommitteeMember extends Model
 {
@@ -11,6 +13,7 @@ class CommitteeMember extends Model
         'position',
         'image',
         'facebook',
+        'linkedin',
         'is_published',
         'order'
     ];
@@ -19,4 +22,13 @@ class CommitteeMember extends Model
         'is_published' => 'boolean',
         'order' => 'integer',
     ];
+
+    public function getImageUrlAttribute()
+{
+    if ($this->image) {
+        return Storage::disk('cloud')->url($this->image);
+    }
+    return asset('images/avatar-placeholder.png');
+}
+
 }

@@ -46,10 +46,10 @@
         <div class="form-group">
             <label for="image">{{ __('messages.photo') }}</label>
             @if($committee->image)
-                <div style="margin-bottom:10px;">
-                    <img src="{{ asset('storage/'.$committee->image) }}" alt="{{ $committee->name }}" style="height:80px; width:80px; object-fit:cover; border-radius:50%;">
-                </div>
-            @endif
+    <div style="margin-bottom:10px;">
+        <img src="{{ $committee->image_url }}" alt="{{ $committee->name }}" style="height:80px; width:80px; object-fit:cover; border-radius:50%;">
+    </div>
+@endif
             <input type="file" name="image" id="image" accept="image/*">
             <small style="color:#64748b; display:block; margin-top:4px;">{{ __('messages.upload_new_photo_optional') }}</small>
         </div>

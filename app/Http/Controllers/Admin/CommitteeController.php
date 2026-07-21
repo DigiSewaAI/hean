@@ -10,79 +10,79 @@ use Illuminate\Support\Facades\Storage;
 class CommitteeController extends Controller
 {
     public function index(Request $request)
-{
-    $query = CommitteeMember::query();
+    {
+        $query = CommitteeMember::query();
 
-    // ===== 1. BASIC SEARCH =====
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'LIKE', "%{$search}%")
-              ->orWhere('position', 'LIKE', "%{$search}%");
-        });
-    }
-
-    // ===== 2. FILTER: Published Status =====
-    if ($request->filled('published')) {
-        if ($request->published === 'published') {
-            $query->where('is_published', true);
-        } elseif ($request->published === 'unpublished') {
-            $query->where('is_published', false);
+        // ===== 1. BASIC SEARCH =====
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('position', 'LIKE', "%{$search}%");
+            });
         }
+
+        // ===== 2. FILTER: Published Status =====
+        if ($request->filled('published')) {
+            if ($request->published === 'published') {
+                $query->where('is_published', true);
+            } elseif ($request->published === 'unpublished') {
+                $query->where('is_published', false);
+            }
+        }
+
+        // ===== 3. FILTER: Position (Dynamic Dropdown) =====
+        if ($request->filled('position')) {
+            $query->where('position', $request->position);
+        }
+
+        // ===== 4. SORTING =====
+        switch ($request->sort) {
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'position_asc':
+                $query->orderBy('position', 'asc');
+                break;
+            case 'position_desc':
+                $query->orderBy('position', 'desc');
+                break;
+            case 'order_asc':
+                $query->orderBy('order', 'asc');
+                break;
+            case 'order_desc':
+                $query->orderBy('order', 'desc');
+                break;
+            default:
+                $query->orderBy('order', 'asc');
+                break;
+        }
+
+        // ===== PAGINATE =====
+        $members = $query->paginate(10)->appends($request->query());
+
+        // ===== STATS =====
+        $totalMembers = CommitteeMember::count();
+        $publishedCount = CommitteeMember::where('is_published', true)->count();
+        $unpublishedCount = CommitteeMember::where('is_published', false)->count();
+
+        // ===== DISTINCT POSITIONS FOR DROPDOWN =====
+        $positions = CommitteeMember::select('position')
+            ->distinct()
+            ->orderBy('position')
+            ->pluck('position');
+
+        return view('admin.committee.index', compact(
+            'members',
+            'totalMembers',
+            'publishedCount',
+            'unpublishedCount',
+            'positions'
+        ));
     }
-
-    // ===== 3. FILTER: Position (Dynamic Dropdown) =====
-    if ($request->filled('position')) {
-        $query->where('position', $request->position);
-    }
-
-    // ===== 4. SORTING =====
-    switch ($request->sort) {
-        case 'name_asc':
-            $query->orderBy('name', 'asc');
-            break;
-        case 'name_desc':
-            $query->orderBy('name', 'desc');
-            break;
-        case 'position_asc':
-            $query->orderBy('position', 'asc');
-            break;
-        case 'position_desc':
-            $query->orderBy('position', 'desc');
-            break;
-        case 'order_asc':
-            $query->orderBy('order', 'asc');
-            break;
-        case 'order_desc':
-            $query->orderBy('order', 'desc');
-            break;
-        default:
-            $query->orderBy('order', 'asc');
-            break;
-    }
-
-    // ===== PAGINATE =====
-    $members = $query->paginate(10)->appends($request->query());
-
-    // ===== STATS =====
-    $totalMembers = CommitteeMember::count();
-    $publishedCount = CommitteeMember::where('is_published', true)->count();
-    $unpublishedCount = CommitteeMember::where('is_published', false)->count();
-
-    // ===== DISTINCT POSITIONS FOR DROPDOWN =====
-    $positions = CommitteeMember::select('position')
-        ->distinct()
-        ->orderBy('position')
-        ->pluck('position');
-
-    return view('admin.committee.index', compact(
-        'members',
-        'totalMembers',
-        'publishedCount',
-        'unpublishedCount',
-        'positions'
-    ));
-}
 
     public function create()
     {
@@ -100,8 +100,9 @@ class CommitteeController extends Controller
             'order' => 'nullable|integer',
         ]);
 
+        // ✅ Use 'cloud' disk instead of 'public'
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('committee', 'public');
+            $data['image'] = $request->file('image')->store('committee', 'cloud');
         }
 
         CommitteeMember::create($data);
@@ -126,11 +127,12 @@ class CommitteeController extends Controller
             'order' => 'nullable|integer',
         ]);
 
+        // ✅ Use 'cloud' disk instead of 'public'
         if ($request->hasFile('image')) {
             if ($committee->image) {
-                Storage::disk('public')->delete($committee->image);
+                Storage::disk('cloud')->delete($committee->image);
             }
-            $data['image'] = $request->file('image')->store('committee', 'public');
+            $data['image'] = $request->file('image')->store('committee', 'cloud');
         }
 
         $committee->update($data);
@@ -141,8 +143,9 @@ class CommitteeController extends Controller
 
     public function destroy(CommitteeMember $committee)
     {
+        // ✅ Use 'cloud' disk instead of 'public'
         if ($committee->image) {
-            Storage::disk('public')->delete($committee->image);
+            Storage::disk('cloud')->delete($committee->image);
         }
         $committee->delete();
         return back()->with('success', 'सदस्य हटाइयो।');

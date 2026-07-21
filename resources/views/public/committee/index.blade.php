@@ -55,7 +55,7 @@
                 @foreach($central as $member)
                 <div class="committee-card" style="background:#fff; border-radius:20px; padding:30px 20px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.05); transition:transform 0.3s, box-shadow 0.3s; border:1px solid #f1f5f9; position:relative;">
                     <div style="position:relative; display:inline-block; margin-bottom:15px;">
-                        <img src="{{ $member->image ? asset('storage/'.$member->image) : asset('images/avatar-placeholder.png') }}" 
+                        <img src="{{ $member->image_url }}" 
                              alt="{{ $member->name }}" 
                              style="width:130px; height:130px; border-radius:50%; object-fit:cover; border:4px solid #e2e8f0; transition:border-color 0.3s;">
                         @if($member->is_published)
@@ -100,7 +100,6 @@
 
             @php
                 $districtGroups = $districts->groupBy(function($item) {
-                    // position बाट कोष्ठकको पाठ निकाल्ने (जिल्लाको नाम)
                     preg_match('/\((.*?)\)/', $item->position, $matches);
                     return $matches[1] ?? 'Other';
                 });
@@ -115,7 +114,7 @@
                     @foreach($groupMembers as $member)
                     <div class="committee-card" style="background:#fff; border-radius:16px; padding:20px 15px; text-align:center; box-shadow:0 2px 12px rgba(0,0,0,0.04); transition:0.3s; border:1px solid #f1f5f9;">
                         <div style="position:relative; display:inline-block; margin-bottom:12px;">
-                            <img src="{{ $member->image ? asset('storage/'.$member->image) : asset('images/avatar-placeholder.png') }}" 
+                            <img src="{{ $member->image_url }}" 
                                  alt="{{ $member->name }}" 
                                  style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid #e2e8f0;">
                         </div>
@@ -169,7 +168,7 @@
                     @foreach($groupMembers as $member)
                     <div class="committee-card" style="background:#f8fafc; border-radius:12px; padding:16px 12px; text-align:center; border:1px solid #e2e8f0; transition:0.3s;">
                         <div style="position:relative; display:inline-block; margin-bottom:10px;">
-                            <img src="{{ $member->image ? asset('storage/'.$member->image) : asset('images/avatar-placeholder.png') }}" 
+                            <img src="{{ $member->image_url }}" 
                                  alt="{{ $member->name }}" 
                                  style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:3px solid #e2e8f0;">
                         </div>
