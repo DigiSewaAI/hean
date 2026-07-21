@@ -1361,5 +1361,9 @@ return [
     'district_committees_desc' => 'District-wise committee members representing their regions.',
     'former_founder_committees' => 'Former & Founder Committees',
     'former_founder_desc' => 'Past committees and founding members who contributed to HEAN.',
+'go_to_page' => 'Go to page',
+'go' => 'Go',
+'page' => 'Page',
+'go_to_page_placeholder' => 'Enter page number',
 
 ];
