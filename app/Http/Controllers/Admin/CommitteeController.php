@@ -87,21 +87,19 @@ class CommitteeController extends Controller
 
     public function create()
     {
-        // ✅ Districts data pass गर्नुहोस्
         $districts = District::orderBy('name')->get();
         return view('admin.committee.create', compact('districts'));
     }
 
     public function store(Request $request)
     {
-        // ✅ committee_type_id र district_id validation थप्नुहोस्
         $data = $request->validate([
-            'name' => 'required|string',
-            'position' => 'required|string',
+            'name' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
             'image' => 'nullable|image|max:2048',
-            'facebook' => 'nullable|url',
+            'facebook' => 'nullable|url|max:255',
             'is_published' => 'boolean',
-            'order' => 'nullable|integer',
+            'order' => 'nullable|integer|min:0',
             'committee_type_id' => 'required|integer|in:1,2',
             'district_id' => 'nullable|integer|exists:districts,id',
         ]);
@@ -118,21 +116,19 @@ class CommitteeController extends Controller
 
     public function edit(CommitteeMember $committee)
     {
-        // ✅ Districts data pass गर्नुहोस्
         $districts = District::orderBy('name')->get();
         return view('admin.committee.edit', compact('committee', 'districts'));
     }
 
     public function update(Request $request, CommitteeMember $committee)
     {
-        // ✅ committee_type_id र district_id validation थप्नुहोस्
         $data = $request->validate([
-            'name' => 'required|string',
-            'position' => 'required|string',
+            'name' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
             'image' => 'nullable|image|max:2048',
-            'facebook' => 'nullable|url',
+            'facebook' => 'nullable|url|max:255',
             'is_published' => 'boolean',
-            'order' => 'nullable|integer',
+            'order' => 'nullable|integer|min:0',
             'committee_type_id' => 'required|integer|in:1,2',
             'district_id' => 'nullable|integer|exists:districts,id',
         ]);
