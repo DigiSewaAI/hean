@@ -1379,5 +1379,12 @@ return [
 'empty_state_title' => 'तपाईंको होस्टेल फेला परेन?',
 'empty_state_subtitle' => 'HEAN मा आफ्नो होस्टेल दर्ता गर्नुहोस् र आधिकारिक सदस्य बन्नुहोस्।',
 'empty_state_button' => 'होस्टेल दर्ता गर्नुहोस्',
+    // Committee Page - Sections
+    'central_executive_committee' => 'केन्द्रीय कार्यसमिति',
+    'central_executive_desc' => 'संगठनको नेतृत्व गर्ने वर्तमान कार्यसमिति सदस्यहरू।',
+    'district_committees' => 'जिल्ला समितिहरू',
+    'district_committees_desc' => 'आफ्नो क्षेत्रको प्रतिनिधित्व गर्ने जिल्ला-वार समिति सदस्यहरू।',
+    'former_founder_committees' => 'पूर्व एवं संस्थापक समितिहरू',
+    'former_founder_desc' => 'HEAN मा योगदान पुर्याउने विगतका समितिहरू र संस्थापक सदस्यहरू।',
 
 ];

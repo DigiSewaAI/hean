@@ -1354,5 +1354,12 @@ return [
 'empty_state_title' => 'Can\'t find your hostel?',
 'empty_state_subtitle' => 'Register your hostel with HEAN and become an official member.',
 'empty_state_button' => 'Register Hostel',
+    // Committee Page - Sections
+    'central_executive_committee' => 'Central Executive Committee',
+    'central_executive_desc' => 'Current executive committee members leading the organization.',
+    'district_committees' => 'District Committees',
+    'district_committees_desc' => 'District-wise committee members representing their regions.',
+    'former_founder_committees' => 'Former & Founder Committees',
+    'former_founder_desc' => 'Past committees and founding members who contributed to HEAN.',
 
 ];
