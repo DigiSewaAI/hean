@@ -14,20 +14,27 @@
 
         {{-- ✅ नयाँ: Committee Type Dropdown --}}
         <div class="form-row">
-            <div class="form-group">
-                <label for="committee_type_id">{{ __('messages.committee_type') }} <span style="color:#dc2626;">*</span></label>
-                <select name="committee_type_id" id="committee_type_id" required 
-                        style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; cursor:pointer;">
-                    <option value="1" {{ old('committee_type_id', 1) == 1 ? 'selected' : '' }}>{{ __('messages.central') }}</option>
-                    <option value="2" {{ old('committee_type_id') == 2 ? 'selected' : '' }}>{{ __('messages.district') }}</option>
-                </select>
-            </div>
-            <div class="form-group" id="districtField" style="{{ old('committee_type_id') == 2 ? 'display:block;' : 'display:none;' }}">
-                <label for="district">{{ __('messages.district_name') }}</label>
-                <input type="text" name="district" id="district" value="{{ old('district') }}" 
-                       placeholder="{{ __('messages.district_placeholder') }} (e.g. Kathmandu, Bhaktapur)">
-            </div>
-        </div>
+    <div class="form-group">
+        <label for="committee_type_id">{{ __('messages.committee_type') }} <span style="color:#dc2626;">*</span></label>
+        <select name="committee_type_id" id="committee_type_id" required 
+                style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; cursor:pointer;">
+            <option value="1" {{ old('committee_type_id', 1) == 1 ? 'selected' : '' }}>{{ __('messages.central') }}</option>
+            <option value="2" {{ old('committee_type_id') == 2 ? 'selected' : '' }}>{{ __('messages.district') }}</option>
+        </select>
+    </div>
+    <div class="form-group" id="districtField" style="{{ old('committee_type_id') == 2 ? 'display:block;' : 'display:none;' }}">
+        <label for="district_id">{{ __('messages.district') }}</label>
+        <select name="district_id" id="district_id" 
+                style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; cursor:pointer;">
+            <option value="">{{ __('messages.select_district') }}</option>
+            @foreach($districts ?? [] as $district)
+                <option value="{{ $district->id }}" {{ old('district_id') == $district->id ? 'selected' : '' }}>
+                    {{ $district->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+</div>
 
         <div class="form-row">
             <div class="form-group">

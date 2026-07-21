@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CommitteeMember;
+use App\Models\District;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -86,11 +87,14 @@ class CommitteeController extends Controller
 
     public function create()
     {
-        return view('admin.committee.create');
+        // ✅ Districts data pass गर्नुहोस्
+        $districts = District::orderBy('name')->get();
+        return view('admin.committee.create', compact('districts'));
     }
 
     public function store(Request $request)
     {
+        // ✅ committee_type_id र district_id validation थप्नुहोस्
         $data = $request->validate([
             'name' => 'required|string',
             'position' => 'required|string',
@@ -98,9 +102,10 @@ class CommitteeController extends Controller
             'facebook' => 'nullable|url',
             'is_published' => 'boolean',
             'order' => 'nullable|integer',
+            'committee_type_id' => 'required|integer|in:1,2',
+            'district_id' => 'nullable|integer|exists:districts,id',
         ]);
 
-        // ✅ Use 'cloud' disk instead of 'public'
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('committee', 'cloud');
         }
@@ -113,11 +118,14 @@ class CommitteeController extends Controller
 
     public function edit(CommitteeMember $committee)
     {
-        return view('admin.committee.edit', compact('committee'));
+        // ✅ Districts data pass गर्नुहोस्
+        $districts = District::orderBy('name')->get();
+        return view('admin.committee.edit', compact('committee', 'districts'));
     }
 
     public function update(Request $request, CommitteeMember $committee)
     {
+        // ✅ committee_type_id र district_id validation थप्नुहोस्
         $data = $request->validate([
             'name' => 'required|string',
             'position' => 'required|string',
@@ -125,9 +133,10 @@ class CommitteeController extends Controller
             'facebook' => 'nullable|url',
             'is_published' => 'boolean',
             'order' => 'nullable|integer',
+            'committee_type_id' => 'required|integer|in:1,2',
+            'district_id' => 'nullable|integer|exists:districts,id',
         ]);
 
-        // ✅ Use 'cloud' disk instead of 'public'
         if ($request->hasFile('image')) {
             if ($committee->image) {
                 Storage::disk('cloud')->delete($committee->image);
@@ -143,7 +152,6 @@ class CommitteeController extends Controller
 
     public function destroy(CommitteeMember $committee)
     {
-        // ✅ Use 'cloud' disk instead of 'public'
         if ($committee->image) {
             Storage::disk('cloud')->delete($committee->image);
         }

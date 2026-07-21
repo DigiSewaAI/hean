@@ -1372,4 +1372,5 @@ return [
 'district_placeholder' => 'Enter district name (e.g. Kathmandu)',
 'position_hint' => 'For District: use format "President (Kathmandu)". For Former/Founder: use "President (Founder)".',
 
+
 ];
