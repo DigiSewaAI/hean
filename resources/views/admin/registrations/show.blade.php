@@ -693,16 +693,16 @@
 
         {{-- Dynamic Items Table --}}
         <div style="margin-bottom:12px;">
-            <label style="font-weight:600; display:block; margin-bottom:6px;">इनभ्वाइस आइटमहरू</label>
+            <label style="font-weight:600; display:block; margin-bottom:6px;">Invoice Items</label>
             <table id="invoiceItemsTable" style="width:100%; border-collapse:collapse;">
                 <thead>
                     <tr style="background:#f1f5f9;">
-                        <th style="padding:6px 10px; text-align:left;">विवरण</th>
-                        <th style="padding:6px 10px; text-align:center; width:80px;">मात्रा</th>
-                        <th style="padding:6px 10px; text-align:center; width:100px;">एकाइ मूल्य (NPR)</th>
-                        <th style="padding:6px 10px; text-align:center; width:100px;">रकम (NPR)</th>
-                        <th style="padding:6px 10px; text-align:center; width:100px;">टिप्पणी</th>
-                        <th style="padding:6px 10px; text-align:center; width:50px;"></th>
+                        <th style="padding:6px 10px; text-align:left; width:30%;">Fee Type / Description</th>
+                        <th style="padding:6px 10px; text-align:center; width:10%;">Qty</th>
+                        <th style="padding:6px 10px; text-align:center; width:15%;">Unit Price (NPR)</th>
+                        <th style="padding:6px 10px; text-align:center; width:15%;">Amount (NPR)</th>
+                        <th style="padding:6px 10px; text-align:center; width:20%;">Remarks</th>
+                        <th style="padding:6px 10px; text-align:center; width:10%;"></th>
                     </tr>
                 </thead>
                 <tbody id="invoiceItemsBody">
@@ -710,29 +710,29 @@
                 </tbody>
             </table>
             <button type="button" onclick="addInvoiceRow()" style="margin-top:8px; background:#0EA5E9; color:#fff; border:none; padding:4px 16px; border-radius:4px; cursor:pointer;">
-                <i class="fas fa-plus"></i> पङ्क्ति थप्नुहोस्
+                <i class="fas fa-plus"></i> Add Row
             </button>
         </div>
 
         {{-- Subtotal Display --}}
         <div style="text-align:right; margin-bottom:12px; font-weight:700; font-size:1.1rem;">
-            कुल रकम (Subtotal): <span id="subtotalDisplay">0.00</span>
+            Subtotal: <span id="subtotalDisplay">0.00</span>
         </div>
 
         {{-- Due Date --}}
         <div style="margin-bottom:12px;">
-            <label style="font-weight:600; display:block; margin-bottom:4px;">भुक्तानी म्याद (Due Date)</label>
+            <label style="font-weight:600; display:block; margin-bottom:4px;">Due Date</label>
             <input type="date" name="due_date" style="width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px;">
         </div>
 
         <div style="text-align:right;">
             <button type="submit" style="background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; border:none; padding:6px 20px; border-radius:50px; font-weight:600; font-size:0.8rem; cursor:pointer; box-shadow:0 4px 15px rgba(245,158,11,0.3);">
-                <i class="fas fa-file-invoice"></i> इनभ्वाइस जेनेरेट गर्नुहोस्
+                <i class="fas fa-file-invoice"></i> Generate Invoice
             </button>
         </div>
     </form>
 </div>
-@endif  {{-- ✅ यो @endif थप्नुहोस् --}}
+@endif
 
 {{-- ===== MODALS ===== --}}
 @include('admin.registrations.partials._document_modal')
@@ -743,91 +743,142 @@
 
     {{-- ✅ नयाँ Invoice Builder JavaScript --}}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            addInvoiceRow();
+    document.addEventListener('DOMContentLoaded', function() {
+        addInvoiceRow();
+    });
+
+    // Hardcoded fee types with default amounts
+    var feeTypes = {
+        'renewal': { description: 'Renewal Fee', default_amount: 1000 },
+        'membership': { description: 'Membership Fee', default_amount: 500 },
+        'inspection': { description: 'Inspection Fee', default_amount: 700 },
+        'certificate': { description: 'Certificate Fee', default_amount: 300 },
+        'penalty': { description: 'Penalty', default_amount: 200 },
+        'log_book': { description: 'Log Book Fee', default_amount: 150 },
+        'leave_form': { description: 'Leave Form Fee', default_amount: 100 },
+        'admission_form': { description: 'Student Admission Form Fee', default_amount: 250 },
+        'code_conduct': { description: 'Code of Conduct Board Fee', default_amount: 400 },
+        'other': { description: 'Other', default_amount: 0 }
+    };
+
+    function addInvoiceRow() {
+        var tbody = document.getElementById('invoiceItemsBody');
+        var rowCount = tbody.children.length;
+        var row = document.createElement('tr');
+        row.className = 'invoice-item-row';
+
+        // Build dropdown options
+        var optionsHtml = '<option value="">-- Select --</option>';
+        for (var key in feeTypes) {
+            optionsHtml += '<option value="' + key + '" data-description="' + feeTypes[key].description + '" data-amount="' + feeTypes[key].default_amount + '">' + feeTypes[key].description + '</option>';
+        }
+
+        row.innerHTML = `
+            <td style="padding:4px 6px;">
+                <select name="items[${rowCount}][fee_type]" class="fee-type-select" style="width:100%; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px;">
+                    ${optionsHtml}
+                </select>
+                <input type="text" name="items[${rowCount}][description]" placeholder="Or custom description" class="item-description" style="width:100%; margin-top:4px; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px; display:none;">
+            </td>
+            <td style="padding:4px 6px; text-align:center;">
+                <input type="number" name="items[${rowCount}][quantity]" value="1" step="0.01" min="0.01" required class="item-quantity" style="width:70px; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px; text-align:center;">
+            </td>
+            <td style="padding:4px 6px; text-align:center;">
+                <input type="number" name="items[${rowCount}][unit_price]" value="0" step="0.01" min="0" required class="item-unit-price" style="width:90px; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px; text-align:center;">
+            </td>
+            <td style="padding:4px 6px; text-align:center;">
+                <span class="item-amount">0.00</span>
+            </td>
+            <td style="padding:4px 6px;">
+                <input type="text" name="items[${rowCount}][remarks]" placeholder="Optional" style="width:100%; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px;">
+            </td>
+            <td style="padding:4px 6px; text-align:center;">
+                <button type="button" onclick="removeInvoiceRow(this)" style="background:#ef4444; color:#fff; border:none; border-radius:4px; padding:4px 8px; cursor:pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+
+        // Event: fee type selection → auto-fill description & unit price
+        var feeSelect = row.querySelector('.fee-type-select');
+        var descInput = row.querySelector('.item-description');
+        var unitPriceInput = row.querySelector('.item-unit-price');
+
+        feeSelect.addEventListener('change', function() {
+            var selectedOption = this.options[this.selectedIndex];
+            if (this.value === '') {
+                descInput.style.display = 'block';
+                descInput.required = true;
+                descInput.value = '';
+                unitPriceInput.value = 0;
+            } else {
+                var desc = selectedOption.getAttribute('data-description');
+                var amount = selectedOption.getAttribute('data-amount');
+                descInput.style.display = 'none';
+                descInput.required = false;
+                descInput.value = desc;
+                unitPriceInput.value = amount;
+                // Also update the hidden description field (the one that will be submitted)
+                // Since we are using the visible descInput for actual submission, we need to set its value
+                // But we hide it, so we set its value and it will be submitted.
+                descInput.value = desc;
+            }
+            updateRowAmount(row);
         });
 
-        function addInvoiceRow() {
-            var tbody = document.getElementById('invoiceItemsBody');
-            var rowCount = tbody.children.length;
-            var row = document.createElement('tr');
-            row.className = 'invoice-item-row';
-            row.innerHTML = `
-                <td style="padding:4px 6px;">
-                    <input type="text" name="items[${rowCount}][description]" placeholder="विवरण (जस्तै: नवीकरण शुल्क)" required style="width:100%; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px;">
-                </td>
-                <td style="padding:4px 6px; text-align:center;">
-                    <input type="number" name="items[${rowCount}][quantity]" value="1" step="0.01" min="0.01" required class="item-quantity" style="width:70px; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px; text-align:center;">
-                </td>
-                <td style="padding:4px 6px; text-align:center;">
-                    <input type="number" name="items[${rowCount}][unit_price]" value="0" step="0.01" min="0" required class="item-unit-price" style="width:90px; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px; text-align:center;">
-                </td>
-                <td style="padding:4px 6px; text-align:center;">
-                    <span class="item-amount">0.00</span>
-                </td>
-                <td style="padding:4px 6px;">
-                    <input type="text" name="items[${rowCount}][remarks]" placeholder="टिप्पणी (वैकल्पिक)" style="width:100%; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px;">
-                </td>
-                <td style="padding:4px 6px; text-align:center;">
-                    <button type="button" onclick="removeInvoiceRow(this)" style="background:#ef4444; color:#fff; border:none; border-radius:4px; padding:4px 8px; cursor:pointer;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
+        // Event listeners for quantity/unit price changes
+        var quantityInput = row.querySelector('.item-quantity');
+        quantityInput.addEventListener('input', function() { updateRowAmount(row); });
+        unitPriceInput.addEventListener('input', function() { updateRowAmount(row); });
 
-            var quantityInput = row.querySelector('.item-quantity');
-            var unitPriceInput = row.querySelector('.item-unit-price');
-            quantityInput.addEventListener('input', function() { updateRowAmount(row); });
-            unitPriceInput.addEventListener('input', function() { updateRowAmount(row); });
+        updateRowAmount(row);
+    }
 
-            updateRowAmount(row);
+    function removeInvoiceRow(btn) {
+        var tbody = document.getElementById('invoiceItemsBody');
+        if (tbody.children.length <= 1) {
+            alert('At least one row is required.');
+            return;
         }
+        var row = btn.closest('tr');
+        row.remove();
+        updateSubtotal();
+        reindexRows();
+    }
 
-        function removeInvoiceRow(btn) {
-            var tbody = document.getElementById('invoiceItemsBody');
-            if (tbody.children.length <= 1) {
-                alert('कम्तीमा एउटा पङ्क्ति रहनुपर्छ।');
-                return;
-            }
-            var row = btn.closest('tr');
-            row.remove();
-            updateSubtotal();
-            reindexRows();
-        }
+    function updateRowAmount(row) {
+        var quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+        var unitPrice = parseFloat(row.querySelector('.item-unit-price').value) || 0;
+        var amount = quantity * unitPrice;
+        row.querySelector('.item-amount').textContent = amount.toFixed(2);
+        updateSubtotal();
+    }
 
-        function updateRowAmount(row) {
-            var quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
-            var unitPrice = parseFloat(row.querySelector('.item-unit-price').value) || 0;
-            var amount = quantity * unitPrice;
-            row.querySelector('.item-amount').textContent = amount.toFixed(2);
-            updateSubtotal();
-        }
+    function updateSubtotal() {
+        var rows = document.querySelectorAll('#invoiceItemsBody .invoice-item-row');
+        var subtotal = 0;
+        rows.forEach(function(row) {
+            var amountText = row.querySelector('.item-amount').textContent;
+            subtotal += parseFloat(amountText) || 0;
+        });
+        document.getElementById('subtotalDisplay').textContent = subtotal.toFixed(2);
+    }
 
-        function updateSubtotal() {
-            var rows = document.querySelectorAll('#invoiceItemsBody .invoice-item-row');
-            var subtotal = 0;
-            rows.forEach(function(row) {
-                var amountText = row.querySelector('.item-amount').textContent;
-                subtotal += parseFloat(amountText) || 0;
+    function reindexRows() {
+        var rows = document.querySelectorAll('#invoiceItemsBody .invoice-item-row');
+        rows.forEach(function(row, index) {
+            var inputs = row.querySelectorAll('input, select');
+            inputs.forEach(function(input) {
+                var name = input.getAttribute('name');
+                if (name) {
+                    var newName = name.replace(/items\[\d+\]/, 'items[' + index + ']');
+                    input.setAttribute('name', newName);
+                }
             });
-            document.getElementById('subtotalDisplay').textContent = subtotal.toFixed(2);
-        }
-
-        function reindexRows() {
-            var rows = document.querySelectorAll('#invoiceItemsBody .invoice-item-row');
-            rows.forEach(function(row, index) {
-                var inputs = row.querySelectorAll('input');
-                inputs.forEach(function(input) {
-                    var name = input.getAttribute('name');
-                    if (name) {
-                        var newName = name.replace(/items\[\d+\]/, 'items[' + index + ']');
-                        input.setAttribute('name', newName);
-                    }
-                });
-            });
-        }
-    </script>
+        });
+    }
+</script>
 @endpush
 
 @endsection
