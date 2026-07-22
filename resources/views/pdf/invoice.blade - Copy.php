@@ -24,6 +24,8 @@
             position: relative;
             overflow: hidden;
         }
+
+        /* ===== HEADER ===== */
         .header {
             display: flex;
             justify-content: space-between;
@@ -89,6 +91,8 @@
             margin-top: 4px;
             line-height: 1.5;
         }
+
+        /* ===== DETAILS ===== */
         .details {
             display: flex;
             justify-content: space-between;
@@ -125,6 +129,8 @@
         .details .right strong {
             color: #0f172a;
         }
+
+        /* ===== TABLE ===== */
         .table-wrap {
             margin-bottom: 25px;
             position: relative;
@@ -159,6 +165,8 @@
         .text-center {
             text-align: center;
         }
+
+        /* ===== TOTALS ===== */
         .totals {
             display: flex;
             justify-content: flex-end;
@@ -183,6 +191,8 @@
             border-bottom: 3px solid #22C55E;
             padding-top: 14px;
         }
+
+        /* ===== FOOTER ===== */
         .footer {
             margin-top: 30px;
             padding-top: 20px;
@@ -225,6 +235,7 @@
             margin-top: 8px;
             margin-left: auto;
         }
+
         @media print {
             body { padding: 10px; background: #fff; }
             .invoice-wrapper { border: none; box-shadow: none; padding: 15px; }
@@ -268,43 +279,30 @@
             <div class="sub-value">{{ $registration->hostel->name ?? $registration->hostel_name ?? '' }}</div>
         </div>
         <div class="right">
+            {{-- ✅ 8.3: दर्ता नम्बर (Registration Number) – फलब्याक #ID --}}
             <div><strong>दर्ता नम्बर:</strong> {{ $registration->registration_number ?? '#'.$registration->id }}</div>
-            @if($invoice->due_date)
-                <div><strong>Due Date:</strong> {{ $invoice->due_date->format('Y-m-d') }}</div>
+            @if($request->due_date)
+                <div><strong>Due Date:</strong> {{ \Carbon\Carbon::parse($request->due_date)->format('Y-m-d') }}</div>
             @endif
         </div>
     </div>
 
-    {{-- ITEMS TABLE --}}
+    {{-- TABLE --}}
     <div class="table-wrap">
         <table class="items">
             <thead>
                 <tr>
                     <th style="width:8%;" class="text-center">#</th>
-                    <th style="width:62%;">DESCRIPTION</th>
-                    <th style="width:15%;" class="text-right">Qty</th>
-                    <th style="width:15%;" class="text-right">AMOUNT</th>
+                    <th style="width:52%;">DESCRIPTION</th>
+                    <th style="width:20%;" class="text-right">AMOUNT</th>
                 </tr>
             </thead>
             <tbody>
-                @php $total = 0; @endphp
-                @forelse($invoice->items as $index => $item)
-                    @php $total += $item->amount; @endphp
-                    <tr>
-                        <td class="text-center">{{ $loop->iteration }}</td>
-                        <td>{{ $item->description }}</td>
-                        <td class="text-right">{{ $item->quantity }}</td>
-                        <td class="text-right">NPR {{ number_format($item->amount, 2) }}</td>
-                    </tr>
-                @empty
-                    {{-- Backup for old invoices without items (should not happen after migration) --}}
-                    <tr>
-                        <td class="text-center">1</td>
-                        <td>{{ $invoice->invoice_type ?? 'Invoice' }}</td>
-                        <td class="text-right">1</td>
-                        <td class="text-right">NPR {{ number_format($invoice->amount, 2) }}</td>
-                    </tr>
-                @endforelse
+                <tr>
+                    <td class="text-center">1</td>
+                    <td>{{ __('messages.invoice_type_' . ($invoice_type ?? 'new_registration')) }}</td>
+                    <td class="text-right">NPR {{ number_format($request->amount, 2) }}</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -313,24 +311,12 @@
     <div class="totals">
         <table>
             <tr>
-                <td style="border-bottom: none; text-align:right;">Subtotal</td>
-                <td style="border-bottom: none; text-align:right;">NPR {{ number_format($total, 2) }}</td>
+                <td style="border-bottom: none; text-align:right;">Total</td>
+                <td style="border-bottom: none; text-align:right;">NPR {{ number_format($request->amount, 2) }}</td>
             </tr>
-            @if($invoice->discount > 0)
-            <tr>
-                <td style="border-bottom: none; text-align:right;">Discount</td>
-                <td style="border-bottom: none; text-align:right;">- NPR {{ number_format($invoice->discount, 2) }}</td>
-            </tr>
-            @endif
-            @if($invoice->tax > 0)
-            <tr>
-                <td style="border-bottom: none; text-align:right;">Tax</td>
-                <td style="border-bottom: none; text-align:right;">+ NPR {{ number_format($invoice->tax, 2) }}</td>
-            </tr>
-            @endif
             <tr class="total-row">
                 <td style="text-align:right;">Total Due</td>
-                <td style="text-align:right;">NPR {{ number_format($invoice->amount, 2) }}</td>
+                <td style="text-align:right;">NPR {{ number_format($request->amount, 2) }}</td>
             </tr>
         </table>
     </div>
