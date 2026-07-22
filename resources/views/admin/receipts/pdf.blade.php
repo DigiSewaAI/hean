@@ -274,7 +274,7 @@
             <div class="sub-value">{{ $payment->registration->hostel->name ?? $payment->registration->hostel_name ?? '' }}</div>
         </div>
         <div class="details">
-<div><strong>दर्ता नम्बर:</strong> {{ $payment->registration->registration_number ?? '#'.$payment->registration_id }}</div>
+            <div><strong>दर्ता नम्बर:</strong> {{ $payment->registration->registration_number ?? '#'.$payment->registration_id }}</div>
             @if($payment->invoice)
                 <div><strong>Invoice:</strong> {{ $payment->invoice->invoice_number }}</div>
             @endif
@@ -283,24 +283,41 @@
         </div>
     </div>
 
-    {{-- TABLE --}}
+    {{-- ITEMS TABLE --}}
     <div class="table-wrap">
         <table class="items">
             <thead>
                 <tr>
                     <th style="width:8%;" class="text-center">#</th>
-                    <th style="width:50%;">DESCRIPTION</th>
-                    <th style="width:22%;">INVOICE NO.</th>
-                    <th style="width:20%;" class="text-right">AMOUNT</th>
+                    <th style="width:47%;">DESCRIPTION</th>
+                    <th style="width:15%;" class="text-center">Qty</th>
+                    <th style="width:15%;" class="text-right">UNIT PRICE</th>
+                    <th style="width:15%;" class="text-right">AMOUNT</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-    <td class="text-center">1</td>
-    <td>{{ $payment->invoice->invoice_type ?? 'Payment Received' }}</td>
-    <td>{{ $payment->invoice->invoice_number ?? 'N/A' }}</td>
-    <td class="text-right">NPR {{ number_format($receipt->amount, 2) }}</td>
-</tr>
+                @php $subtotal = 0; @endphp
+                @if($payment->invoice && $payment->invoice->items->count())
+                    @foreach($payment->invoice->items as $index => $item)
+                        @php $subtotal += $item->amount; @endphp
+                        <tr>
+                            <td class="text-center">{{ $loop->iteration }}</td>
+                            <td>{{ $item->description }}</td>
+                            <td class="text-center">{{ $item->quantity }}</td>
+                            <td class="text-right">NPR {{ number_format($item->unit_price, 2) }}</td>
+                            <td class="text-right">NPR {{ number_format($item->amount, 2) }}</td>
+                        </tr>
+                    @endforeach
+                @else
+                    {{-- Fallback for old receipts where invoice items might not exist --}}
+                    <tr>
+                        <td class="text-center">1</td>
+                        <td>{{ $payment->invoice->invoice_type ?? 'Payment Received' }}</td>
+                        <td class="text-center">1</td>
+                        <td class="text-right">NPR {{ number_format($receipt->amount, 2) }}</td>
+                        <td class="text-right">NPR {{ number_format($receipt->amount, 2) }}</td>
+                    </tr>
+                @endif
             </tbody>
         </table>
     </div>
@@ -308,14 +325,38 @@
     {{-- TOTALS --}}
     <div class="totals">
         <table>
-            <tr>
-                <td style="border-bottom: none; text-align:right;">Amount Paid</td>
-                <td style="border-bottom: none; text-align:right;">NPR {{ number_format($receipt->amount, 2) }}</td>
-            </tr>
-            <tr class="total-row">
-                <td style="text-align:right;">Total Paid</td>
-                <td style="text-align:right;">NPR {{ number_format($receipt->amount, 2) }}</td>
-            </tr>
+            @if($payment->invoice && $payment->invoice->items->count())
+                @php $subtotal = $payment->invoice->items->sum('amount'); @endphp
+                <tr>
+                    <td style="border-bottom: none; text-align:right;">Subtotal</td>
+                    <td style="border-bottom: none; text-align:right;">NPR {{ number_format($subtotal, 2) }}</td>
+                </tr>
+                @if($payment->invoice->discount > 0)
+                <tr>
+                    <td style="border-bottom: none; text-align:right;">Discount</td>
+                    <td style="border-bottom: none; text-align:right;">- NPR {{ number_format($payment->invoice->discount, 2) }}</td>
+                </tr>
+                @endif
+                @if($payment->invoice->tax > 0)
+                <tr>
+                    <td style="border-bottom: none; text-align:right;">Tax</td>
+                    <td style="border-bottom: none; text-align:right;">+ NPR {{ number_format($payment->invoice->tax, 2) }}</td>
+                </tr>
+                @endif
+                <tr class="total-row">
+                    <td style="text-align:right;">Total Paid</td>
+                    <td style="text-align:right;">NPR {{ number_format($receipt->amount, 2) }}</td>
+                </tr>
+            @else
+                <tr>
+                    <td style="border-bottom: none; text-align:right;">Amount Paid</td>
+                    <td style="border-bottom: none; text-align:right;">NPR {{ number_format($receipt->amount, 2) }}</td>
+                </tr>
+                <tr class="total-row">
+                    <td style="text-align:right;">Total Paid</td>
+                    <td style="text-align:right;">NPR {{ number_format($receipt->amount, 2) }}</td>
+                </tr>
+            @endif
         </table>
     </div>
 
