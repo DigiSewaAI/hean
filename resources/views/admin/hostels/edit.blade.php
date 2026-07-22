@@ -100,45 +100,63 @@
             </div>
         </div>
 
-        {{-- ===== Row 4: District + Municipality + Ward ===== --}}
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:16px;">
-            <div class="form-group">
-                <label for="district" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                    {{ __('messages.district') }} <span style="color:#dc2626;">*</span>
-                </label>
-                <input type="text" name="district" id="district" value="{{ old('district', $hostel->district) }}"
-                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;" required>
-                @error('district') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-            </div>
-            <div class="form-group">
-                <label for="municipality" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                    {{ __('messages.municipality') }} <span style="color:#dc2626;">*</span>
-                </label>
-                <input type="text" name="municipality" id="municipality" value="{{ old('municipality', $hostel->municipality) }}"
-                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;" required>
-                @error('municipality') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-            </div>
-            <div class="form-group">
-                <label for="ward" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                    {{ __('messages.ward') }} <span style="color:#dc2626;">*</span>
-                </label>
-                <input type="text" name="ward" id="ward" value="{{ old('ward', $hostel->ward) }}"
-                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;" required>
-                @error('ward') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-            </div>
-        </div>
+        {{-- ===== Location: Province, District, Municipality, Ward ===== --}}
+<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:16px;">
+    <div class="form-group">
+        <label for="province_id" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            {{ __('messages.province') }} <span style="color:#dc2626;">*</span>
+        </label>
+        <select name="province_id" id="province_id" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;" required>
+            <option value="">{{ __('messages.select_province') }}</option>
+            @foreach(\App\Models\Province::orderBy('name')->get() as $prov)
+                <option value="{{ $prov->id }}" {{ old('province_id', $hostel->province_id) == $prov->id ? 'selected' : '' }}>
+                    {{ $prov->name }}
+                </option>
+            @endforeach
+        </select>
+        @error('province_id') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+    </div>
+    <div class="form-group">
+        <label for="district_id" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            {{ __('messages.district') }} <span style="color:#dc2626;">*</span>
+        </label>
+        <select name="district_id" id="district_id" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;" required>
+            <option value="">{{ __('messages.select_district') }}</option>
+            {{-- JavaScript ले भर्ने --}}
+        </select>
+        @error('district_id') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+    </div>
+    <div class="form-group">
+        <label for="municipality_id" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            {{ __('messages.municipality') }} <span style="color:#dc2626;">*</span>
+        </label>
+        <select name="municipality_id" id="municipality_id" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;" required>
+            <option value="">{{ __('messages.select_municipality') }}</option>
+            {{-- JavaScript ले भर्ने --}}
+        </select>
+        @error('municipality_id') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+    </div>
+</div>
 
-        {{-- ===== Row 5: Street ===== --}}
-        <div style="margin-bottom:16px;">
-            <div class="form-group">
-                <label for="street" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                    {{ __('messages.street') }} <span style="color:#64748b; font-weight:400;">({{ __('messages.optional') }})</span>
-                </label>
-                <input type="text" name="street" id="street" value="{{ old('street', $hostel->street) }}"
-                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
-                @error('street') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-            </div>
-        </div>
+{{-- Ward and Street --}}
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+    <div class="form-group">
+        <label for="ward" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            {{ __('messages.ward_number') }} <span style="color:#dc2626;">*</span>
+        </label>
+        <input type="number" name="ward" id="ward" value="{{ old('ward', $hostel->ward) }}"
+               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;" min="1" max="32" required>
+        @error('ward') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+    </div>
+    <div class="form-group">
+        <label for="street" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            {{ __('messages.street_tole') }} <span style="color:#64748b; font-weight:400;">({{ __('messages.optional') }})</span>
+        </label>
+        <input type="text" name="street" id="street" value="{{ old('street', $hostel->street) }}"
+               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+        @error('street') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+    </div>
+</div>
 
         {{-- Row: Local Registration Number --}}
 <div style="margin-bottom:16px;">
@@ -230,4 +248,70 @@
 
     </form>
 </div>
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const provinceSelect = document.getElementById('province_id');
+        const districtSelect = document.getElementById('district_id');
+        const municipalitySelect = document.getElementById('municipality_id');
+
+        // Province परिवर्तन हुँदा districts ल्याउने
+        provinceSelect.addEventListener('change', function() {
+            const provinceId = this.value;
+            districtSelect.innerHTML = '<option value="">{{ __('messages.select_district') }}</option>';
+            municipalitySelect.innerHTML = '<option value="">{{ __('messages.select_municipality') }}</option>';
+            if (provinceId) {
+                fetch(`/api/districts/${provinceId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(district => {
+                            const option = document.createElement('option');
+                            option.value = district.id;
+                            option.textContent = district.name;
+                            districtSelect.appendChild(option);
+                        });
+                        // यदि पहिले देखि selected district छ भने त्यसलाई select गर्नुहोस्
+                        const oldDistrict = "{{ old('district_id', $hostel->district_id ?? '') }}";
+                        if (oldDistrict) {
+                            districtSelect.value = oldDistrict;
+                            districtSelect.dispatchEvent(new Event('change'));
+                        }
+                    })
+                    .catch(() => {});
+            }
+        });
+
+        // District परिवर्तन हुँदा municipalities ल्याउने
+        districtSelect.addEventListener('change', function() {
+            const districtId = this.value;
+            municipalitySelect.innerHTML = '<option value="">{{ __('messages.select_municipality') }}</option>';
+            if (districtId) {
+                fetch(`/api/municipalities/${districtId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(municipality => {
+                            const option = document.createElement('option');
+                            option.value = municipality.id;
+                            option.textContent = municipality.name;
+                            municipalitySelect.appendChild(option);
+                        });
+                        // यदि पहिले देखि selected municipality छ भने select गर्नुहोस्
+                        const oldMunicipality = "{{ old('municipality_id', $hostel->municipality_id ?? '') }}";
+                        if (oldMunicipality) {
+                            municipalitySelect.value = oldMunicipality;
+                        }
+                    })
+                    .catch(() => {});
+            }
+        });
+
+        // पहिले देखि selected province भएमा districts र municipalities लोड गर्नुहोस्
+        const initialProvince = "{{ old('province_id', $hostel->province_id ?? '') }}";
+        if (initialProvince) {
+            provinceSelect.value = initialProvince;
+            provinceSelect.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+@endpush
 @endsection
