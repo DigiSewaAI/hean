@@ -217,8 +217,8 @@ class HostelController extends Controller
     }
     $hostel->delete();
 
-    // ✅ AJAX request check
-    if (request()->ajax()) {
+    // ✅ JSON response if request expects JSON
+    if (request()->expectsJson()) {
         return response()->json([
             'success' => true,
             'message' => 'होस्टल सफलतापूर्वक हटाइयो।'

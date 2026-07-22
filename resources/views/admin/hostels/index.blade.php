@@ -498,9 +498,10 @@ function deleteHostel(button) {
     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
     fetch(url, {
-        method: 'POST', // since we need to send DELETE via POST with _method
+        method: 'POST',
         headers: {
             'X-CSRF-TOKEN': token,
+            'X-Requested-With': 'XMLHttpRequest', // ✅ AJAX detection को लागि
             'Content-Type': 'application/json',
             'X-HTTP-Method-Override': method,
             'Accept': 'application/json'
@@ -509,7 +510,15 @@ function deleteHostel(button) {
     })
     .then(response => {
         if (!response.ok) {
-            return response.json().then(err => { throw new Error(err.message || 'Server error'); });
+            // Try to parse error message from JSON, else throw general error
+            return response.text().then(text => {
+                try {
+                    const json = JSON.parse(text);
+                    throw new Error(json.message || 'Server error');
+                } catch {
+                    throw new Error('Server error (status ' + response.status + ')');
+                }
+            });
         }
         return response.json();
     })
