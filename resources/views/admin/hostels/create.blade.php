@@ -3,8 +3,10 @@
 @section('title', __('messages.add_hostel') . ' - HEAN Admin')
 
 @section('content')
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-    <h2 style="font-size:1.5rem; font-weight:700; color:#0f172a; margin:0;">{{ __('messages.add_hostel') }}</h2>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+    <h2 style="font-size:1.5rem; font-weight:700; color:#0f172a; margin:0;">
+        <i class="fas fa-plus-circle me-2" style="color:#0EA5E9;"></i> {{ __('messages.add_hostel') }}
+    </h2>
     <a href="{{ route('admin.hostels.index') }}" style="display:inline-flex; align-items:center; gap:6px; background:#e2e8f0; color:#1e293b; padding:8px 18px; border-radius:50px; text-decoration:none; font-weight:500; font-size:0.85rem; transition:0.3s;">
         <i class="fas fa-arrow-left"></i> {{ __('messages.back') }}
     </a>
@@ -14,72 +16,266 @@
     <form action="{{ route('admin.hostels.store') }}" method="POST" enctype="multipart/form-data" class="dashboard-form">
         @csrf
 
-        <div class="form-row">
+        {{-- ===== Error Messages ===== --}}
+        @if($errors->any())
+            <div style="background:#fef2f2; border-left:4px solid #dc2626; padding:12px 20px; border-radius:8px; margin-bottom:20px;">
+                <ul style="margin:0; padding-left:20px; color:#dc2626;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        {{-- ===== Row 1: Name (Nepali + English) ===== --}}
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div class="form-group">
-                <label for="name_nepali">{{ __('messages.hostel_name_nepali') }} <span style="color:#dc2626;">*</span></label>
-                <input type="text" name="name_nepali" id="name_nepali" value="{{ old('name_nepali') }}" required>
+                <label for="name_nepali" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.hostel_name_nepali') }} <span style="color:#dc2626;">*</span>
+                </label>
+                <input type="text" name="name_nepali" id="name_nepali" value="{{ old('name_nepali') }}"
+                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;" required>
+                @error('name_nepali') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
             </div>
             <div class="form-group">
-                <label for="name_english">{{ __('messages.hostel_name_english') }}</label>
-                <input type="text" name="name_english" id="name_english" value="{{ old('name_english') }}">
+                <label for="name_english" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.hostel_name_english') }} <span style="color:#64748b; font-weight:400;">({{ __('messages.optional') }})</span>
+                </label>
+                <input type="text" name="name_english" id="name_english" value="{{ old('name_english') }}"
+                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                @error('name_english') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
             </div>
         </div>
 
-        <div class="form-row">
+        {{-- ===== Row 2: Type + Capacity + Rooms ===== --}}
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:16px;">
             <div class="form-group">
-                <label for="operator_name">{{ __('messages.operator_name') }} <span style="color:#dc2626;">*</span></label>
-                <input type="text" name="operator_name" id="operator_name" value="{{ old('operator_name') }}" required>
+                <label for="type" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.type') }} <span style="color:#dc2626;">*</span>
+                </label>
+                <select name="type" id="type" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;" required>
+                    <option value="">{{ __('messages.select_type') }}</option>
+                    <option value="boys" {{ old('type') == 'boys' ? 'selected' : '' }}>{{ __('messages.boys') }}</option>
+                    <option value="girls" {{ old('type') == 'girls' ? 'selected' : '' }}>{{ __('messages.girls') }}</option>
+                    <option value="co-ed" {{ old('type') == 'co-ed' ? 'selected' : '' }}>{{ __('messages.co_ed') }}</option>
+                </select>
+                @error('type') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
             </div>
             <div class="form-group">
-                <label for="contact">{{ __('messages.contact') }} <span style="color:#dc2626;">*</span></label>
-                <input type="text" name="contact" id="contact" value="{{ old('contact') }}" required>
+                <label for="capacity" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.total_beds') }} <span style="color:#dc2626;">*</span>
+                </label>
+                <input type="number" name="capacity" id="capacity" value="{{ old('capacity', 0) }}"
+                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;" min="0" required>
+                @error('capacity') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+            </div>
+            <div class="form-group">
+                <label for="rooms" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.total_rooms') }} <span style="color:#dc2626;">*</span>
+                </label>
+                <input type="number" name="rooms" id="rooms" value="{{ old('rooms', 0) }}"
+                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;" min="0" required>
+                @error('rooms') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
             </div>
         </div>
 
-        <div class="form-row">
+        {{-- ===== Row 3: Operator + Contact ===== --}}
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div class="form-group">
-                <label for="district">{{ __('messages.district') }} <span style="color:#dc2626;">*</span></label>
-                <input type="text" name="district" id="district" value="{{ old('district') }}" required>
+                <label for="operator_name" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.operator_name') }} <span style="color:#dc2626;">*</span>
+                </label>
+                <input type="text" name="operator_name" id="operator_name" value="{{ old('operator_name') }}"
+                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;" required>
+                @error('operator_name') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
             </div>
             <div class="form-group">
-                <label for="municipality">{{ __('messages.municipality') }} <span style="color:#dc2626;">*</span></label>
-                <input type="text" name="municipality" id="municipality" value="{{ old('municipality') }}" required>
+                <label for="contact" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.contact') }} <span style="color:#dc2626;">*</span>
+                </label>
+                <input type="text" name="contact" id="contact" value="{{ old('contact') }}"
+                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;" required>
+                @error('contact') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
             </div>
         </div>
 
-        <div class="form-row">
+        {{-- ===== Location: Province, District, Municipality (Dropdowns) ===== --}}
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:16px;">
             <div class="form-group">
-                <label for="ward">{{ __('messages.ward') }} <span style="color:#dc2626;">*</span></label>
-                <input type="text" name="ward" id="ward" value="{{ old('ward') }}" required>
+                <label for="province_id" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.province') }} <span style="color:#dc2626;">*</span>
+                </label>
+                <select name="province_id" id="province_id" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;" required>
+                    <option value="">{{ __('messages.select_province') }}</option>
+                    @foreach(\App\Models\Province::orderBy('name')->get() as $prov)
+                        <option value="{{ $prov->id }}" {{ old('province_id') == $prov->id ? 'selected' : '' }}>
+                            {{ $prov->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('province_id') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
             </div>
             <div class="form-group">
-                <label for="street">{{ __('messages.street') }}</label>
-                <input type="text" name="street" id="street" value="{{ old('street') }}">
+                <label for="district_id" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.district') }} <span style="color:#dc2626;">*</span>
+                </label>
+                <select name="district_id" id="district_id" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;" required>
+                    <option value="">{{ __('messages.select_district') }}</option>
+                    {{-- JavaScript ले भर्ने --}}
+                </select>
+                @error('district_id') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+            </div>
+            <div class="form-group">
+                <label for="municipality_id" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.municipality') }} <span style="color:#dc2626;">*</span>
+                </label>
+                <select name="municipality_id" id="municipality_id" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;" required>
+                    <option value="">{{ __('messages.select_municipality') }}</option>
+                    {{-- JavaScript ले भर्ने --}}
+                </select>
+                @error('municipality_id') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
             </div>
         </div>
 
-        <div class="form-group">
-            <label for="description">{{ __('messages.description') }}</label>
-            <textarea name="description" id="description" rows="4">{{ old('description') }}</textarea>
-        </div>
-
-        <div class="form-row">
+        {{-- ===== Ward and Street ===== --}}
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div class="form-group">
-                <label for="image">{{ __('messages.image') }}</label>
-                <input type="file" name="image" id="image" accept="image/*">
+                <label for="ward" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.ward_number') }} <span style="color:#dc2626;">*</span>
+                </label>
+                <input type="number" name="ward" id="ward" value="{{ old('ward') }}"
+                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;" min="1" max="32" required>
+                @error('ward') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
             </div>
-            <div class="form-group" style="display:flex; align-items:center; gap:12px; padding-top:28px;">
-                <input type="checkbox" name="approved" id="approved" value="1" {{ old('approved', true) ? 'checked' : '' }} style="width:18px; height:18px; accent-color:#0EA5E9;">
-                <label for="approved" style="margin:0; font-weight:500; cursor:pointer;">{{ __('messages.approved') }}</label>
+            <div class="form-group">
+                <label for="street" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.street_tole') }} <span style="color:#64748b; font-weight:400;">({{ __('messages.optional') }})</span>
+                </label>
+                <input type="text" name="street" id="street" value="{{ old('street') }}"
+                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                @error('street') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
             </div>
         </div>
 
+        {{-- ===== Local Registration Number ===== --}}
+        <div style="margin-bottom:16px;">
+            <div class="form-group">
+                <label for="local_registration_number" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.local_registration_number') }}
+                    <span style="color:#64748b; font-weight:400;">({{ __('messages.optional') }})</span>
+                </label>
+                <input type="text" name="local_registration_number" id="local_registration_number"
+                       value="{{ old('local_registration_number') }}"
+                       placeholder="{{ __('messages.placeholder_local_registration_number') }}"
+                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                @error('local_registration_number')
+                    <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
+                @enderror
+                <small style="color:#64748b; font-size:0.75rem;">
+                    <i class="fas fa-info-circle"></i>
+                    {{ __('messages.help_local_registration_number') }}
+                </small>
+            </div>
+        </div>
+
+        {{-- ===== Description ===== --}}
+        <div style="margin-bottom:16px;">
+            <div class="form-group">
+                <label for="description" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.description') }} <span style="color:#64748b; font-weight:400;">({{ __('messages.optional') }})</span>
+                </label>
+                <textarea name="description" id="description" rows="3"
+                          style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">{{ old('description') }}</textarea>
+                @error('description') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+            </div>
+        </div>
+
+        {{-- ===== Image Upload ===== --}}
+        <div style="margin-bottom:16px;">
+            <div class="form-group">
+                <label for="image" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+                    {{ __('messages.image') }} <span style="color:#64748b; font-weight:400;">({{ __('messages.optional') }})</span>
+                </label>
+                <input type="file" name="image" id="image" accept=".jpg,.jpeg,.png,.webp"
+                       style="width:100%; padding:10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                <small style="color:#64748b; font-size:0.75rem; display:block; margin-top:4px;">
+                    <i class="fas fa-info-circle"></i> 
+                    {{ __('messages.edit_allowed_formats_hostel') }}
+                </small>
+                @error('image') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+            </div>
+        </div>
+
+        {{-- ===== Approved Checkbox ===== --}}
+        <div style="margin-bottom:24px;">
+            <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" name="approved" id="approved" value="1" {{ old('approved', true) ? 'checked' : '' }}
+                       style="width:18px; height:18px; accent-color:#0EA5E9; cursor:pointer;">
+                <label for="approved" style="font-weight:600; color:#1e293b; cursor:pointer;">
+                    <i class="fas fa-check-circle" style="color:#22C55E;"></i> {{ __('messages.approved') }}
+                </label>
+            </div>
+        </div>
+
+        {{-- ===== Submit Buttons ===== --}}
         <div style="display:flex; gap:12px; margin-top:20px;">
-            <button type="submit" style="display:inline-flex; align-items:center; gap:8px; background:#0EA5E9; color:#fff; padding:10px 28px; border:none; border-radius:50px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(14,165,233,0.3);">
+            <button type="submit" style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg, #0EA5E9, #3B82F6); color:#fff; padding:10px 28px; border:none; border-radius:50px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(14,165,233,0.3);">
                 <i class="fas fa-save"></i> {{ __('messages.save') }}
             </button>
-            <a href="{{ route('admin.hostels.index') }}" style="display:inline-flex; align-items:center; gap:6px; background:#e2e8f0; color:#1e293b; padding:10px 28px; border-radius:50px; text-decoration:none; font-weight:500; transition:0.3s;">{{ __('messages.cancel') }}</a>
+            <a href="{{ route('admin.hostels.index') }}" style="display:inline-flex; align-items:center; gap:6px; background:#e2e8f0; color:#1e293b; padding:10px 28px; border-radius:50px; text-decoration:none; font-weight:500; transition:0.3s;">
+                {{ __('messages.cancel') }}
+            </a>
         </div>
+
     </form>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const provinceSelect = document.getElementById('province_id');
+        const districtSelect = document.getElementById('district_id');
+        const municipalitySelect = document.getElementById('municipality_id');
+
+        // Province परिवर्तन हुँदा districts ल्याउने
+        provinceSelect.addEventListener('change', function() {
+            const provinceId = this.value;
+            districtSelect.innerHTML = '<option value="">{{ __('messages.select_district') }}</option>';
+            municipalitySelect.innerHTML = '<option value="">{{ __('messages.select_municipality') }}</option>';
+            if (provinceId) {
+                fetch(`/api/districts/${provinceId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(district => {
+                            const option = document.createElement('option');
+                            option.value = district.id;
+                            option.textContent = district.name;
+                            districtSelect.appendChild(option);
+                        });
+                    })
+                    .catch(() => {});
+            }
+        });
+
+        // District परिवर्तन हुँदा municipalities ल्याउने
+        districtSelect.addEventListener('change', function() {
+            const districtId = this.value;
+            municipalitySelect.innerHTML = '<option value="">{{ __('messages.select_municipality') }}</option>';
+            if (districtId) {
+                fetch(`/api/municipalities/${districtId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(municipality => {
+                            const option = document.createElement('option');
+                            option.value = municipality.id;
+                            option.textContent = municipality.name;
+                            municipalitySelect.appendChild(option);
+                        });
+                    })
+                    .catch(() => {});
+            }
+        });
+    });
+</script>
+@endpush
 @endsection
