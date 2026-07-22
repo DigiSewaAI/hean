@@ -256,14 +256,7 @@
                                 </button>
                             </form>
                         @endif
-                        @if($payment->status === 'verified')
-                            <form action="{{ route('admin.payments.refund', $payment) }}" method="POST" style="display:inline-block;">
-                                @csrf
-                                <button type="submit" style="padding:4px 10px; background:#8B5CF6; color:#fff; border:none; border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:0.2s;" onclick="return confirm('{{ __('messages.confirm_refund_payment') }}')" title="{{ __('messages.refund') }}">
-                                    <i class="fas fa-undo-alt"></i>
-                                </button>
-                            </form>
-                        @endif
+                        
                     </div>
                 </td>
             </tr>
