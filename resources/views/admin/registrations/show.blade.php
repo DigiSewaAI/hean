@@ -742,24 +742,33 @@
     <script src="{{ asset('js/admin-document-manager.js') }}"></script>
 
     {{-- ✅ नयाँ Invoice Builder JavaScript --}}
+    @php
+    // FeeHelper प्रयोग गरेर सबै fee types को default amount ल्याउने
+    $feeTypes = [];
+    foreach(config('hean.invoice_types', []) as $type) {
+        // Renewal को amount registration capacity मा निर्भर हुन्छ, त्यसैले ० राखौं
+        $defaultAmount = $type === 'renewal' ? 0 : \App\Helpers\FeeHelper::getFee($type);
+        $feeTypes[$type] = [
+            'description' => __('messages.invoice_type_' . $type),
+            'default_amount' => $defaultAmount,
+        ];
+    }
+    // सुविधाको लागि 'other' पनि थपौं (यदि config मा छैन भने)
+    if (!isset($feeTypes['other'])) {
+        $feeTypes['other'] = [
+            'description' => 'Other',
+            'default_amount' => 0,
+        ];
+    }
+    @endphp
+
     <script>
+    // ✅ PHP बाट JavaScript मा पास गर्ने
+    var feeTypes = @json($feeTypes);
+
     document.addEventListener('DOMContentLoaded', function() {
         addInvoiceRow();
     });
-
-    // Hardcoded fee types with default amounts
-    var feeTypes = {
-        'renewal': { description: 'Renewal Fee', default_amount: 1000 },
-        'membership': { description: 'Membership Fee', default_amount: 500 },
-        'inspection': { description: 'Inspection Fee', default_amount: 700 },
-        'certificate': { description: 'Certificate Fee', default_amount: 300 },
-        'penalty': { description: 'Penalty', default_amount: 200 },
-        'log_book': { description: 'Log Book Fee', default_amount: 150 },
-        'leave_form': { description: 'Leave Form Fee', default_amount: 100 },
-        'admission_form': { description: 'Student Admission Form Fee', default_amount: 250 },
-        'code_conduct': { description: 'Code of Conduct Board Fee', default_amount: 400 },
-        'other': { description: 'Other', default_amount: 0 }
-    };
 
     function addInvoiceRow() {
         var tbody = document.getElementById('invoiceItemsBody');
@@ -819,10 +828,6 @@
                 descInput.required = false;
                 descInput.value = desc;
                 unitPriceInput.value = amount;
-                // Also update the hidden description field (the one that will be submitted)
-                // Since we are using the visible descInput for actual submission, we need to set its value
-                // But we hide it, so we set its value and it will be submitted.
-                descInput.value = desc;
             }
             updateRowAmount(row);
         });
@@ -878,7 +883,7 @@
             });
         });
     }
-</script>
+    </script>
 @endpush
 
 @endsection
