@@ -97,7 +97,6 @@
                 </h4>
                 @if($invoice->registration)
                     <p style="margin:4px 0; font-weight:600; color:#0f172a;">{{ $invoice->registration->hostel_name ?? $invoice->registration->registration_number }}</p>
-                    {{-- ✅ 8.3: दर्ता नम्बर (फलब्याक #ID) --}}
                     <p style="margin:4px 0; color:#64748b; font-size:0.85rem;">
                         <i class="fas fa-hashtag"></i> {{ $invoice->registration->registration_number ?? '#'.$invoice->registration->id }}
                     </p>
@@ -164,6 +163,78 @@
                 @endif
             </div>
         </div>
+    </div>
+
+    {{-- ============================================================ --}}
+    {{-- 🆕 NEW SECTION: INVOICE ITEMS (Multi-line) --}}
+    {{-- ============================================================ --}}
+    <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px; margin-top:24px;">
+        <h4 style="margin:0 0 16px 0; border-bottom:1px solid #e2e8f0; padding-bottom:8px; display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-list" style="color:#0EA5E9;"></i> Invoice Items
+        </h4>
+
+        @if($invoice->items->count())
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                    <thead style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
+                        <tr>
+                            <th style="padding:10px 12px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">#</th>
+                            <th style="padding:10px 12px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">Description</th>
+                            <th style="padding:10px 12px; text-align:center; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">Qty</th>
+                            <th style="padding:10px 12px; text-align:right; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">Unit Price</th>
+                            <th style="padding:10px 12px; text-align:right; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">Amount</th>
+                            @if($invoice->items->contains('remarks'))
+                                <th style="padding:10px 12px; text-align:left; font-weight:600; color:#475569; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.03em;">Remarks</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php $subtotal = 0; @endphp
+                        @foreach($invoice->items as $index => $item)
+                            @php $subtotal += $item->amount; @endphp
+                            <tr style="border-bottom:1px solid #e2e8f0;">
+                                <td style="padding:10px 12px; font-weight:500; color:#0f172a;">{{ $loop->iteration }}</td>
+                                <td style="padding:10px 12px; color:#0f172a;">{{ $item->description }}</td>
+                                <td style="padding:10px 12px; text-align:center; color:#0f172a;">{{ $item->quantity }}</td>
+                                <td style="padding:10px 12px; text-align:right; color:#0f172a;">NPR {{ number_format($item->unit_price, 2) }}</td>
+                                <td style="padding:10px 12px; text-align:right; font-weight:600; color:#0f172a;">NPR {{ number_format($item->amount, 2) }}</td>
+                                @if($invoice->items->contains('remarks'))
+                                    <td style="padding:10px 12px; color:#64748b;">{{ $item->remarks ?? '—' }}</td>
+                                @endif
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Totals --}}
+            <div style="display:flex; justify-content:flex-end; margin-top:16px; padding-top:12px; border-top:2px solid #e2e8f0;">
+                <table style="width:300px; border-collapse:collapse; font-size:0.9rem;">
+                    <tr>
+                        <td style="padding:4px 12px; text-align:right; font-weight:500; color:#475569;">Subtotal</td>
+                        <td style="padding:4px 12px; text-align:right; font-weight:600; color:#0f172a;">NPR {{ number_format($subtotal, 2) }}</td>
+                    </tr>
+                    @if($invoice->discount > 0)
+                    <tr>
+                        <td style="padding:4px 12px; text-align:right; font-weight:500; color:#475569;">Discount</td>
+                        <td style="padding:4px 12px; text-align:right; font-weight:600; color:#EF4444;">- NPR {{ number_format($invoice->discount, 2) }}</td>
+                    </tr>
+                    @endif
+                    @if($invoice->tax > 0)
+                    <tr>
+                        <td style="padding:4px 12px; text-align:right; font-weight:500; color:#475569;">Tax</td>
+                        <td style="padding:4px 12px; text-align:right; font-weight:600; color:#22C55E;">+ NPR {{ number_format($invoice->tax, 2) }}</td>
+                    </tr>
+                    @endif
+                    <tr style="border-top:3px solid #0EA5E9;">
+                        <td style="padding:8px 12px; text-align:right; font-weight:700; font-size:1.1rem; color:#0f172a;">Total</td>
+                        <td style="padding:8px 12px; text-align:right; font-weight:700; font-size:1.1rem; color:#0f172a;">NPR {{ number_format($invoice->amount, 2) }}</td>
+                    </tr>
+                </table>
+            </div>
+        @else
+            <p style="text-align:center; color:#94a3b8; padding:20px 0;">No items found for this invoice.</p>
+        @endif
     </div>
 
     {{-- Actions --}}
