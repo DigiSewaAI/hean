@@ -118,19 +118,26 @@ class PaymentService
      * Generate meaningful remarks for receipt.
      */
     protected function generateReceiptRemarks(Payment $payment): string
-    {
-        $remarks = [];
-        if ($payment->invoice) {
-            $invoice = $payment->invoice;
-            $invoiceType = $invoice->invoice_type ?? 'unknown';
+{
+    $remarks = [];
+    if ($payment->invoice) {
+        $invoice = $payment->invoice;
+        $invoiceType = $invoice->invoice_type ?? 'unknown';
+        
+        // ✅ Multi-line invoice को लागि विशेष handling
+        if ($invoiceType === 'multi') {
+            $invoiceTypeLabel = 'Multi-line Invoice';
+        } else {
             $invoiceTypeLabel = __('messages.invoice_type_' . $invoiceType) ?? ucfirst(str_replace('_', ' ', $invoiceType));
-            $remarks[] = 'Payment for Invoice ' . $invoice->invoice_number . ' (' . $invoiceTypeLabel . ')';
         }
-        if (!empty($payment->remarks)) {
-            $remarks[] = $payment->remarks;
-        }
-        return implode(' | ', $remarks);
+        
+        $remarks[] = 'Payment for Invoice ' . $invoice->invoice_number . ' (' . $invoiceTypeLabel . ')';
     }
+    if (!empty($payment->remarks)) {
+        $remarks[] = $payment->remarks;
+    }
+    return implode(' | ', $remarks);
+}
 
     protected function generateReceiptNumber(): string
     {

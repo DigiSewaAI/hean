@@ -22,23 +22,41 @@
                 <tr><td style="padding:6px 0; font-weight:600;">{{ __('messages.issued_date') }}</td><td style="padding:6px 0;">{{ $receipt->issued_date ? $receipt->issued_date->format('Y-m-d H:i') : 'N/A' }}</td></tr>
                 <tr><td style="padding:6px 0; font-weight:600;">{{ __('messages.payment_method') }}</td><td style="padding:6px 0;">{{ ucfirst($receipt->payment?->method ?? 'N/A') }}</td></tr>
                 <tr>
-                    <td style="padding:6px 0; font-weight:600;">{{ __('messages.remarks') }}</td>
-                    <td style="padding:6px 0;">
-                        @php
-                            $remarks = $receipt->remarks;
-                            if (empty($remarks) && $receipt->payment && $receipt->payment->invoice) {
-                                $invoice = $receipt->payment->invoice;
-                                $invoiceType = $invoice->invoice_type ?? 'unknown';
-                                $typeLabel = __('messages.invoice_type_' . $invoiceType) ?? ucfirst(str_replace('_', ' ', $invoiceType));
-                                $remarks = __('messages.payment_for_invoice') . ' ' . $invoice->invoice_number . ' (' . $typeLabel . ')';
-                            }
-                            if (empty($remarks)) {
-                                $remarks = __('messages.none');
-                            }
-                        @endphp
-                        {{ $remarks }}
-                    </td>
-                </tr>
+                    <tr>
+    <td style="padding:6px 0; font-weight:600;">{{ __('messages.remarks') }}</td>
+    <td style="padding:6px 0;">
+        @php
+            $remarks = $receipt->remarks;
+            
+            // ✅ नयाँ: यदि remarks मा "messages.invoice_type_multi" छ भने त्यसलाई बदल्ने
+            if (str_contains($remarks, 'messages.invoice_type_multi')) {
+                $remarks = str_replace(
+                    '(messages.invoice_type_multi)',
+                    '(Multi-line Invoice)',
+                    $remarks
+                );
+            }
+            
+            // यदि अझै पनि remarks खाली छ भने
+            if (empty($remarks) && $receipt->payment && $receipt->payment->invoice) {
+                $invoice = $receipt->payment->invoice;
+                $invoiceType = $invoice->invoice_type ?? 'unknown';
+                
+                if ($invoiceType === 'multi') {
+                    $remarks = 'Payment for Invoice ' . $invoice->invoice_number . ' (Multi-line Invoice)';
+                } else {
+                    $typeLabel = __('messages.invoice_type_' . $invoiceType) ?? ucfirst(str_replace('_', ' ', $invoiceType));
+                    $remarks = __('messages.payment_for_invoice') . ' ' . $invoice->invoice_number . ' (' . $typeLabel . ')';
+                }
+            }
+            
+            if (empty($remarks)) {
+                $remarks = __('messages.none');
+            }
+        @endphp
+        {{ $remarks }}
+    </td>
+</tr>
             </table>
         </div>
 
