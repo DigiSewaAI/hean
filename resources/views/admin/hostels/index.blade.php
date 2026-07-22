@@ -280,12 +280,15 @@
                         <a href="{{ route('admin.hostels.edit', $hostel) }}" style="display:inline-block; padding:4px 10px; background:#F59E0B; color:#fff; border-radius:6px; text-decoration:none; font-size:0.7rem; font-weight:600; margin-right:4px; transition:0.2s;" title="{{ __('messages.edit') }}">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form action="{{ route('admin.hostels.destroy', $hostel) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('{{ __('messages.confirm_delete_hostel') }}')">
-                            @csrf @method('DELETE')
-                            <button type="submit" style="padding:4px 10px; background:#EF4444; color:#fff; border:none; border-radius:6px; font-size:0.7rem; font-weight:600; cursor:pointer; transition:0.2s;" title="{{ __('messages.delete') }}">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </form>
+                        <form action="{{ route('admin.hostels.destroy', $hostel) }}" method="POST" style="display:inline-block;" data-id="{{ $hostel->id }}">
+    @csrf
+    @method('DELETE')
+    <button type="button" onclick="deleteHostel(this)" 
+            style="padding:4px 10px; background:#EF4444; color:#fff; border:none; border-radius:6px; font-size:0.7rem; font-weight:600; cursor:pointer; transition:0.2s;" 
+            title="{{ __('messages.delete') }}">
+        <i class="fas fa-trash-alt"></i>
+    </button>
+</form>
                     </td>
                 </tr>
                 @empty
@@ -478,5 +481,79 @@
         currentUrl.searchParams.set('page', page);
         window.location.href = currentUrl.toString();
     }
+    // =============================================
+// AJAX DELETE HOSTEL (Single)
+// =============================================
+function deleteHostel(button) {
+    if (!confirm('{{ __('messages.confirm_delete_hostel') ?? 'के तपाईं यो होस्टल मेट्न निश्चित हुनुहुन्छ?' }}')) {
+        return;
+    }
+
+    const form = button.closest('form');
+    const url = form.action;
+    const token = form.querySelector('input[name="_token"]').value;
+    const methodInput = form.querySelector('input[name="_method"]');
+    const method = methodInput ? methodInput.value : 'POST';
+
+    // Disable button
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': token,
+            'Content-Type': 'application/json',
+            'X-HTTP-Method-Override': method,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.message || 'Server error'); });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Remove row with animation
+            const row = form.closest('tr');
+            row.style.transition = 'all 0.3s ease';
+            row.style.opacity = '0';
+            setTimeout(() => {
+                row.remove();
+                updateCountsAfterDelete();
+            }, 300);
+        } else {
+            alert(data.message || 'Delete failed. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Delete error:', error);
+        alert(error.message || 'An error occurred while deleting.');
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-trash-alt"></i>';
+    });
+}
+
+function updateCountsAfterDelete() {
+    // Update selected count
+    const countSpan = document.getElementById('selectedCount');
+    if (countSpan) {
+        const checked = document.querySelectorAll('.rowCheckbox:checked').length;
+        countSpan.textContent = checked;
+    }
+    
+    // Update total count in stats (optional, but recommended)
+    // Refresh stats via AJAX or just update visual
+    const rows = document.querySelectorAll('tbody tr:not(.empty-row)');
+    const totalSpan = document.querySelector('.stats-total .number');
+    if (totalSpan) {
+        totalSpan.textContent = rows.length;
+    }
+}
 </script>
 @endpush

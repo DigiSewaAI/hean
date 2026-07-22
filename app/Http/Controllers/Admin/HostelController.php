@@ -210,14 +210,24 @@ class HostelController extends Controller
 }
 
     public function destroy(Hostel $hostel)
-    {
-        if ($hostel->image) {
-            Storage::disk('public')->delete($hostel->image);
-        }
-        $hostel->delete();
-
-        return back()->with('success', 'होस्टल हटाइयो।');
+{
+    // Delete image if exists
+    if ($hostel->image) {
+        Storage::disk('cloud')->delete($hostel->image);
     }
+    $hostel->delete();
+
+    // ✅ AJAX request check
+    if (request()->ajax()) {
+        return response()->json([
+            'success' => true,
+            'message' => 'होस्टल सफलतापूर्वक हटाइयो।'
+        ]);
+    }
+
+    return redirect()->route('admin.hostels.index')
+                     ->with('success', 'होस्टल हटाइयो।');
+}
 
     public function approve(Hostel $hostel)
     {
