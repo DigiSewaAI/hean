@@ -685,8 +685,8 @@
         </div>
 
         {{-- Invoice Form (Hidden) --}}
-        @if($canGenerateInvoice)
-        <div id="invoiceForm" style="display:none; background:#f8fafc; border-radius:12px; padding:16px; margin:0 16px 16px 16px;">
+@if($canGenerateInvoice)
+<div id="invoiceForm" style="display:none; background:#f8fafc; border-radius:12px; padding:16px; margin:0 16px 16px 16px;">
     <form action="{{ route('admin.invoices.generate') }}" method="POST" id="invoiceFormSubmit">
         @csrf
         <input type="hidden" name="registration_id" value="{{ $registration->id }}">
@@ -732,6 +732,8 @@
         </div>
     </form>
 </div>
+@endif  {{-- ✅ यो @endif थप्नुहोस् --}}
+
 {{-- ===== MODALS ===== --}}
 @include('admin.registrations.partials._document_modal')
 
@@ -742,7 +744,6 @@
     {{-- ✅ नयाँ Invoice Builder JavaScript --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // पहिलो पङ्क्ति थप्नुहोस्
             addInvoiceRow();
         });
 
@@ -775,7 +776,6 @@
             `;
             tbody.appendChild(row);
 
-            // Event listeners for auto-calc
             var quantityInput = row.querySelector('.item-quantity');
             var unitPriceInput = row.querySelector('.item-unit-price');
             quantityInput.addEventListener('input', function() { updateRowAmount(row); });
