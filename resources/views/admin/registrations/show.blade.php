@@ -743,24 +743,21 @@
 
     {{-- ✅ नयाँ Invoice Builder JavaScript --}}
     @php
-    // FeeHelper प्रयोग गरेर सबै fee types को default amount ल्याउने
-    $feeTypes = [];
-    foreach(config('hean.invoice_types', []) as $type) {
-        // Renewal को amount registration capacity मा निर्भर हुन्छ, त्यसैले ० राखौं
-        $defaultAmount = $type === 'renewal' ? 0 : \App\Helpers\FeeHelper::getFee($type);
-        $feeTypes[$type] = [
-            'description' => __('messages.invoice_type_' . $type),
-            'default_amount' => $defaultAmount,
-        ];
-    }
-    // सुविधाको लागि 'other' पनि थपौं (यदि config मा छैन भने)
-    if (!isset($feeTypes['other'])) {
-        $feeTypes['other'] = [
-            'description' => 'Other',
-            'default_amount' => 0,
-        ];
-    }
-    @endphp
+// ✅ हार्डकोड – config मा निर्भर नगरी सबै fee types सिधा यहाँ
+$feeTypes = [
+    'renewal' => ['description' => 'Renewal Fee', 'default_amount' => 0],
+    'membership' => ['description' => 'Membership Fee', 'default_amount' => 2000],
+    'inspection_fee' => ['description' => 'Inspection Fee', 'default_amount' => 500],
+    'certificate_fee' => ['description' => 'Certificate Fee', 'default_amount' => 0],
+    'penalty' => ['description' => 'Penalty', 'default_amount' => 0],
+    'log_book' => ['description' => 'Log Book Fee', 'default_amount' => 200],
+    'leave_form' => ['description' => 'Leave Form Fee', 'default_amount' => 200],
+    'student_admission_form' => ['description' => 'Student Admission Form Fee', 'default_amount' => 10],
+    'code_of_conduct_board' => ['description' => 'Code of Conduct Board Fee', 'default_amount' => 1000],
+    'recommendation' => ['description' => 'Recommendation Fee', 'default_amount' => 500],
+    'other' => ['description' => 'Other', 'default_amount' => 0],
+];
+@endphp
 
     <script>
     // ✅ PHP बाट JavaScript मा पास गर्ने
