@@ -10,56 +10,97 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Mpdf\Mpdf;
 use Mpdf\MpdfException;
+use App\Http\Requests\StoreInvoiceRequest;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class InvoiceController extends Controller
 {
     /**
-     * Generate an invoice for a registration.
-     */
-    public function generate(Request $request)
-    {
-        $request->validate([
-            'registration_id' => 'required|exists:registrations,id',
-            'amount' => 'required|numeric|min:0',
-            'due_date' => 'nullable|date|after:today',
-            'invoice_type' => 'nullable|string|max:50',
-        ]);
+ * Generate a multi-line invoice for a registration.
+ */
+public function generate(StoreInvoiceRequest $request)
+{
+    $validated = $request->validated();
 
-        $registration = Registration::findOrFail($request->registration_id);
+    // 1. Registration फेला पार्नुहोस्
+    $registration = Registration::findOrFail($validated['registration_id']);
 
-        // Check for existing pending/partial invoice
-        $existingInvoice = Invoice::where('registration_id', $registration->id)
-            ->whereIn('status', ['pending', 'partial'])
-            ->first();
+    // 2. Check for existing pending/partial invoice (पुरानै logic)
+    $existingInvoice = Invoice::where('registration_id', $registration->id)
+        ->whereIn('status', ['pending', 'partial'])
+        ->first();
 
-        if ($existingInvoice) {
-            return back()->with('error', 'An unpaid invoice already exists. Invoice #: ' . $existingInvoice->invoice_number);
-        }
+    if ($existingInvoice) {
+        return back()->with('error', 'An unpaid invoice already exists. Invoice #: ' . $existingInvoice->invoice_number);
+    }
 
-        // Generate invoice number
-        $lastInvoice = Invoice::orderBy('id', 'desc')->first();
-        $nextId = $lastInvoice ? intval(substr($lastInvoice->invoice_number, -6)) + 1 : 1;
-        $invoiceNumber = 'INV-' . date('Y') . '-' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
+    // 3. Items प्रशोधन गर्ने
+    $items = $validated['items'];
+    $subtotal = 0;
+    $calculatedItems = [];
+    foreach ($items as $item) {
+        $amount = $item['quantity'] * $item['unit_price'];
+        $calculatedItems[] = [
+            'description' => $item['description'],
+            'quantity' => $item['quantity'],
+            'unit_price' => $item['unit_price'],
+            'amount' => $amount,
+            'remarks' => $item['remarks'] ?? null,
+            'sort_order' => 0,
+        ];
+        $subtotal += $amount;
+    }
 
-        // ===== CREATE INVOICE RECORD FIRST =====
+    $discount = 0;  // अहिलेलाई 0
+    $tax = 0;       // अहिलेलाई 0
+    $grandTotal = $subtotal - $discount + $tax;
+
+    // 4. Invoice number generate गर्ने (helper method call)
+    $invoiceNumber = $this->generateInvoiceNumber();
+
+    // 5. Transaction सुरु गर्ने
+    DB::beginTransaction();
+    try {
+        // Invoice सिर्जना
         $invoice = Invoice::create([
             'registration_id' => $registration->id,
             'invoice_number' => $invoiceNumber,
-            'amount' => $request->amount,
             'issued_date' => now(),
-            'due_date' => $request->due_date ?? now()->addDays(30),
+            'due_date' => $validated['due_date'] ?? now()->addDays(30),
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'tax' => $tax,
+            'amount' => $grandTotal,
             'status' => 'pending',
-            'invoice_type' => $request->invoice_type ?? 'new_registration',
+            'invoice_type' => 'multi',  // अथवा null
             'pdf_path' => null,
         ]);
 
+        // Invoice items थप्ने
+        foreach ($calculatedItems as &$item) {
+            $item['invoice_id'] = $invoice->id;
+        }
+        $invoice->items()->createMany($calculatedItems);
+
+        // PDF generate गर्ने (पुरानै method, तर $invoice पठाउने)
         try {
-            // ===== GENERATE PDF =====
+            // पुरानो view लाई पनि support गर्नको लागि $request object बनाउने (तर items पनि पठाउने)
+            $requestForView = (object) [
+                'amount' => $grandTotal,
+                'due_date' => $invoice->due_date,
+                'subtotal' => $subtotal,
+                'discount' => $discount,
+                'tax' => $tax,
+                'items' => $calculatedItems,
+            ];
+
             $html = view('pdf.invoice', [
                 'registration' => $registration,
                 'invoiceNumber' => $invoiceNumber,
-                'request' => $request,
-                'invoice_type' => $request->invoice_type ?? 'new_registration',
+                'request' => $requestForView,
+                'invoice_type' => 'multi',
+                'invoice' => $invoice,  // पछि view upgrade गर्न
             ])->render();
 
             $tempDir = storage_path('app/mpdf');
@@ -91,42 +132,43 @@ class InvoiceController extends Controller
             $mpdf->WriteHTML($html);
             $pdfContent = $mpdf->Output('', 'S');
 
-            // ===== Ensure invoices directory exists =====
+            // Ensure directory exists
             if (!Storage::disk('public')->exists('invoices')) {
                 Storage::disk('public')->makeDirectory('invoices', 0755, true);
             }
 
-            // ===== SAVE PDF =====
             $path = 'invoices/invoice_' . uniqid() . '.pdf';
             Storage::disk('public')->put($path, $pdfContent);
+            
             if (Storage::disk('public')->exists($path)) {
-    Log::info('✅ Invoice PDF saved successfully: ' . $path);
-} else {
-    Log::error('❌ Invoice PDF FAILED to save: ' . $path);
-    if (Storage::disk('public')->exists('invoices')) {
-        Log::info('Invoices directory exists.');
-    } else {
-        Log::error('Invoices directory does NOT exist.');
-    }
-}
+                Log::info('✅ Invoice PDF saved successfully: ' . $path);
+            } else {
+                Log::error('❌ Invoice PDF FAILED to save: ' . $path);
+            }
 
             $invoice->update(['pdf_path' => $path]);
 
-            // Mark registration as awaiting payment
-            $registration->markAwaitingPayment();
-
-            return back()->with('success', 'Invoice generated successfully!');
-
         } catch (MpdfException $e) {
-            Log::error('Invoice PDF Generation Error: ' . $e->getMessage());
+            Log::error('PDF Generation Error: ' . $e->getMessage());
             $invoice->delete();
-            return back()->with('error', 'Invoice generation failed: ' . $e->getMessage());
-        } catch (\Exception $e) {
-            Log::error('Invoice Generation Error: ' . $e->getMessage());
-            $invoice->delete();
-            return back()->with('error', 'Invoice generation failed. Please try again.');
+            DB::rollBack();
+            return back()->with('error', 'PDF generation failed: ' . $e->getMessage());
         }
+
+        // Registration status update
+        $registration->markAwaitingPayment();
+
+        DB::commit();
+
+        return redirect()->route('admin.invoices.show', $invoice->id)
+                         ->with('success', 'Invoice generated successfully!');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Invoice Generation Error: ' . $e->getMessage());
+        return back()->with('error', 'Invoice generation failed. Please try again.');
     }
+}
 
     /**
  * Download an invoice PDF – सिधै जेनरेट गरी डाउनलोड (सेभ नगरी)
@@ -134,21 +176,28 @@ class InvoiceController extends Controller
 public function download($id)
 {
     try {
-        $invoice = Invoice::findOrFail($id);
+        $invoice = Invoice::with('items')->findOrFail($id);
         $registration = $invoice->registration;
         if (!$registration) {
             abort(404, 'Registration not found for this invoice.');
         }
 
-        // ===== PDF जेनरेट गर्ने =====
+        // ===== PDF View को लागि request object =====
+        $requestForView = (object) [
+            'amount' => $invoice->amount,
+            'due_date' => $invoice->due_date,
+            'subtotal' => $invoice->subtotal ?? $invoice->amount,
+            'discount' => $invoice->discount ?? 0,
+            'tax' => $invoice->tax ?? 0,
+            'items' => $invoice->items ?? [],
+        ];
+
         $html = view('pdf.invoice', [
             'registration' => $registration,
             'invoiceNumber' => $invoice->invoice_number,
-            'request' => (object) [
-                'amount' => $invoice->amount,
-                'due_date' => $invoice->due_date
-            ],
-            'invoice_type' => $invoice->invoice_type ?? 'new_registration',
+            'request' => $requestForView,
+            'invoice_type' => $invoice->invoice_type ?? 'multi',
+            'invoice' => $invoice, // पछि view upgrade गर्न
         ])->render();
 
         $tempDir = storage_path('app/mpdf');
@@ -180,7 +229,6 @@ public function download($id)
         $mpdf->WriteHTML($html);
         $pdfContent = $mpdf->Output('', 'S');
 
-        // ===== सिधै डाउनलोड गर्ने =====
         return response($pdfContent)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'attachment; filename="invoice_' . $invoice->invoice_number . '.pdf"');
@@ -195,10 +243,10 @@ public function download($id)
      * View invoice details.
      */
     public function show(Invoice $invoice)
-    {
-        $invoice->load('registration');
-        return view('admin.invoices.show', compact('invoice'));
-    }
+{
+    $invoice->load(['registration', 'items']);
+    return view('admin.invoices.show', compact('invoice'));
+}
 
     /**
      * List all invoices with advanced search/filter.
@@ -299,4 +347,21 @@ public function download($id)
         $invoice->update(['status' => 'paid']);
         return back()->with('success', 'Invoice marked as paid.');
     }
+    /**
+ * Generate a unique invoice number.
+ */
+private function generateInvoiceNumber()
+{
+    $year = date('Y');
+    $lastInvoice = Invoice::whereYear('created_at', $year)
+                          ->orderBy('id', 'desc')
+                          ->first();
+    if ($lastInvoice) {
+        $lastNumber = intval(substr($lastInvoice->invoice_number, -6));
+        $nextNumber = $lastNumber + 1;
+    } else {
+        $nextNumber = 1;
+    }
+    return 'INV-' . $year . '-' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+}
 }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 class Invoice extends Model
 {
     /**
@@ -66,4 +67,17 @@ class Invoice extends Model
     {
         return max(0, $this->amount - $this->total_paid);
     }
+    public function items(): HasMany
+{
+    return $this->hasMany(InvoiceItem::class)->orderBy('sort_order');
+}
+
+public function recalculateTotals(): void
+{
+    $this->loadMissing('items');
+    $subtotal = $this->items->sum('amount');
+    $this->subtotal = $subtotal;
+    $this->amount = $subtotal - $this->discount + $this->tax;
+    $this->saveQuietly();
+}
 }

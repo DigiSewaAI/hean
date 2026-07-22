@@ -687,51 +687,147 @@
         {{-- Invoice Form (Hidden) --}}
         @if($canGenerateInvoice)
         <div id="invoiceForm" style="display:none; background:#f8fafc; border-radius:12px; padding:16px; margin:0 16px 16px 16px;">
-            <form action="{{ route('admin.invoices.generate') }}" method="POST">
-                @csrf
-                <input type="hidden" name="registration_id" value="{{ $registration->id }}">
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
-                    <div>
-                        <label style="font-weight:600; color:#1e293b; font-size:0.8rem; display:block; margin-bottom:4px;">{{ __('messages.invoice_type') }} <span style="color:#dc2626;">*</span></label>
-                        <select name="invoice_type" required style="width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#fff;">
-    <option value="new_registration">{{ __('messages.invoice_type_new_registration') }}</option>
-    <option value="renewal">{{ __('messages.invoice_type_renewal') }}</option>
-    {{-- <option value="membership_fee">{{ __('messages.invoice_type_membership_fee') }}</option> --}} {{-- यो हटाइयो --}}
-    <option value="inspection_fee">{{ __('messages.invoice_type_inspection_fee') }}</option>
-    <option value="certificate_fee">{{ __('messages.invoice_type_certificate_fee') }}</option>
-    <option value="penalty">{{ __('messages.invoice_type_penalty') }}</option>
-    {{-- नयाँ ४ वटा थपियो --}}
-    <option value="log_book">{{ __('messages.invoice_type_log_book') }}</option>
-    <option value="leave_form">{{ __('messages.invoice_type_leave_form') }}</option>
-    <option value="student_admission_form">{{ __('messages.invoice_type_student_admission_form') }}</option>
-    <option value="code_of_conduct_board">{{ __('messages.invoice_type_code_of_conduct_board') }}</option>
-    <option value="other">{{ __('messages.invoice_type_other') }}</option>
-</select>
-                    </div>
-                    <div>
-                        <label style="font-weight:600; color:#1e293b; font-size:0.8rem; display:block; margin-bottom:4px;">{{ __('messages.amount_npr') }} <span style="color:#dc2626;">*</span></label>
-                        <input type="number" name="amount" step="0.01" required placeholder="0.00" style="width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem;">
-                    </div>
-                    <div>
-                        <label style="font-weight:600; color:#1e293b; font-size:0.8rem; display:block; margin-bottom:4px;">{{ __('messages.due_date') }}</label>
-                        <input type="date" name="due_date" style="width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem;">
-                    </div>
-                </div>
-                <div style="margin-top:12px; text-align:right;">
-                    <button type="submit" style="background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; border:none; padding:6px 20px; border-radius:50px; font-weight:600; font-size:0.8rem; cursor:pointer; box-shadow:0 4px 15px rgba(245,158,11,0.3);">
-                        <i class="fas fa-file-invoice"></i> {{ __('messages.generate_invoice') }}
-                    </button>
-                </div>
-            </form>
-        </div>
-        @endif
+    <form action="{{ route('admin.invoices.generate') }}" method="POST" id="invoiceFormSubmit">
+        @csrf
+        <input type="hidden" name="registration_id" value="{{ $registration->id }}">
 
-    </div>
+        {{-- Dynamic Items Table --}}
+        <div style="margin-bottom:12px;">
+            <label style="font-weight:600; display:block; margin-bottom:6px;">इनभ्वाइस आइटमहरू</label>
+            <table id="invoiceItemsTable" style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr style="background:#f1f5f9;">
+                        <th style="padding:6px 10px; text-align:left;">विवरण</th>
+                        <th style="padding:6px 10px; text-align:center; width:80px;">मात्रा</th>
+                        <th style="padding:6px 10px; text-align:center; width:100px;">एकाइ मूल्य (NPR)</th>
+                        <th style="padding:6px 10px; text-align:center; width:100px;">रकम (NPR)</th>
+                        <th style="padding:6px 10px; text-align:center; width:100px;">टिप्पणी</th>
+                        <th style="padding:6px 10px; text-align:center; width:50px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceItemsBody">
+                    <!-- JavaScript ले पहिलो पङ्क्ति थप्ने -->
+                </tbody>
+            </table>
+            <button type="button" onclick="addInvoiceRow()" style="margin-top:8px; background:#0EA5E9; color:#fff; border:none; padding:4px 16px; border-radius:4px; cursor:pointer;">
+                <i class="fas fa-plus"></i> पङ्क्ति थप्नुहोस्
+            </button>
+        </div>
+
+        {{-- Subtotal Display --}}
+        <div style="text-align:right; margin-bottom:12px; font-weight:700; font-size:1.1rem;">
+            कुल रकम (Subtotal): <span id="subtotalDisplay">0.00</span>
+        </div>
+
+        {{-- Due Date --}}
+        <div style="margin-bottom:12px;">
+            <label style="font-weight:600; display:block; margin-bottom:4px;">भुक्तानी म्याद (Due Date)</label>
+            <input type="date" name="due_date" style="width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px;">
+        </div>
+
+        <div style="text-align:right;">
+            <button type="submit" style="background:linear-gradient(135deg, #F59E0B, #D97706); color:#fff; border:none; padding:6px 20px; border-radius:50px; font-weight:600; font-size:0.8rem; cursor:pointer; box-shadow:0 4px 15px rgba(245,158,11,0.3);">
+                <i class="fas fa-file-invoice"></i> इनभ्वाइस जेनेरेट गर्नुहोस्
+            </button>
+        </div>
+    </form>
 </div>
 {{-- ===== MODALS ===== --}}
 @include('admin.registrations.partials._document_modal')
 
 @push('scripts')
+    {{-- पहिलेको document manager script --}}
     <script src="{{ asset('js/admin-document-manager.js') }}"></script>
+
+    {{-- ✅ नयाँ Invoice Builder JavaScript --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // पहिलो पङ्क्ति थप्नुहोस्
+            addInvoiceRow();
+        });
+
+        function addInvoiceRow() {
+            var tbody = document.getElementById('invoiceItemsBody');
+            var rowCount = tbody.children.length;
+            var row = document.createElement('tr');
+            row.className = 'invoice-item-row';
+            row.innerHTML = `
+                <td style="padding:4px 6px;">
+                    <input type="text" name="items[${rowCount}][description]" placeholder="विवरण (जस्तै: नवीकरण शुल्क)" required style="width:100%; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px;">
+                </td>
+                <td style="padding:4px 6px; text-align:center;">
+                    <input type="number" name="items[${rowCount}][quantity]" value="1" step="0.01" min="0.01" required class="item-quantity" style="width:70px; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px; text-align:center;">
+                </td>
+                <td style="padding:4px 6px; text-align:center;">
+                    <input type="number" name="items[${rowCount}][unit_price]" value="0" step="0.01" min="0" required class="item-unit-price" style="width:90px; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px; text-align:center;">
+                </td>
+                <td style="padding:4px 6px; text-align:center;">
+                    <span class="item-amount">0.00</span>
+                </td>
+                <td style="padding:4px 6px;">
+                    <input type="text" name="items[${rowCount}][remarks]" placeholder="टिप्पणी (वैकल्पिक)" style="width:100%; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px;">
+                </td>
+                <td style="padding:4px 6px; text-align:center;">
+                    <button type="button" onclick="removeInvoiceRow(this)" style="background:#ef4444; color:#fff; border:none; border-radius:4px; padding:4px 8px; cursor:pointer;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+
+            // Event listeners for auto-calc
+            var quantityInput = row.querySelector('.item-quantity');
+            var unitPriceInput = row.querySelector('.item-unit-price');
+            quantityInput.addEventListener('input', function() { updateRowAmount(row); });
+            unitPriceInput.addEventListener('input', function() { updateRowAmount(row); });
+
+            updateRowAmount(row);
+        }
+
+        function removeInvoiceRow(btn) {
+            var tbody = document.getElementById('invoiceItemsBody');
+            if (tbody.children.length <= 1) {
+                alert('कम्तीमा एउटा पङ्क्ति रहनुपर्छ।');
+                return;
+            }
+            var row = btn.closest('tr');
+            row.remove();
+            updateSubtotal();
+            reindexRows();
+        }
+
+        function updateRowAmount(row) {
+            var quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+            var unitPrice = parseFloat(row.querySelector('.item-unit-price').value) || 0;
+            var amount = quantity * unitPrice;
+            row.querySelector('.item-amount').textContent = amount.toFixed(2);
+            updateSubtotal();
+        }
+
+        function updateSubtotal() {
+            var rows = document.querySelectorAll('#invoiceItemsBody .invoice-item-row');
+            var subtotal = 0;
+            rows.forEach(function(row) {
+                var amountText = row.querySelector('.item-amount').textContent;
+                subtotal += parseFloat(amountText) || 0;
+            });
+            document.getElementById('subtotalDisplay').textContent = subtotal.toFixed(2);
+        }
+
+        function reindexRows() {
+            var rows = document.querySelectorAll('#invoiceItemsBody .invoice-item-row');
+            rows.forEach(function(row, index) {
+                var inputs = row.querySelectorAll('input');
+                inputs.forEach(function(input) {
+                    var name = input.getAttribute('name');
+                    if (name) {
+                        var newName = name.replace(/items\[\d+\]/, 'items[' + index + ']');
+                        input.setAttribute('name', newName);
+                    }
+                });
+            });
+        }
+    </script>
 @endpush
+
 @endsection
