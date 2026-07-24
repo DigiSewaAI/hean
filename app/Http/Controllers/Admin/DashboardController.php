@@ -154,17 +154,6 @@ class DashboardController extends Controller
             ];
         }
 
-        $lowCapacityHostels = Hostel::where('capacity', '>', 0)
-            ->whereRaw('rooms >= (capacity * 0.8)')
-            ->count();
-        if ($lowCapacityHostels > 0) {
-            $alerts[] = [
-                'type' => 'info',
-                'icon' => 'ℹ️',
-                'message' => "{$lowCapacityHostels} वटा होस्टेलहरू ८०% भन्दा बढी क्षमतामा भरिएका छन्।",
-                'link' => route('admin.hostels.index')
-            ];
-        }
 
         $overdueInvoices = Invoice::where('status', 'overdue')->count();
         if ($overdueInvoices > 0) {

@@ -13,20 +13,23 @@ use Mpdf\MpdfException;
 use App\Http\Requests\StoreInvoiceRequest;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Helpers\FeeHelper;
+
 
 class InvoiceController extends Controller
 {
     /**
  * Generate a multi-line invoice for a registration.
+ * Supports both manual items and auto-generated fee types.
  */
 public function generate(StoreInvoiceRequest $request)
 {
     $validated = $request->validated();
 
-    // 1. Registration फेला पार्नुहोस्
+    // 1. Find registration
     $registration = Registration::findOrFail($validated['registration_id']);
 
-    // 2. Check for existing pending/partial invoice (पुरानै logic)
+    // 2. Check for existing pending/partial invoice
     $existingInvoice = Invoice::where('registration_id', $registration->id)
         ->whereIn('status', ['pending', 'partial'])
         ->first();
@@ -35,9 +38,23 @@ public function generate(StoreInvoiceRequest $request)
         return back()->with('error', 'An unpaid invoice already exists. Invoice #: ' . $existingInvoice->invoice_number);
     }
 
-    // 3. Items प्रशोधन गर्ने
-    $items = $validated['items'];
+    // 3. Prepare items
+    $items = [];
     $subtotal = 0;
+
+    // 🔥 NEW: Auto-generate items from fee_type if provided
+    if (!empty($validated['fee_type'])) {
+        $feeType = $validated['fee_type'];
+        $items = $this->generateItemsFromFeeType($registration, $feeType);
+        if (empty($items)) {
+            return back()->with('error', 'Invalid fee type or unable to calculate amount.');
+        }
+    } else {
+        // Manual items from request
+        $items = $validated['items'];
+    }
+
+    // Calculate subtotal
     $calculatedItems = [];
     foreach ($items as $item) {
         $amount = $item['quantity'] * $item['unit_price'];
@@ -52,17 +69,18 @@ public function generate(StoreInvoiceRequest $request)
         $subtotal += $amount;
     }
 
-    $discount = 0;  // अहिलेलाई 0
-    $tax = 0;       // अहिलेलाई 0
+    // Apply discounts/tax (customizable)
+    $discount = $validated['discount'] ?? 0;
+    $tax = $validated['tax'] ?? 0;
     $grandTotal = $subtotal - $discount + $tax;
 
-    // 4. Invoice number generate गर्ने (helper method call)
+    // 4. Generate invoice number
     $invoiceNumber = $this->generateInvoiceNumber();
 
-    // 5. Transaction सुरु गर्ने
+    // 5. Begin transaction
     DB::beginTransaction();
     try {
-        // Invoice सिर्जना
+        // Create invoice
         $invoice = Invoice::create([
             'registration_id' => $registration->id,
             'invoice_number' => $invoiceNumber,
@@ -73,34 +91,31 @@ public function generate(StoreInvoiceRequest $request)
             'tax' => $tax,
             'amount' => $grandTotal,
             'status' => 'pending',
-            'invoice_type' => 'multi',  // अथवा null
+            'invoice_type' => $validated['fee_type'] ?? 'multi',  // store fee type if auto
             'pdf_path' => null,
         ]);
 
-        // Invoice items थप्ने
+        // Add items
         foreach ($calculatedItems as &$item) {
             $item['invoice_id'] = $invoice->id;
         }
         $invoice->items()->createMany($calculatedItems);
 
-        // PDF generate गर्ने (पुरानै method, तर $invoice पठाउने)
+        // Generate PDF
         try {
-            // पुरानो view लाई पनि support गर्नको लागि $request object बनाउने (तर items पनि पठाउने)
-            $requestForView = (object) [
-                'amount' => $grandTotal,
-                'due_date' => $invoice->due_date,
-                'subtotal' => $subtotal,
-                'discount' => $discount,
-                'tax' => $tax,
-                'items' => $calculatedItems,
-            ];
-
             $html = view('pdf.invoice', [
                 'registration' => $registration,
                 'invoiceNumber' => $invoiceNumber,
-                'request' => $requestForView,
-                'invoice_type' => 'multi',
-                'invoice' => $invoice,  // पछि view upgrade गर्न
+                'request' => (object) [
+                    'amount' => $grandTotal,
+                    'due_date' => $invoice->due_date,
+                    'subtotal' => $subtotal,
+                    'discount' => $discount,
+                    'tax' => $tax,
+                    'items' => $calculatedItems,
+                ],
+                'invoice_type' => $validated['fee_type'] ?? 'multi',
+                'invoice' => $invoice,
             ])->render();
 
             $tempDir = storage_path('app/mpdf');
@@ -108,7 +123,7 @@ public function generate(StoreInvoiceRequest $request)
                 mkdir($tempDir, 0755, true);
             }
 
-            $mpdf = new Mpdf([
+            $mpdf = new \Mpdf\Mpdf([
                 'mode' => 'utf-8',
                 'format' => 'A4',
                 'orientation' => 'P',
@@ -123,6 +138,7 @@ public function generate(StoreInvoiceRequest $request)
                 'tempDir' => $tempDir,
             ]);
 
+            // Add watermark logo (if exists)
             $logoPath = public_path('images/logo.png');
             if (file_exists($logoPath)) {
                 $mpdf->SetWatermarkImage($logoPath, 0.08, 'F', 'P');
@@ -132,14 +148,13 @@ public function generate(StoreInvoiceRequest $request)
             $mpdf->WriteHTML($html);
             $pdfContent = $mpdf->Output('', 'S');
 
-            // Ensure directory exists
+            // Save PDF
             if (!Storage::disk('public')->exists('invoices')) {
                 Storage::disk('public')->makeDirectory('invoices', 0755, true);
             }
-
             $path = 'invoices/invoice_' . uniqid() . '.pdf';
             Storage::disk('public')->put($path, $pdfContent);
-            
+
             if (Storage::disk('public')->exists($path)) {
                 Log::info('✅ Invoice PDF saved successfully: ' . $path);
             } else {
@@ -148,14 +163,14 @@ public function generate(StoreInvoiceRequest $request)
 
             $invoice->update(['pdf_path' => $path]);
 
-        } catch (MpdfException $e) {
+        } catch (\Mpdf\MpdfException $e) {
             Log::error('PDF Generation Error: ' . $e->getMessage());
             $invoice->delete();
             DB::rollBack();
             return back()->with('error', 'PDF generation failed: ' . $e->getMessage());
         }
 
-        // Registration status update
+        // Update registration status
         $registration->markAwaitingPayment();
 
         DB::commit();
@@ -168,6 +183,112 @@ public function generate(StoreInvoiceRequest $request)
         Log::error('Invoice Generation Error: ' . $e->getMessage());
         return back()->with('error', 'Invoice generation failed. Please try again.');
     }
+}
+
+/**
+ * Generate invoice items from fee type using the new rate structure.
+ */
+private function generateItemsFromFeeType($registration, $feeType)
+{
+    $items = [];
+
+    switch ($feeType) {
+        case 'renewal':
+            $capacity = $registration->capacity ?? 0;
+            $amount = \App\Helpers\FeeHelper::getRenewalFee($capacity);
+            $items[] = [
+                'description' => 'नवीकरण शुल्क (क्षमता: ' . $capacity . ' जना)',
+                'quantity' => 1,
+                'unit_price' => $amount,
+            ];
+            break;
+
+        case 'membership':
+            $amount = \App\Helpers\FeeHelper::getFee('membership');
+            $items[] = [
+                'description' => 'सदस्यता शुल्क (नयाँ दर्ता)',
+                'quantity' => 1,
+                'unit_price' => $amount,
+            ];
+            break;
+
+        case 'inspection_fee':
+            $amount = \App\Helpers\FeeHelper::getFee('inspection');
+            $items[] = [
+                'description' => 'निरीक्षण / अनुगमन शुल्क',
+                'quantity' => 1,
+                'unit_price' => $amount,
+            ];
+            break;
+
+        case 'certificate_fee':
+            $amount = \App\Helpers\FeeHelper::getFee('certificate');
+            $items[] = [
+                'description' => 'प्रमाणपत्र शुल्क',
+                'quantity' => 1,
+                'unit_price' => $amount,
+            ];
+            break;
+
+        case 'penalty':
+            $amount = \App\Helpers\FeeHelper::getFee('penalty');
+            $items[] = [
+                'description' => 'जरिवाना',
+                'quantity' => 1,
+                'unit_price' => $amount,
+            ];
+            break;
+
+        case 'log_book':
+            $amount = \App\Helpers\FeeHelper::getFee('log_book');
+            $items[] = [
+                'description' => 'लग बुक शुल्क',
+                'quantity' => 1,
+                'unit_price' => $amount,
+            ];
+            break;
+
+        case 'leave_form':
+            $amount = \App\Helpers\FeeHelper::getFee('leave_form');
+            $items[] = [
+                'description' => 'बिदा फारम शुल्क',
+                'quantity' => 1,
+                'unit_price' => $amount,
+            ];
+            break;
+
+        case 'student_admission_form':
+            $amount = \App\Helpers\FeeHelper::getFee('student_admission_form');
+            $items[] = [
+                'description' => 'विद्यार्थी प्रवेश फारम शुल्क (प्रति पिस)',
+                'quantity' => 1,
+                'unit_price' => $amount,
+            ];
+            break;
+
+        case 'code_of_conduct_board':
+            $amount = \App\Helpers\FeeHelper::getFee('code_of_conduct_board');
+            $items[] = [
+                'description' => 'आचार संहिता बोर्ड शुल्क',
+                'quantity' => 1,
+                'unit_price' => $amount,
+            ];
+            break;
+
+        case 'recommendation':
+            $amount = \App\Helpers\FeeHelper::getFee('recommendation');
+            $items[] = [
+                'description' => 'सिफारिस शुल्क',
+                'quantity' => 1,
+                'unit_price' => $amount,
+            ];
+            break;
+
+        default:
+            return [];
+    }
+
+    return $items;
 }
 
     /**

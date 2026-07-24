@@ -524,7 +524,7 @@
     </div>
 </div>
 
-{{-- Duplicate Reviews --}}
+{{-- 
 <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden; margin-bottom:24px;">
     <div style="background:linear-gradient(135deg, #EF4444, #DC2626); color:#fff; padding:12px 20px; font-weight:600; display:flex; align-items:center; gap:10px;">
         <i class="fas fa-copy"></i> {{ __('messages.duplicate_reviews') }}
@@ -573,6 +573,7 @@
         </div>
     </div>
 </div>
+--}}
 
 {{-- ============================================================ --}}
 {{-- SECTION 7: ACTIONS (Grouped) --}}
