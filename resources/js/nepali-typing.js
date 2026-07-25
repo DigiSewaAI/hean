@@ -1,7 +1,14 @@
 /**
- * Nepali Typing Modal – Production Module (v2)
- * Features: one modal, dynamic target, lazy loading, accessibility, graceful error,
- *           custom normalization map for HEAN-specific corrections.
+ * Nepali Typing Modal – Production Module v8 (FINAL)
+ *
+ * Features:
+ * – One reusable modal, dynamic target via data-target
+ * – Lazy loading: Sanscript loaded only when modal opens
+ * – Case‑insensitive phrase preprocessing (longest match first)
+ * – Unicode Private Use Area (U+E000–) placeholders (expected to remain unchanged by Sanscript)
+ * – Post‑processing correction map (only true corrections)
+ * – Accessibility: ESC, focus trap, ARIA, restore focus
+ * – Mobile‑first, Tailwind CSS only
  */
 
 (function() {
@@ -15,61 +22,107 @@
     const clearBtn = modal?.querySelector('.nepali-clear-btn');
     const cancelBtn = modal?.querySelector('.nepali-cancel-btn');
 
-    // ─── State ────────────────────────────────────────────────────
-    let activeTargetId = null;          // ID of the input field we are typing for
-    let activeTrigger = null;           // The button that opened the modal
-    let previousFocused = null;         // Element to restore focus after close
-    let sanscriptModule = null;         // Lazy-loaded module cache
-    let isOpen = false;
-    let isComposing = false;            // For IME handling
+    // ─── Safety check ────────────────────────────────────────────
+    if (!modal || !input || !preview) {
+        console.warn('Nepali Typing Modal elements not found.');
+        return;
+    }
 
-    // ─── HEAN Custom Transliteration Map (Global Constant) ──────
+    // ─── State ────────────────────────────────────────────────────
+    let activeTargetId = null;
+    let previousFocused = null;
+    let sanscriptModule = null;
+    let isOpen = false;
+
+    // ─── Phrase Preprocessing Map (GENERIC – only 5 entries) ────
+    // Order: longest match first
+    const PHRASE_PREPROCESS_MAP = [
+        { pattern: 'boys hostel', nepali: 'ब्वाइज होस्टेल' },
+        { pattern: 'girls hostel', nepali: 'गर्ल्स होस्टेल' },
+        { pattern: 'hostel', nepali: 'होस्टेल' },
+        { pattern: 'boys', nepali: 'ब्वाइज' },
+        { pattern: 'girls', nepali: 'गर्ल्स' },
+    ];
+
+    // ─── Post‑Processing Correction Map (only true corrections) ──
     const CUSTOM_TRANSLITERATION_MAP = {
-        // Common corrections for HEAN
         'होस्तेल': 'होस्टेल',
         'होस्तेल्': 'होस्टेल',
         'होस्टेल्': 'होस्टेल',
-
         'बोइज़': 'ब्वाइज',
         'बोइज': 'ब्वाइज',
-
         'गर्ल्ज़': 'गर्ल्स',
         'गर्ल्ज': 'गर्ल्स',
-
-        // Future / additional words (can be extended easily)
         'नेपाल्गन्ज': 'नेपालगञ्ज',
         'काठमान्डु': 'काठमाडौं',
-        'पोखरा': 'पोखरा', // already correct, but kept for consistency
-        'चितवन': 'चितवन',
-        'विराटनगर': 'विराटनगर',
-        'धनगढी': 'धनगढी',
-        'भैरहवा': 'भैरहवा',
-        'सर्लाही': 'सर्लाही',
-
-        // Common English loanwords
-        'म्यानेजमेन्ट': 'म्यानेजमेन्ट', // already correct
-        'इन्टरप्रेनर': 'इन्टरप्रेनर',
-        'एसोसिएसन': 'एसोसिएसन',
         'एशोसिएशन': 'एसोसिएसन',
         'एसोशिएसन': 'एसोसिएसन',
-
-        // Student related
-        'विद्यार्थी': 'विद्यार्थी',
-        'आवास': 'आवास',
-        'समिति': 'समिति',
-        'व्यवस्थापन': 'व्यवस्थापन',
-        'संघ': 'संघ',
         'सङ्घ': 'संघ',
     };
 
-    // ─── Normalize function (uses global constant) ──────────────
+    // ─── Normalization helper ─────────────────────────────────────
     function normalizeNepaliText(text) {
         let output = text;
         for (const [wrong, correct] of Object.entries(CUSTOM_TRANSLITERATION_MAP)) {
-            // Use replaceAll to fix all occurrences
             output = output.replaceAll(wrong, correct);
         }
         return output;
+    }
+
+    // ─── Unified conversion pipeline ─────────────────────────────
+    function convertText(rawText) {
+        if (!rawText.trim()) return '';
+
+        // 1. Preprocess: replace generic phrases with PUA placeholders
+        const { processed, placeholders } = preprocessPhrases(rawText);
+
+        // 2. Transliterate the remaining text.
+        // PUA placeholders are expected to remain unchanged by Sanscript.
+        let transliterated;
+        try {
+            const Sanscript = sanscriptModule;
+            transliterated = Sanscript.t(processed, 'itrans', 'devanagari');
+        } catch (e) {
+            console.warn('Transliteration error:', e);
+            transliterated = processed;
+        }
+
+        // 3. Restore placeholders to their Nepali equivalents
+        let result = transliterated;
+        for (const [ph, nepali] of Object.entries(placeholders)) {
+            result = result.replaceAll(ph, nepali);
+        }
+
+        // 4. Post‑process with correction map
+        return normalizeNepaliText(result);
+    }
+
+    // ─── Phrase preprocessing with PUA placeholders ──────────────
+    function preprocessPhrases(text) {
+        // Sort by pattern length descending (longest match first)
+        const sorted = [...PHRASE_PREPROCESS_MAP].sort((a, b) => b.pattern.length - a.pattern.length);
+
+        let processed = text;
+        const placeholderMap = {};
+        let counter = 0;
+
+        for (const item of sorted) {
+            // Escape regex specials
+            const escaped = item.pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            // Case‑insensitive, with word boundaries to avoid partial matches
+            const regex = new RegExp('\\b' + escaped + '\\b', 'gi');
+
+            // Use Unicode Private Use Area (PUA) code points.
+            // These code points are reserved for application‑specific use and are
+            // expected to remain unchanged by Sanscript during transliteration.
+            const placeholder = String.fromCodePoint(0xE000 + counter);
+            counter++;
+
+            processed = processed.replace(regex, placeholder);
+            placeholderMap[placeholder] = item.nepali;
+        }
+
+        return { processed, placeholders: placeholderMap };
     }
 
     // ─── Lazy load Sanscript ──────────────────────────────────────
@@ -77,31 +130,16 @@
         if (sanscriptModule) return sanscriptModule;
         try {
             const module = await import('@indic-transliteration/sanscript');
-            // The package exports default object with .t method
             sanscriptModule = module.default || module;
             return sanscriptModule;
         } catch (error) {
             console.error('Failed to load Nepali transliteration library:', error);
-            // Show user-friendly message (non-blocking)
             const toast = document.createElement('div');
             toast.className = 'fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-[9999]';
             toast.textContent = '⚠️ Nepali typing सेवा लोड गर्न असफल। पृष्ठ रिफ्रेस गर्नुहोस्।';
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 5000);
             throw error;
-        }
-    }
-
-    // ─── Transliterate ────────────────────────────────────────────
-    function transliterate(text) {
-        if (!text.trim()) return '';
-        try {
-            const Sanscript = sanscriptModule;
-            const result = Sanscript.t(text, 'itrans', 'devanagari');
-            return normalizeNepaliText(result);
-        } catch (e) {
-            console.warn('Transliteration error:', e);
-            return text; // fallback
         }
     }
 
@@ -113,7 +151,7 @@
             return;
         }
         try {
-            const nepali = transliterate(raw);
+            const nepali = convertText(raw);
             preview.textContent = nepali;
         } catch (e) {
             preview.textContent = raw;
@@ -124,38 +162,29 @@
     async function openModal(targetId, triggerEl) {
         if (!modal || !input || !preview) return;
 
-        // Lazy load Sanscript if not already
         try {
             await loadSanscript();
         } catch {
-            // Error already handled in loadSanscript
             return;
         }
 
         activeTargetId = targetId;
-        activeTrigger = triggerEl;
         previousFocused = document.activeElement;
 
-        // Update modal title & placeholder from data attributes (if any)
         const title = triggerEl.dataset.title || '🇳🇵 नेपाली टाइपिङ';
-        const placeholder = triggerEl.dataset.placeholder || 'जस्तै: suryodaya boys hostel';
+        const placeholder = triggerEl.dataset.placeholder || 'जस्तै: Suryodaya Boys Hostel';
         const titleEl = document.getElementById('nepali-typing-title');
         if (titleEl) titleEl.textContent = title;
         input.placeholder = placeholder;
 
-        // Clear previous content
         input.value = '';
         preview.innerHTML = '<span class="text-gray-400 text-sm">यहाँ नेपाली पाठ देखिनेछ</span>';
 
-        // Show modal (flex)
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         isOpen = true;
 
-        // Focus input after a tiny delay (for animation)
         requestAnimationFrame(() => input.focus());
-
-        // Prevent body scroll
         document.body.style.overflow = 'hidden';
     }
 
@@ -167,12 +196,10 @@
         isOpen = false;
         document.body.style.overflow = '';
 
-        // Restore focus
         if (previousFocused && previousFocused.focus) {
             previousFocused.focus();
         }
         activeTargetId = null;
-        activeTrigger = null;
     }
 
     // ─── Insert text ──────────────────────────────────────────────
@@ -191,23 +218,17 @@
             return;
         }
 
-        // Transliterate the final text using the same logic
         let finalText;
         try {
-            const Sanscript = sanscriptModule;
-            finalText = normalizeNepaliText(
-                Sanscript.t(raw, 'itrans', 'devanagari')
-            );
+            finalText = convertText(raw);
         } catch (e) {
             finalText = raw;
         }
 
-        // Set value and trigger change/input events so any validation/listeners fire
         targetInput.value = finalText;
         targetInput.dispatchEvent(new Event('input', { bubbles: true }));
         targetInput.dispatchEvent(new Event('change', { bubbles: true }));
 
-        // Close modal
         closeModal();
     }
 
@@ -223,10 +244,8 @@
             return;
         }
 
-        // If modal is already open for another field, close it first
         if (isOpen) {
             closeModal();
-            // Small delay to let it close before reopening
             await new Promise(resolve => setTimeout(resolve, 50));
         }
 
@@ -234,33 +253,19 @@
     });
 
     // ─── Modal internal events ──────────────────────────────────
-
-    // Input events: use 'input' for all typing, paste, etc.
     input?.addEventListener('input', updatePreview);
 
-    // Composition events for IME (e.g., Japanese/Korean, but also for mobile)
-    input?.addEventListener('compositionstart', () => {
-        isComposing = true;
-    });
-    input?.addEventListener('compositionend', () => {
-        isComposing = false;
-        updatePreview(); // update after IME commit
-    });
-
-    // Insert button
     insertBtn?.addEventListener('click', insertText);
 
-    // Clear button
     clearBtn?.addEventListener('click', () => {
         input.value = '';
         updatePreview();
         input.focus();
     });
 
-    // Cancel button
     cancelBtn?.addEventListener('click', closeModal);
 
-    // ─── Keyboard shortcuts (when modal is open) ──────────────
+    // ─── Keyboard shortcuts ──────────────────────────────────────
     document.addEventListener('keydown', (e) => {
         if (!isOpen) return;
 
@@ -269,21 +274,20 @@
             closeModal();
         }
 
-        // Ctrl+Enter or Cmd+Enter to insert
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
             e.preventDefault();
             insertText();
         }
     });
 
-    // ─── Click outside modal content to close ──────────────────
+    // ─── Click outside modal ────────────────────────────────────
     modal?.addEventListener('click', (e) => {
         if (e.target === modal) {
             closeModal();
         }
     });
 
-    // ─── Focus trap (Tab within modal) ─────────────────────────
+    // ─── Focus trap ──────────────────────────────────────────────
     modal?.addEventListener('keydown', (e) => {
         if (e.key !== 'Tab') return;
         const focusable = modal.querySelectorAll(
@@ -303,8 +307,5 @@
         }
     });
 
-    // ─── Cleanup on page unload (optional) ─────────────────────
-    // Nothing persistent to clean; event listeners are on document/modal.
-
-    console.log('✅ Nepali Typing Modal initialized (lazy-load ready)');
+    console.log('✅ Nepali Typing Modal initialized');
 })();
