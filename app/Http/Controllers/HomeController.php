@@ -20,11 +20,11 @@ class HomeController extends Controller
     $gallery = GalleryImage::where('is_published', true)->take(8)->get();
 
     $stats = [
-        'hostels' => Hostel::where('approved', true)->count(),
-        'members' => \App\Models\User::where('role', '!=', 'viewer')->count(),
-        'districts' => Hostel::distinct('district')->count(),
-        'growth' => 24,
-    ];
+    'hostels' => Hostel::where('approved', true)->count(), // 534+ (dynamic)
+    'members' => 122,
+    'districts' => 7,
+    'growth' => 24,
+];
 
     // ========== नयाँ थपिएको: Supporting Organizations ==========
     $supportingOrganizations = [
