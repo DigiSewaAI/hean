@@ -102,65 +102,81 @@
         @endif
 
         {{-- ---------- 2. District Committees ---------- --}}
-        @if($districts->count())
-        <div style="margin-bottom:60px;">
-            <div style="display:flex; align-items:center; gap:16px; margin-bottom:8px; flex-wrap:wrap;">
-                <h2 style="font-size:1.8rem; font-weight:700; color:#0f172a; margin:0; border-left:5px solid #8B5CF6; padding-left:15px;">
-                    <i class="fas fa-map-marker-alt" style="color:#8B5CF6;"></i> {{ __('messages.district_committees') }}
-                </h2>
-                <span style="background:#8B5CF6; color:#fff; padding:4px 16px; border-radius:50px; font-size:0.75rem; font-weight:600; white-space:nowrap;">
-                    {{ $districts->count() }} {{ __('messages.members') }}
-                </span>
-            </div>
-            <p style="color:#64748b; margin-bottom:30px; font-size:0.95rem;">{{ __('messages.district_committees_desc') }}</p>
+@if($districts->count())
+<div style="margin-bottom:60px;">
+    <div style="display:flex; align-items:center; gap:16px; margin-bottom:8px; flex-wrap:wrap;">
+        <h2 style="font-size:1.8rem; font-weight:700; color:#0f172a; margin:0; border-left:5px solid #8B5CF6; padding-left:15px;">
+            <i class="fas fa-map-marker-alt" style="color:#8B5CF6;"></i> {{ __('messages.district_committees') }}
+        </h2>
+        <span style="background:#8B5CF6; color:#fff; padding:4px 16px; border-radius:50px; font-size:0.75rem; font-weight:600; white-space:nowrap;">
+            {{ $districts->count() }} {{ __('messages.members') }}
+        </span>
+    </div>
+    <p style="color:#64748b; margin-bottom:30px; font-size:0.95rem;">{{ __('messages.district_committees_desc') }}</p>
 
-            @php
-                $districtGroups = $districts->groupBy(function($item) {
-                    preg_match('/\((.*?)\)/', $item->position, $matches);
-                    return $matches[1] ?? 'Other';
-                });
-            @endphp
+    @php
+        $districtGroups = $districts->groupBy(function($item) {
+            preg_match('/\((.*?)\)/', $item->position, $matches);
+            return $matches[1] ?? 'Other';
+        });
 
-            @foreach($districtGroups as $districtName => $groupMembers)
-            <div style="margin-bottom:40px; background:#fafbfc; border-radius:16px; padding:20px 20px 25px; border:1px solid #eef2f6;">
-                <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-                    <h3 style="font-size:1.2rem; font-weight:600; color:#1e293b; margin:0; background:linear-gradient(135deg, #8B5CF6, #7C3AED); padding:6px 18px; border-radius:8px; display:inline-block; color:#fff;">
-                        <i class="fas fa-map-pin"></i> {{ $districtName }}
-                    </h3>
-                    <span style="background:#e2e8f0; color:#1e293b; padding:2px 14px; border-radius:50px; font-size:0.7rem; font-weight:600;">
-                        {{ $groupMembers->count() }} {{ __('messages.members') }}
-                    </span>
+        // ✅ Desired order: Kathmandu → Lalitpur → Bhaktapur → Kaski → Morang
+        $desiredOrder = ['Kathmandu', 'Lalitpur', 'Bhaktapur', 'Kaski', 'Morang'];
+        
+        $sortedDistricts = [];
+        foreach ($desiredOrder as $districtName) {
+            if (isset($districtGroups[$districtName])) {
+                $sortedDistricts[$districtName] = $districtGroups[$districtName];
+            }
+        }
+        // Add any remaining districts
+        foreach ($districtGroups as $districtName => $group) {
+            if (!in_array($districtName, $desiredOrder)) {
+                $sortedDistricts[$districtName] = $group;
+            }
+        }
+    @endphp
+
+    @foreach($sortedDistricts as $districtName => $groupMembers)
+    <div style="margin-bottom:40px; background:#fafbfc; border-radius:16px; padding:20px 20px 25px; border:1px solid #eef2f6;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+            <h3 style="font-size:1.2rem; font-weight:600; color:#1e293b; margin:0; background:linear-gradient(135deg, #8B5CF6, #7C3AED); padding:6px 18px; border-radius:8px; display:inline-block; color:#fff;">
+                <i class="fas fa-map-pin"></i> {{ $districtName }}
+            </h3>
+            <span style="background:#e2e8f0; color:#1e293b; padding:2px 14px; border-radius:50px; font-size:0.7rem; font-weight:600;">
+                {{ $groupMembers->count() }} {{ __('messages.members') }}
+            </span>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:20px;">
+            @foreach($groupMembers as $member)
+            <div class="committee-card district-card" style="background:#fff; border-radius:14px; padding:18px 14px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.04); transition:all 0.3s ease; border:1px solid #f1f5f9;">
+                <div style="position:relative; display:inline-block; margin-bottom:10px;">
+                    <img src="{{ $member->image_url }}" 
+                         alt="{{ $member->name }}" 
+                         style="width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid #e2e8f0;">
                 </div>
-                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:20px;">
-                    @foreach($groupMembers as $member)
-                    <div class="committee-card district-card" style="background:#fff; border-radius:14px; padding:18px 14px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.04); transition:all 0.3s ease; border:1px solid #f1f5f9;">
-                        <div style="position:relative; display:inline-block; margin-bottom:10px;">
-                            <img src="{{ $member->image_url }}" 
-                                 alt="{{ $member->name }}" 
-                                 style="width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid #e2e8f0;">
-                        </div>
-                        <h4 style="font-size:0.95rem; font-weight:700; color:#0f172a; margin-bottom:2px;">{{ $member->name }}</h4>
-                        <div style="font-size:0.65rem; color:#8B5CF6; font-weight:600; background:#f3e8ff; padding:2px 12px; border-radius:50px; display:inline-block; margin-bottom:6px;">
-                            {{ $member->position }}
-                        </div>
-                        <div style="display:flex; justify-content:center; gap:8px; margin-top:6px; padding-top:8px; border-top:1px solid #e2e8f0;">
-                            @if($member->facebook)
-                                <a href="{{ $member->facebook }}" target="_blank" style="color:#1877F2; font-size:0.85rem;"><i class="fab fa-facebook-f"></i></a>
-                            @endif
-                            @if($member->linkedin)
-                                <a href="{{ $member->linkedin }}" target="_blank" style="color:#0A66C2; font-size:0.85rem;"><i class="fab fa-linkedin-in"></i></a>
-                            @endif
-                            @if(!$member->facebook && !$member->linkedin)
-                                <span style="color:#94a3b8; font-size:0.6rem;">—</span>
-                            @endif
-                        </div>
-                    </div>
-                    @endforeach
+                <h4 style="font-size:0.95rem; font-weight:700; color:#0f172a; margin-bottom:2px;">{{ $member->name }}</h4>
+                <div style="font-size:0.65rem; color:#8B5CF6; font-weight:600; background:#f3e8ff; padding:2px 12px; border-radius:50px; display:inline-block; margin-bottom:6px;">
+                    {{ $member->position }}
+                </div>
+                <div style="display:flex; justify-content:center; gap:8px; margin-top:6px; padding-top:8px; border-top:1px solid #e2e8f0;">
+                    @if($member->facebook)
+                        <a href="{{ $member->facebook }}" target="_blank" style="color:#1877F2; font-size:0.85rem;"><i class="fab fa-facebook-f"></i></a>
+                    @endif
+                    @if($member->linkedin)
+                        <a href="{{ $member->linkedin }}" target="_blank" style="color:#0A66C2; font-size:0.85rem;"><i class="fab fa-linkedin-in"></i></a>
+                    @endif
+                    @if(!$member->facebook && !$member->linkedin)
+                        <span style="color:#94a3b8; font-size:0.6rem;">—</span>
+                    @endif
                 </div>
             </div>
             @endforeach
         </div>
-        @endif
+    </div>
+    @endforeach
+</div>
+@endif
 
         {{-- ---------- 3. Former / Founder Committees ---------- --}}
         @if($former->count())
