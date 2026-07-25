@@ -37,18 +37,28 @@
                         </h4>
                         <div class="row g-3">
                             {{-- Hostel Name (Nepali) --}}
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="hostel_name" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                                        Hostel Name (Nepali) <span style="color:#dc2626;">*</span>
-                                    </label>
-                                    <input type="text" name="hostel_name" id="hostel_name" value="{{ old('hostel_name') }}"
-                                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
-                                           class="form-control @error('hostel_name') is-invalid @enderror"
-                                           placeholder="e.g. सूर्योदय ब्वाइज होस्टेल" required>
-                                    @error('hostel_name') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
+<div class="col-md-6">
+    <div class="form-group">
+        <label for="hostel_name" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
+            Hostel Name (Nepali) <span style="color:#dc2626;">*</span>
+        </label>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <input type="text" name="hostel_name" id="hostel_name" value="{{ old('hostel_name') }}"
+                   style="flex:1; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
+                   class="form-control @error('hostel_name') is-invalid @enderror"
+                   placeholder="e.g. सूर्योदय ब्वाइज होस्टेल" required>
+            <button type="button"
+                    class="nepali-typing-trigger"
+                    data-target="hostel_name"
+                    data-title="🇳🇵 होस्टल नाम (नेपाली)"
+                    data-placeholder="जस्तै: suryodaya boys hostel"
+                    style="background:#f1f5f9; border:1.5px solid #e2e8f0; border-radius:8px; padding:10px 16px; cursor:pointer; font-size:0.9rem; white-space:nowrap; display:flex; align-items:center; gap:6px; transition:0.2s;">
+                <i class="fas fa-language"></i> नेपाली
+            </button>
+        </div>
+        @error('hostel_name') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
+    </div>
+</div>
 
                             {{-- Hostel Name (English) --}}
                             <div class="col-md-6">

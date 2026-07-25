@@ -505,6 +505,9 @@ function toggleMobileMenu() {
     }
 }
 </script>
+{{-- Nepali Typing Modal (one global modal) --}}
+<x-nepali-typing-modal />
+
 
     @stack('scripts')
 

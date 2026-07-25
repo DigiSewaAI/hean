@@ -34,14 +34,25 @@
             </h4>
             <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div class="form-group">
-                    <label for="hostel_name">{{ __('messages.hostel_name_nepali') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="text" name="hostel_name" id="hostel_name" value="{{ old('hostel_name') }}" placeholder="{{ __('messages.placeholder_hostel_name_nepali') }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="hostel_name_english">{{ __('messages.hostel_name_english') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="text" name="hostel_name_english" id="hostel_name_english" value="{{ old('hostel_name_english') }}" placeholder="{{ __('messages.placeholder_hostel_name_english') }}" required>
-                </div>
-            </div>
+    <label for="hostel_name">{{ __('messages.hostel_name_nepali') }} <span style="color:#dc2626;">*</span></label>
+    <div style="display:flex; gap:8px; align-items:center;">
+        <input type="text" name="hostel_name" id="hostel_name" value="{{ old('hostel_name') }}"
+               placeholder="{{ __('messages.placeholder_hostel_name_nepali') }}"
+               style="flex:1; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
+               required>
+        <button type="button"
+                class="nepali-typing-trigger"
+                data-target="hostel_name"
+                data-title="🇳🇵 होस्टल नाम (नेपाली)"
+                data-placeholder="जस्तै: suryodaya boys hostel"
+                style="background:#f1f5f9; border:1.5px solid #e2e8f0; border-radius:8px; padding:10px 16px; cursor:pointer; font-size:0.9rem; white-space:nowrap; display:flex; align-items:center; gap:6px; transition:0.2s;">
+            <i class="fas fa-language"></i> नेपाली
+        </button>
+    </div>
+    @error('hostel_name')
+        <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
+    @enderror
+</div>
 
             {{-- ✅ 8.1: Block / Building Name --}}
             <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">

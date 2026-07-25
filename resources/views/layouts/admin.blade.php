@@ -273,6 +273,9 @@
             </div>
         </footer>
     </div>
+    {{-- Nepali Typing Modal (one global modal) --}}
+<x-nepali-typing-modal />
+
 
     @stack('scripts')
 

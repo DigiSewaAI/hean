@@ -2,6 +2,10 @@ import Alpine from 'alpinejs';
 window.Alpine = Alpine;
 Alpine.start();
 
+// ✅ Nepali Typing Module (loads on demand)
+import './nepali-typing';
+
+
 // =============================================
 // PRELOADER
 // =============================================
