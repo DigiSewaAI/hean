@@ -1,12 +1,13 @@
 /**
- * Nepali Typing Modal – Production Module
- * Features: one modal, dynamic target, lazy loading, accessibility, graceful error
+ * Nepali Typing Modal – Production Module (v2)
+ * Features: one modal, dynamic target, lazy loading, accessibility, graceful error,
+ *           custom normalization map for HEAN-specific corrections.
  */
 
 (function() {
     'use strict';
 
-    // DOM refs
+    // ─── DOM refs ──────────────────────────────────────────────────
     const modal = document.getElementById('nepali-typing-modal');
     const input = document.getElementById('nepali-typing-input');
     const preview = document.getElementById('nepali-typing-preview');
@@ -14,13 +15,62 @@
     const clearBtn = modal?.querySelector('.nepali-clear-btn');
     const cancelBtn = modal?.querySelector('.nepali-cancel-btn');
 
-    // State
+    // ─── State ────────────────────────────────────────────────────
     let activeTargetId = null;          // ID of the input field we are typing for
     let activeTrigger = null;           // The button that opened the modal
     let previousFocused = null;         // Element to restore focus after close
     let sanscriptModule = null;         // Lazy-loaded module cache
     let isOpen = false;
     let isComposing = false;            // For IME handling
+
+    // ─── HEAN Custom Transliteration Map (Global Constant) ──────
+    const CUSTOM_TRANSLITERATION_MAP = {
+        // Common corrections for HEAN
+        'होस्तेल': 'होस्टेल',
+        'होस्तेल्': 'होस्टेल',
+        'होस्टेल्': 'होस्टेल',
+
+        'बोइज़': 'ब्वाइज',
+        'बोइज': 'ब्वाइज',
+
+        'गर्ल्ज़': 'गर्ल्स',
+        'गर्ल्ज': 'गर्ल्स',
+
+        // Future / additional words (can be extended easily)
+        'नेपाल्गन्ज': 'नेपालगञ्ज',
+        'काठमान्डु': 'काठमाडौं',
+        'पोखरा': 'पोखरा', // already correct, but kept for consistency
+        'चितवन': 'चितवन',
+        'विराटनगर': 'विराटनगर',
+        'धनगढी': 'धनगढी',
+        'भैरहवा': 'भैरहवा',
+        'सर्लाही': 'सर्लाही',
+
+        // Common English loanwords
+        'म्यानेजमेन्ट': 'म्यानेजमेन्ट', // already correct
+        'इन्टरप्रेनर': 'इन्टरप्रेनर',
+        'एसोसिएसन': 'एसोसिएसन',
+        'एशोसिएशन': 'एसोसिएसन',
+        'एसोशिएसन': 'एसोसिएसन',
+
+        // Student related
+        'विद्यार्थी': 'विद्यार्थी',
+        'आवास': 'आवास',
+        'समिति': 'समिति',
+        'व्यवस्थापन': 'व्यवस्थापन',
+        'संघ': 'संघ',
+        'सङ्घ': 'संघ',
+    };
+
+    // ─── Normalize function (uses global constant) ──────────────
+    function normalizeNepaliText(text) {
+        let output = text;
+        for (const [wrong, correct] of Object.entries(CUSTOM_TRANSLITERATION_MAP)) {
+            // Use replaceAll to fix all occurrences
+            output = output.replaceAll(wrong, correct);
+        }
+        return output;
+    }
 
     // ─── Lazy load Sanscript ──────────────────────────────────────
     async function loadSanscript() {
@@ -47,7 +97,8 @@
         if (!text.trim()) return '';
         try {
             const Sanscript = sanscriptModule;
-            return Sanscript.t(text, 'itrans', 'devanagari');
+            const result = Sanscript.t(text, 'itrans', 'devanagari');
+            return normalizeNepaliText(result);
         } catch (e) {
             console.warn('Transliteration error:', e);
             return text; // fallback
@@ -88,7 +139,8 @@
         // Update modal title & placeholder from data attributes (if any)
         const title = triggerEl.dataset.title || '🇳🇵 नेपाली टाइपिङ';
         const placeholder = triggerEl.dataset.placeholder || 'जस्तै: suryodaya boys hostel';
-        document.getElementById('nepali-typing-title').textContent = title;
+        const titleEl = document.getElementById('nepali-typing-title');
+        if (titleEl) titleEl.textContent = title;
         input.placeholder = placeholder;
 
         // Clear previous content
@@ -139,11 +191,13 @@
             return;
         }
 
-        // Transliterate the final text (use the same logic)
+        // Transliterate the final text using the same logic
         let finalText;
         try {
             const Sanscript = sanscriptModule;
-            finalText = Sanscript.t(raw, 'itrans', 'devanagari');
+            finalText = normalizeNepaliText(
+                Sanscript.t(raw, 'itrans', 'devanagari')
+            );
         } catch (e) {
             finalText = raw;
         }
@@ -253,5 +307,4 @@
     // Nothing persistent to clean; event listeners are on document/modal.
 
     console.log('✅ Nepali Typing Modal initialized (lazy-load ready)');
-
 })();
