@@ -20,8 +20,8 @@ class HomeController extends Controller
     $gallery = GalleryImage::where('is_published', true)->take(8)->get();
 
     $stats = [
-    'hostels' => Hostel::where('approved', true)->count(), // 534+ (dynamic)
-    'members' => 122,
+    'hostels' => Hostel::where('approved', true)->count(),
+    'members' => CommitteeMember::where('is_published', true)->distinct('name')->count(), // ✅ 99
     'districts' => 7,
     'growth' => 24,
 ];

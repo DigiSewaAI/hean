@@ -30,6 +30,19 @@ class CommitteeController extends Controller
                !str_contains($item->position, 'Former');
     })->values();
 
-    return view('public.committee.index', compact('central', 'former', 'districts', 'members'));
+    // ✅ नयाँ – Stats को लागि सही गणना
+    $totalMembers   = $members->unique('name')->count();                      // 99
+    $totalPositions = $members->pluck('position')->unique()->count();        // 63
+    $activeMembers  = $members->where('is_published', true)->unique('name')->count(); // 99
+
+    return view('public.committee.index', compact(
+        'central', 
+        'former', 
+        'districts', 
+        'members', 
+        'totalMembers', 
+        'totalPositions', 
+        'activeMembers'
+    ));
 }
 }

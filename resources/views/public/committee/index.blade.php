@@ -23,20 +23,19 @@
 <section style="padding:35px 0; background:#f8fafc; border-bottom:1px solid #e2e8f0;">
     <div class="container">
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:20px; text-align:center;">
+            {{-- Total Members --}}
             <div style="background:#fff; padding:20px; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                <div style="font-size:2.4rem; font-weight:800; color:#0EA5E9;">{{ $members->count() ?? 0 }}</div>
+                <div style="font-size:2.4rem; font-weight:800; color:#0EA5E9;">{{ $totalMembers ?? 0 }}</div>
                 <div style="color:#64748b; font-size:0.85rem; font-weight:500;">{{ __('messages.committee_stats_total') }}</div>
             </div>
+            {{-- Positions --}}
             <div style="background:#fff; padding:20px; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                <div style="font-size:2.4rem; font-weight:800; color:#22C55E;">
-                    {{ $members->pluck('position')->unique()->count() ?? 0 }}
-                </div>
+                <div style="font-size:2.4rem; font-weight:800; color:#22C55E;">{{ $totalPositions ?? 0 }}</div>
                 <div style="color:#64748b; font-size:0.85rem; font-weight:500;">{{ __('messages.committee_stats_positions') }}</div>
             </div>
+            {{-- Active Members --}}
             <div style="background:#fff; padding:20px; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                <div style="font-size:2.4rem; font-weight:800; color:#8B5CF6;">
-                    {{ $members->where('is_published', true)->count() ?? 0 }}
-                </div>
+                <div style="font-size:2.4rem; font-weight:800; color:#8B5CF6;">{{ $activeMembers ?? 0 }}</div>
                 <div style="color:#64748b; font-size:0.85rem; font-weight:500;">{{ __('messages.committee_stats_active') }}</div>
             </div>
         </div>
