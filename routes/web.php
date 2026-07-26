@@ -172,6 +172,8 @@ Route::prefix('gallery/images')->name('gallery.')->group(function () {
         // Invoice listing and details
         Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
         Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+		Route::put('invoices/{invoice}/mark-paid', [InvoiceController::class, 'markPaid'])
+    ->name('invoices.mark-paid');
 
         // Invoice download (replaces old route)
         Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
