@@ -281,15 +281,23 @@
         const municipalityId = "{{ old('municipality_id', $hostel->municipality_id ?? '') }}";
         const municipalityName = "{{ old('municipality', $hostel->municipality ?? '') }}";
 
-        // ===== Helper: Set select by text =====
+        console.log('Province Name:', provinceName);
+        console.log('District Name:', districtName);
+        console.log('Municipality Name:', municipalityName);
+
+        // ===== Helper: Set select by text (case-insensitive, trim) =====
         function setSelectByText(selectElement, text) {
             if (!text) return false;
+            const trimmedText = text.trim();
             for (let option of selectElement.options) {
-                if (option.textContent.trim() === text.trim()) {
+                const optionText = option.textContent.trim();
+                if (optionText.toLowerCase() === trimmedText.toLowerCase()) {
                     selectElement.value = option.value;
+                    console.log('Matched by text:', optionText, '-> value:', option.value);
                     return true;
                 }
             }
+            console.warn('No match for text:', trimmedText);
             return false;
         }
 
@@ -299,9 +307,11 @@
             for (let option of selectElement.options) {
                 if (option.value == value) {
                     selectElement.value = value;
+                    console.log('Matched by value:', value);
                     return true;
                 }
             }
+            console.warn('No match for value:', value);
             return false;
         }
 
@@ -315,12 +325,15 @@
         }
 
         // ===== 1. Province Selection =====
-        // Try ID first, then name
+        // Try ID first, then name (case-insensitive)
+        let provinceSet = false;
         if (provinceId) {
-            setSelectByValue(provinceSelect, provinceId);
-        } else if (provinceName) {
-            setSelectByText(provinceSelect, provinceName);
+            provinceSet = setSelectByValue(provinceSelect, provinceId);
         }
+        if (!provinceSet && provinceName) {
+            provinceSet = setSelectByText(provinceSelect, provinceName);
+        }
+        console.log('Province set?', provinceSet, 'Selected value:', provinceSelect.value);
 
         // ===== 2. Load Districts =====
         function loadDistrictsAndSelect(pid) {
@@ -340,19 +353,28 @@
                         districtSelect.appendChild(option);
                     });
 
-                    // Set district by ID or name
+                    // Set district by ID or name (case-insensitive)
+                    let districtSet = false;
                     if (districtId) {
-                        setSelectByValue(districtSelect, districtId);
-                    } else if (districtName) {
-                        setSelectByText(districtSelect, districtName);
+                        districtSet = setSelectByValue(districtSelect, districtId);
                     }
+                    if (!districtSet && districtName) {
+                        districtSet = setSelectByText(districtSelect, districtName);
+                    }
+                    console.log('District set?', districtSet, 'Selected value:', districtSelect.value);
 
                     // Load municipalities for the selected district
                     if (districtSelect.value) {
                         loadMunicipalitiesAndSelect(districtSelect.value);
+                    } else {
+                        // If district not set, clear municipality
+                        municipalitySelect.innerHTML = '<option value="">{{ __('messages.select_municipality') }}</option>';
+                        updateHiddenFields();
                     }
                 })
-                .catch(() => {});
+                .catch(error => {
+                    console.error('Error loading districts:', error);
+                });
         }
 
         // ===== 3. Load Municipalities =====
@@ -372,15 +394,20 @@
                         municipalitySelect.appendChild(option);
                     });
 
-                    // Set municipality by ID or name
+                    // Set municipality by ID or name (case-insensitive)
+                    let municipalitySet = false;
                     if (municipalityId) {
-                        setSelectByValue(municipalitySelect, municipalityId);
-                    } else if (municipalityName) {
-                        setSelectByText(municipalitySelect, municipalityName);
+                        municipalitySet = setSelectByValue(municipalitySelect, municipalityId);
                     }
+                    if (!municipalitySet && municipalityName) {
+                        municipalitySet = setSelectByText(municipalitySelect, municipalityName);
+                    }
+                    console.log('Municipality set?', municipalitySet, 'Selected value:', municipalitySelect.value);
                     updateHiddenFields();
                 })
-                .catch(() => {});
+                .catch(error => {
+                    console.error('Error loading municipalities:', error);
+                });
         }
 
         // ===== 4. Event Listeners =====
@@ -404,6 +431,8 @@
         } else {
             // If no province selected, still update hidden fields from existing data
             updateHiddenFields();
+            // But we can also attempt to load districts if we have a district name but no province?
+            // Better to do nothing.
         }
 
         // ===== 6. Final fallback: update hidden fields on form submit =====
