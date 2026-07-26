@@ -302,7 +302,7 @@
                                                             <table cellpadding="0" cellspacing="0" style="width:100%;">
                                                                 <tr>
                                                                     <td align="center" class="org-name">
-                                                                        होस्टल व्यवसायी संघ नेपाल
+                                                                        होस्टल व्यवसायी संघ नेपाल नेपाल
                                                                     </td>
                                                                 </tr>
                                                             </table>
@@ -379,7 +379,7 @@
                                                             <table cellpadding="0" cellspacing="0" style="width:100%;">
                                                                 <tr>
                                                                     <td align="center" class="welcome-text">
-                                                                        होस्टल व्यवसायी संघ नेपालमा आवद्ध हुनुभएकोमा हार्दिक बधाई सहित<br>
+                                                                        होस्टल व्यवसायी संघ नेपाल नेपालमा आवद्ध हुनुभएकोमा हार्दिक बधाई सहित<br>
                                                                         यो प्रमाण पत्र प्रदान गरिएको छ ।
                                                                     </td>
                                                                 </tr>

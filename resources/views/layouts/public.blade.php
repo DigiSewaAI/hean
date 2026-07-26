@@ -361,7 +361,7 @@ main {
     <img src="{{ asset('images/logo.png') }}" alt="HEAN" style="height:auto; max-height:75px; width:auto; max-width:100%;">
 </a>
     <div style="display:flex; flex-direction:column; line-height:1.2; max-width:100%;">
-        <span style="font-size:14px; font-weight:700; color:#0b2b4a;">होस्टल व्यवसायी संघ</span>
+        <span style="font-size:14px; font-weight:700; color:#0b2b4a;">होस्टल व्यवसायी संघ नेपाल</span>
         <span style="font-size:10px; font-weight:600; color:#1e5f8e;">Hostel Entrepreneur Association of Nepal (HEAN)</span>
     </div>
 </div>
@@ -425,7 +425,7 @@ main {
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
 <img src="{{ asset('images/logo.png') }}" alt="HEAN Logo" style="height:80px; width:auto; max-width:100%;">
         <div style="display:flex; flex-direction:column; line-height:1.2;">
-            <span style="font-size:12px; font-weight:700; color:#ffffff;">होस्टल व्यवसायी संघ</span>
+            <span style="font-size:12px; font-weight:700; color:#ffffff;">होस्टल व्यवसायी संघ नेपाल</span>
             <span style="font-size:9px; font-weight:600; color:#94a3b8;">Hostel Entrepreneur Association of Nepal (HEAN)</span>
         </div>
     </div>

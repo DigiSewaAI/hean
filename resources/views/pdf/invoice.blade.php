@@ -241,7 +241,7 @@
                 <img src="{{ public_path('images/logo.png') }}" alt="HEAN Logo">
             </div>
             <div class="org">
-                <div class="nepali-name">होस्टल व्यवसायी संघ नेपाल</div>
+                <div class="nepali-name">होस्टल व्यवसायी संघ नेपाल नेपाल</div>
                 <div class="main-name">Hostel Entrepreneurs Association Nepal</div>
                 <div class="sub-name">HEAN</div>
                 <div class="regd-no">Regd. No: 029/079/080 | PAN: 618525252</div>

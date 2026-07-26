@@ -939,7 +939,7 @@ return [
 'status_paid' => 'Paid',
 'thank_you_np' => 'धन्यवाद',
 'thank_you_en' => 'Thank you for your payment.',
-'receipt_org_np' => 'होस्टल व्यवसायी संघ नेपाल',
+'receipt_org_np' => 'होस्टल व्यवसायी संघ नेपाल नेपाल',
 'receipt_org_en' => 'Hostel Entrepreneurs Association Nepal',
 'authorized_signature' => 'Authorized Signature',
 
