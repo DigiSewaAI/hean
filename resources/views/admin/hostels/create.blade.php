@@ -30,13 +30,23 @@
         {{-- ===== Row 1: Name (Nepali + English) ===== --}}
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div class="form-group">
-                <label for="name_nepali" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
-                    {{ __('messages.hostel_name_nepali') }} <span style="color:#dc2626;">*</span>
-                </label>
-                <input type="text" name="name_nepali" id="name_nepali" value="{{ old('name_nepali') }}"
-                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;" required>
-                @error('name_nepali') <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div> @enderror
-            </div>
+    <label for="name_nepali" class="block font-medium text-gray-700 text-sm mb-1">
+        {{ __('messages.hostel_name_nepali') }} <span class="text-red-600">*</span>
+    </label>
+    <div class="flex items-center gap-2">
+        <input type="text" name="name_nepali" id="name_nepali" value="{{ old('name_nepali') }}"
+               class="flex-1 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+               required>
+        <button type="button"
+                class="nepali-typing-trigger flex items-center gap-2 px-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition text-sm font-medium whitespace-nowrap"
+                data-target="name_nepali"
+                data-title="🇳🇵 होस्टल नाम (नेपाली)"
+                data-placeholder="जस्तै: Suryodaya Boys Hostel">
+            <i class="fas fa-language"></i> नेपाली
+        </button>
+    </div>
+    @error('name_nepali') <div class="text-red-600 text-sm mt-1">{{ $message }}</div> @enderror
+</div>
             <div class="form-group">
                 <label for="name_english" style="font-weight:600; color:#1e293b; margin-bottom:4px; display:block;">
                     {{ __('messages.hostel_name_english') }} <span style="color:#64748b; font-weight:400;">({{ __('messages.optional') }})</span>

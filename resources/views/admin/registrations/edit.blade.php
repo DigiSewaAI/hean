@@ -53,10 +53,21 @@
             </h4>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div>
-                    <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.hostel_name_nepali') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="text" name="hostel_name" value="{{ old('hostel_name', $registration->hostel_name) }}" 
-                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; transition:0.3s;" required>
-                </div>
+    <label class="block font-medium text-gray-700 text-sm mb-1">{{ __('messages.hostel_name_nepali') }} <span class="text-red-600">*</span></label>
+    <div class="flex items-center gap-2">
+        <input type="text" name="hostel_name" id="hostel_name"
+               value="{{ old('hostel_name', $registration->hostel_name) }}"
+               class="flex-1 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+               required>
+        <button type="button"
+                class="nepali-typing-trigger flex items-center gap-2 px-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition text-sm font-medium whitespace-nowrap"
+                data-target="hostel_name"
+                data-title="🇳🇵 होस्टल नाम (नेपाली)"
+                data-placeholder="जस्तै: Suryodaya Boys Hostel">
+            <i class="fas fa-language"></i> नेपाली
+        </button>
+    </div>
+</div>
                 <div>
                     <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">{{ __('messages.hostel_name_english') }} <span style="color:#dc2626;">*</span></label>
                     <input type="text" name="hostel_name_english" value="{{ old('hostel_name_english', $registration->hostel_name_english) }}" 
