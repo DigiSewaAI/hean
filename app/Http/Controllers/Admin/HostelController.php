@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\HostelsExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Province;
+use App\Models\District;
+use App\Models\Municipality;
 
 class HostelController extends Controller
 {
@@ -163,9 +166,34 @@ class HostelController extends Controller
     }
 
     public function edit(Hostel $hostel)
-    {
-        return view('admin.hostels.edit', compact('hostel'));
+{
+    // ===== 1. Province ID =====
+    if (empty($hostel->province_id) && !empty($hostel->province)) {
+        $province = Province::where('name', $hostel->province)->first();
+        if ($province) {
+            $hostel->province_id = $province->id;
+        }
     }
+
+    // ===== 2. District ID =====
+    if (empty($hostel->district_id) && !empty($hostel->district)) {
+        $district = District::where('name', $hostel->district)->first();
+        if ($district) {
+            $hostel->district_id = $district->id;
+        }
+    }
+
+    // ===== 3. Municipality ID =====
+    if (empty($hostel->municipality_id) && !empty($hostel->municipality)) {
+        $municipality = Municipality::where('name', $hostel->municipality)->first();
+        if ($municipality) {
+            $hostel->municipality_id = $municipality->id;
+        }
+    }
+
+    return view('admin.hostels.edit', compact('hostel'));
+}
+
 
     /**
      * Update hostel.
