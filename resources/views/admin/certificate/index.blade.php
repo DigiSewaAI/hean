@@ -31,54 +31,46 @@
             </div>
 
             {{-- Filter: Registration (Searchable) --}}
-<div style="flex:1.5; min-width:220px;" x-data="{
-    search: '',
-    selected: '{{ request('registration_id', '') }}',
-    open: false,
-    options: @json($registrations->map(fn($r) => ['id' => $r->id, 'label' => $r->registration_number . ' - ' . $r->hostel_name])),
-    get filtered() {
-        if (!this.search) return this.options;
-        return this.options.filter(opt => opt.label.toLowerCase().includes(this.search.toLowerCase()));
-    },
-    selectOption(id) {
-        this.selected = id;
-        this.open = false;
-        this.$refs.hiddenInput.value = id;
-        const opt = this.options.find(o => o.id == id);
-        if (opt) this.search = opt.label;
-        this.$refs.form.submit();
-    }
-}">
-    <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">{{ __('messages.registration') }}</label>
-    <div class="relative">
-        <input type="text"
-               x-model="search"
-               @focus="open = true"
-               @input.debounce="open = true"
-               @click.away="open = false"
-               placeholder="खोज्नुहोस् दर्ता नं. वा होस्टल..."
-               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; transition:0.2s; outline:none;"
-               autocomplete="off">
-        <input type="hidden" name="registration_id" x-ref="hiddenInput" :value="selected">
-        <form x-ref="form" action="{{ route('admin.certificate.index') }}" method="GET"></form>
-        <div x-show="open && filtered.length > 0"
-             x-transition
-             class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-            <template x-for="opt in filtered" :key="opt.id">
-                <div @click="selectOption(opt.id)"
-                     class="px-4 py-2 hover:bg-purple-50 cursor-pointer text-sm"
-                     :class="{ 'bg-purple-100': selected == opt.id }"
-                     x-text="opt.label">
+            @php
+                $filterOptions = $registrations->map(fn($r) => [
+                    'id' => $r->id,
+                    'label' => $r->registration_number . ' - ' . $r->hostel_name
+                ])->values()->toArray();
+                $selectedFilter = request('registration_id', '');
+            @endphp
+
+            <div style="flex:1.5; min-width:220px;"
+                 x-data="searchableDropdown('{{ $selectedFilter }}', {{ json_encode($filterOptions) }})"
+                 x-init="initSearch()">
+                <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">{{ __('messages.registration') }}</label>
+                <div class="relative" style="position:relative;">
+                    <input type="text"
+                           x-model="search"
+                           @focus="open = true"
+                           @input.debounce="open = true"
+                           @click.away="open = false"
+                           placeholder="खोज्नुहोस् दर्ता नं. वा होस्टल..."
+                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; transition:0.2s; outline:none;"
+                           autocomplete="off">
+                    <input type="hidden" name="registration_id" x-ref="hiddenInput" :value="selected">
+                    <div x-show="open && filtered.length > 0"
+                         x-transition
+                         style="position:absolute; z-index:50; width:100%; margin-top:4px; background:white; border:1px solid #d1d5db; border-radius:8px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); max-height:240px; overflow-y:auto;">
+                        <template x-for="opt in filtered" :key="opt.id">
+                            <div @click="selectOption(opt.id)"
+                                 class="px-4 py-2 hover:bg-purple-50 cursor-pointer text-sm"
+                                 :class="{ 'bg-purple-100': selected == opt.id }"
+                                 x-text="opt.label">
+                            </div>
+                        </template>
+                    </div>
+                    <div x-show="open && filtered.length === 0"
+                         x-transition
+                         style="position:absolute; z-index:50; width:100%; margin-top:4px; background:white; border:1px solid #d1d5db; border-radius:8px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); padding:8px 16px; font-size:0.875rem; color:#6b7280;">
+                        कुनै रेकर्ड फेला परेन।
+                    </div>
                 </div>
-            </template>
-        </div>
-        <div x-show="open && filtered.length === 0"
-             x-transition
-             class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg px-4 py-2 text-sm text-gray-500">
-            कुनै रेकर्ड फेला परेन।
-        </div>
-    </div>
-</div>
+            </div>
 
             {{-- Sort --}}
             <div style="flex:1; min-width:130px;">
@@ -106,7 +98,7 @@
             </div>
         </div>
 
-        {{-- Advanced Filters (collapsible) --}}
+        {{-- Advanced Filters --}}
         <div id="advancedFilters" style="display: {{ request()->hasAny(['date_from', 'date_to']) ? 'block' : 'none' }}; margin-top:16px; padding-top:16px; border-top:1px solid #e2e8f0;">
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:12px;">
                 <div>
@@ -126,69 +118,53 @@
 
 {{-- ===== GENERATE CERTIFICATE FORM ===== --}}
 <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px; margin-bottom:24px;">
-    <form action="{{ route('admin.certificate.generate') }}" method="POST">
+    <form action="{{ route('admin.certificate.generate') }}" method="POST" id="generateForm">
         @csrf
         <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
-            <div style="flex:2; min-width:200px;">
+            @php
+                $regOptions = \App\Models\Registration::with('hostel')
+                    ->whereIn('status', ['approved', 'active'])
+                    ->get()
+                    ->map(fn($r) => [
+                        'id' => $r->id,
+                        'label' => ($r->registration_number ?? '#'.$r->id) . ' – ' . ($r->hostel->name ?? 'N/A')
+                    ])->values()->toArray();
+                $selectedReg = old('registration_id');
+            @endphp
+
+            <div style="flex:2; min-width:200px;"
+                 x-data="searchableDropdown('{{ $selectedReg }}', {{ json_encode($regOptions) }})"
+                 x-init="initSearch()">
                 <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">
                     <i class="fas fa-id-card" style="color:#8B5CF6;"></i> {{ __('messages.registration_id') }}
                 </label>
-                @php
-    $registrationsForCert = \App\Models\Registration::with('hostel')->whereIn('status', ['approved', 'active'])->get();
-    $regOptions = $registrationsForCert->map(fn($r) => [
-        'id' => $r->id,
-        'label' => ($r->registration_number ?? '#'.$r->id) . ' – ' . ($r->hostel->name ?? 'N/A')
-    ])->toArray();
-@endphp
-
-<div style="flex:2; min-width:200px;" x-data="{
-    search: '',
-    selected: '{{ old('registration_id') }}',
-    open: false,
-    options: @json($regOptions),
-    get filtered() {
-        if (!this.search) return this.options;
-        return this.options.filter(opt => opt.label.toLowerCase().includes(this.search.toLowerCase()));
-    },
-    selectOption(id) {
-        this.selected = id;
-        this.open = false;
-        this.$refs.hiddenInput.value = id;
-        const opt = this.options.find(o => o.id == id);
-        if (opt) this.search = opt.label;
-    }
-}">
-    <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">
-        <i class="fas fa-id-card" style="color:#8B5CF6;"></i> {{ __('messages.registration_id') }}
-    </label>
-    <div class="relative">
-        <input type="text"
-               x-model="search"
-               @focus="open = true"
-               @input.debounce="open = true"
-               @click.away="open = false"
-               placeholder="होस्टल नाम वा दर्ता नं. खोज्नुहोस्..."
-               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; transition:0.2s; outline:none;"
-               autocomplete="off">
-        <input type="hidden" name="registration_id" x-ref="hiddenInput" :value="selected">
-        <div x-show="open && filtered.length > 0"
-             x-transition
-             class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-            <template x-for="opt in filtered" :key="opt.id">
-                <div @click="selectOption(opt.id)"
-                     class="px-4 py-2 hover:bg-purple-50 cursor-pointer text-sm"
-                     :class="{ 'bg-purple-100': selected == opt.id }"
-                     x-text="opt.label">
+                <div class="relative" style="position:relative;">
+                    <input type="text"
+                           x-model="search"
+                           @focus="open = true"
+                           @input.debounce="open = true"
+                           @click.away="open = false"
+                           placeholder="होस्टल नाम वा दर्ता नं. खोज्नुहोस्..."
+                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; transition:0.2s; outline:none;"
+                           autocomplete="off">
+                    <input type="hidden" name="registration_id" x-ref="hiddenInput" :value="selected">
+                    <div x-show="open && filtered.length > 0"
+                         x-transition
+                         style="position:absolute; z-index:50; width:100%; margin-top:4px; background:white; border:1px solid #d1d5db; border-radius:8px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); max-height:240px; overflow-y:auto;">
+                        <template x-for="opt in filtered" :key="opt.id">
+                            <div @click="selectOption(opt.id)"
+                                 class="px-4 py-2 hover:bg-purple-50 cursor-pointer text-sm"
+                                 :class="{ 'bg-purple-100': selected == opt.id }"
+                                 x-text="opt.label">
+                            </div>
+                        </template>
+                    </div>
+                    <div x-show="open && filtered.length === 0"
+                         x-transition
+                         style="position:absolute; z-index:50; width:100%; margin-top:4px; background:white; border:1px solid #d1d5db; border-radius:8px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); padding:8px 16px; font-size:0.875rem; color:#6b7280;">
+                        कुनै दर्ता फेला परेन।
+                    </div>
                 </div>
-            </template>
-        </div>
-        <div x-show="open && filtered.length === 0"
-             x-transition
-             class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg px-4 py-2 text-sm text-gray-500">
-            कुनै दर्ता फेला परेन।
-        </div>
-    </div>
-</div>
             </div>
             <div style="flex:1; min-width:150px;">
                 <button type="submit" style="width:100%; background:linear-gradient(135deg, #8B5CF6, #7C3AED); color:#fff; border:none; padding:10px 22px; border-radius:50px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:0.3s; box-shadow:0 4px 15px rgba(139,92,246,0.25);">
@@ -272,6 +248,51 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('searchableDropdown', (selectedValue, optionsList) => ({
+            search: '',
+            selected: selectedValue || '',
+            open: false,
+            options: optionsList,
+            get filtered() {
+                if (!this.search.trim()) {
+                    return this.options;
+                }
+                const searchLower = this.search.toLowerCase().trim();
+                return this.options.filter(opt => 
+                    opt.label.toLowerCase().includes(searchLower)
+                );
+            },
+            initSearch() {
+                // If there's a selected value, show it in the search input
+                if (this.selected) {
+                    const found = this.options.find(o => o.id == this.selected);
+                    if (found) {
+                        this.search = found.label;
+                    }
+                }
+            },
+            selectOption(id) {
+                this.selected = id;
+                this.open = false;
+                this.$refs.hiddenInput.value = id;
+                const found = this.options.find(o => o.id == id);
+                if (found) {
+                    this.search = found.label;
+                }
+                // For filter dropdown: submit the form automatically
+                const form = this.$el.closest('form');
+                if (form && form.id === 'filterForm') {
+                    form.submit();
+                }
+            }
+        }));
+    });
+</script>
+@endpush
 
 @push('styles')
 <style>
