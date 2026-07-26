@@ -270,7 +270,6 @@
         <div class="right">
             <div><strong>दर्ता नम्बर:</strong> {{ $registration->registration_number ?? '#'.$registration->id }}</div>
             @if($invoice->due_date)
-                <div><strong>Due Date:</strong> {{ $invoice->due_date->format('Y-m-d') }}</div>
             @endif
         </div>
     </div>
