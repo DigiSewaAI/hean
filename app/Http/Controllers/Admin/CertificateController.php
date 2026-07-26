@@ -21,56 +21,55 @@ public function index(Request $request)
 {
     $query = Certificate::with(['registration', 'registration.hostel', 'registration.owner']);
 
-    // ===== 1. BASIC SEARCH (Multiple Fields) =====
+    // ===== 1. BASIC SEARCH (using JOIN for reliability) =====
     if ($request->filled('search')) {
         $search = $request->search;
-        $query->where(function ($q) use ($search) {
-            $q->where('certificate_number', 'LIKE', "%{$search}%")
-              ->orWhereHas('registration', function ($r) use ($search) {
-                  $r->where('hostel_name', 'LIKE', "%{$search}%")
-                    ->orWhere('hostel_name_english', 'LIKE', "%{$search}%")
-                    ->orWhere('registration_number', 'LIKE', "%{$search}%")
-                    ->orWhere('local_registration_number', 'LIKE', "%{$search}%");
+        $query->leftJoin('registrations', 'certificates.registration_id', '=', 'registrations.id')
+              ->where(function ($q) use ($search) {
+                  $q->where('certificates.certificate_number', 'LIKE', "%{$search}%")
+                    ->orWhere('registrations.hostel_name', 'LIKE', "%{$search}%")
+                    ->orWhere('registrations.hostel_name_english', 'LIKE', "%{$search}%")
+                    ->orWhere('registrations.registration_number', 'LIKE', "%{$search}%")
+                    ->orWhere('registrations.local_registration_number', 'LIKE', "%{$search}%");
               });
-        });
     }
 
-    // ===== 2. FILTER: Registration =====
+    // ===== 2. FILTER: Registration (if any) =====
     if ($request->filled('registration_id')) {
-        $query->where('registration_id', $request->registration_id);
+        $query->where('certificates.registration_id', $request->registration_id);
     }
 
-    // ===== 3. FILTER: Date Range (Issued Date) =====
+    // ===== 3. DATE RANGE =====
     if ($request->filled('date_from')) {
-        $query->whereDate('issued_date', '>=', $request->date_from);
+        $query->whereDate('certificates.issued_date', '>=', $request->date_from);
     }
     if ($request->filled('date_to')) {
-        $query->whereDate('issued_date', '<=', $request->date_to);
+        $query->whereDate('certificates.issued_date', '<=', $request->date_to);
     }
 
     // ===== 4. SORTING =====
     switch ($request->sort) {
         case 'oldest':
-            $query->oldest();
+            $query->oldest('certificates.created_at');
             break;
         case 'cert_number_asc':
-            $query->orderBy('certificate_number', 'asc');
+            $query->orderBy('certificates.certificate_number', 'asc');
             break;
         case 'cert_number_desc':
-            $query->orderBy('certificate_number', 'desc');
+            $query->orderBy('certificates.certificate_number', 'desc');
             break;
         default:
-            $query->latest();
+            $query->latest('certificates.created_at');
             break;
     }
 
     // ===== PAGINATE =====
-    $certificates = $query->paginate(15)->appends($request->query());
+    $certificates = $query->select('certificates.*')  // avoid column ambiguity
+                          ->paginate(15)
+                          ->appends($request->query());
 
-    // ===== STATS =====
+    // ===== STATS & REGISTRATIONS =====
     $totalCertificates = Certificate::count();
-
-    // ===== REGISTRATIONS FOR DROPDOWN =====
     $registrations = Registration::select('id', 'hostel_name', 'registration_number')
         ->orderBy('hostel_name')
         ->get();
