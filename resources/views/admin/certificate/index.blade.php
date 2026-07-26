@@ -30,45 +30,29 @@
                        style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; transition:0.2s;">
             </div>
 
-            {{-- Filter: Registration (Searchable) --}}
-            @php
-                $filterOptions = $registrations->map(fn($r) => [
-                    'id' => $r->id,
-                    'label' => $r->registration_number . ' - ' . $r->hostel_name
-                ])->values()->toArray();
-                $selectedFilter = request('registration_id', '');
-            @endphp
-
             {{-- Filter: Registration (Searchable with Datalist) --}}
-<div style="flex:1.5; min-width:220px;">
-    <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">{{ __('messages.registration') }}</label>
-    @php
-        $filterRegistrations = \App\Models\Registration::with('hostel')
-            ->whereIn('status', ['approved', 'active'])
-            ->get();
-    @endphp
-    <input type="text"
-           id="filter_registration_search"
-           list="filter_registration_list"
-           placeholder="खोज्नुहोस् दर्ता नं. वा होस्टल..."
-           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; transition:0.2s; outline:none;"
-           autocomplete="off"
-           value="{{ request('registration_id') ? $filterRegistrations->firstWhere('id', request('registration_id'))?->registration_number . ' – ' . $filterRegistrations->firstWhere('id', request('registration_id'))?->hostel?->name : '' }}"
-           oninput="document.getElementById('filter_registration_id_hidden').value = this.value.split(' – ')[0];">
-    <datalist id="filter_registration_list">
-        @foreach($filterRegistrations as $r)
-            <option value="{{ $r->registration_number ?? '#'.$r->id }} – {{ $r->hostel->name ?? 'N/A' }}" data-id="{{ $r->id }}">
-        @endforeach
-    </datalist>
-    <input type="hidden" name="registration_id" id="filter_registration_id_hidden" value="{{ request('registration_id') }}">
-    
-    {{-- Important: When the hidden input changes, submit the form --}}
-    <script>
-        document.getElementById('filter_registration_id_hidden').addEventListener('change', function() {
-            document.getElementById('filterForm').submit();
-        });
-    </script>
-</div>
+            <div style="flex:1.5; min-width:220px;">
+                <label style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">{{ __('messages.registration') }}</label>
+                @php
+                    $filterRegistrations = \App\Models\Registration::with('hostel')
+                        ->whereIn('status', ['approved', 'active'])
+                        ->get();
+                @endphp
+                <input type="text"
+                       id="filter_registration_search"
+                       list="filter_registration_list"
+                       placeholder="खोज्नुहोस् दर्ता नं. वा होस्टल..."
+                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; transition:0.2s; outline:none;"
+                       autocomplete="off"
+                       value="{{ request('registration_id') ? $filterRegistrations->firstWhere('id', request('registration_id'))?->registration_number . ' – ' . ($filterRegistrations->firstWhere('id', request('registration_id'))?->hostel?->name ?? 'N/A') . ' | ' . ($filterRegistrations->firstWhere('id', request('registration_id'))?->hostel?->name_english ?? '') : '' }}"
+                       onchange="handleFilterSelection(this)">
+                <datalist id="filter_registration_list">
+                    @foreach($filterRegistrations as $r)
+                        <option value="{{ $r->registration_number ?? '#'.$r->id }} – {{ $r->hostel->name ?? 'N/A' }} | {{ $r->hostel->name_english ?? '' }}" data-id="{{ $r->id }}">
+                    @endforeach
+                </datalist>
+                <input type="hidden" name="registration_id" id="filter_registration_id_hidden" value="{{ request('registration_id') }}">
+            </div>
 
             {{-- Sort --}}
             <div style="flex:1; min-width:130px;">
@@ -116,7 +100,7 @@
 
 {{-- ===== GENERATE CERTIFICATE FORM ===== --}}
 <div style="background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:20px; margin-bottom:24px;">
-    <form action="{{ route('admin.certificate.generate') }}" method="POST">
+    <form action="{{ route('admin.certificate.generate') }}" method="POST" id="generateForm">
         @csrf
         <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
             <div style="flex:2; min-width:200px;">
@@ -131,13 +115,13 @@
                 <input type="text"
                        id="registration_search"
                        list="registration_list"
-                       placeholder="होस्टल नाम वा दर्ता नं. खोज्नुहोस्..."
+                       placeholder="होस्टल नाम (नेपाली/English) वा दर्ता नं. खोज्नुहोस्..."
                        style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; background:#f8fafc; transition:0.2s; outline:none;"
                        autocomplete="off"
-                       oninput="document.getElementById('registration_id_hidden').value = this.value.split(' – ')[0];">
+                       onchange="handleRegistrationSelection(this)">
                 <datalist id="registration_list">
                     @foreach($registrationsForCert as $r)
-                        <option value="{{ $r->registration_number ?? '#'.$r->id }} – {{ $r->hostel->name ?? 'N/A' }}" data-id="{{ $r->id }}">
+                        <option value="{{ $r->registration_number ?? '#'.$r->id }} – {{ $r->hostel->name ?? 'N/A' }} | {{ $r->hostel->name_english ?? '' }}" data-id="{{ $r->id }}">
                     @endforeach
                 </datalist>
                 <input type="hidden" name="registration_id" id="registration_id_hidden" value="{{ old('registration_id') }}">
@@ -228,6 +212,72 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    // ===== Handle Registration Selection (Generate Form) =====
+    function handleRegistrationSelection(input) {
+        const datalist = document.getElementById('registration_list');
+        const hiddenInput = document.getElementById('registration_id_hidden');
+        const value = input.value;
+        
+        // Find the matching option
+        let found = false;
+        for (let opt of datalist.options) {
+            if (opt.value === value) {
+                const id = opt.getAttribute('data-id');
+                hiddenInput.value = id;
+                found = true;
+                break;
+            }
+        }
+        
+        // If not found, clear the hidden input
+        if (!found) {
+            hiddenInput.value = '';
+        }
+    }
+
+    // ===== Handle Filter Registration Selection =====
+    function handleFilterSelection(input) {
+        const datalist = document.getElementById('filter_registration_list');
+        const hiddenInput = document.getElementById('filter_registration_id_hidden');
+        const value = input.value;
+        
+        let found = false;
+        for (let opt of datalist.options) {
+            if (opt.value === value) {
+                const id = opt.getAttribute('data-id');
+                hiddenInput.value = id;
+                found = true;
+                break;
+            }
+        }
+        
+        if (!found) {
+            hiddenInput.value = '';
+        }
+        
+        // Auto-submit the filter form
+        document.getElementById('filterForm').submit();
+    }
+
+    // ===== On page load: restore selected value for Generate form =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const hiddenInput = document.getElementById('registration_id_hidden');
+        if (hiddenInput && hiddenInput.value) {
+            // Find the matching option and set the input value
+            const datalist = document.getElementById('registration_list');
+            for (let opt of datalist.options) {
+                if (opt.getAttribute('data-id') == hiddenInput.value) {
+                    document.getElementById('registration_search').value = opt.value;
+                    break;
+                }
+            }
+        }
+    });
+</script>
+@endpush
 
 @push('styles')
 <style>
