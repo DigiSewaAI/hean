@@ -273,101 +273,140 @@
         const hiddenDistrict = document.getElementById('hidden_district');
         const hiddenMunicipality = document.getElementById('hidden_municipality');
 
-        // Function to update hidden inputs based on selected option text
-        function updateHiddenFields() {
-            // Update district hidden
-            const districtOption = districtSelect.options[districtSelect.selectedIndex];
-            if (districtOption && districtOption.value) {
-                hiddenDistrict.value = districtOption.textContent;
-            } else {
-                hiddenDistrict.value = '';
-            }
+        // ===== Hostel data from server (IDs + Names) =====
+        const provinceId = "{{ old('province_id', $hostel->province_id ?? '') }}";
+        const provinceName = "{{ old('province', $hostel->province ?? '') }}";
+        const districtId = "{{ old('district_id', $hostel->district_id ?? '') }}";
+        const districtName = "{{ old('district', $hostel->district ?? '') }}";
+        const municipalityId = "{{ old('municipality_id', $hostel->municipality_id ?? '') }}";
+        const municipalityName = "{{ old('municipality', $hostel->municipality ?? '') }}";
 
-            // Update municipality hidden
-            const municipalityOption = municipalitySelect.options[municipalitySelect.selectedIndex];
-            if (municipalityOption && municipalityOption.value) {
-                hiddenMunicipality.value = municipalityOption.textContent;
-            } else {
-                hiddenMunicipality.value = '';
+        // ===== Helper: Set select by text =====
+        function setSelectByText(selectElement, text) {
+            if (!text) return false;
+            for (let option of selectElement.options) {
+                if (option.textContent.trim() === text.trim()) {
+                    selectElement.value = option.value;
+                    return true;
+                }
             }
+            return false;
         }
 
-        // Province change -> load districts
+        // ===== Helper: Set select by value =====
+        function setSelectByValue(selectElement, value) {
+            if (!value) return false;
+            for (let option of selectElement.options) {
+                if (option.value == value) {
+                    selectElement.value = value;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // ===== Function to update hidden fields =====
+        function updateHiddenFields() {
+            const districtOption = districtSelect.options[districtSelect.selectedIndex];
+            hiddenDistrict.value = districtOption && districtOption.value ? districtOption.textContent : '';
+
+            const municipalityOption = municipalitySelect.options[municipalitySelect.selectedIndex];
+            hiddenMunicipality.value = municipalityOption && municipalityOption.value ? municipalityOption.textContent : '';
+        }
+
+        // ===== 1. Province Selection =====
+        // Try ID first, then name
+        if (provinceId) {
+            setSelectByValue(provinceSelect, provinceId);
+        } else if (provinceName) {
+            setSelectByText(provinceSelect, provinceName);
+        }
+
+        // ===== 2. Load Districts =====
+        function loadDistrictsAndSelect(pid) {
+            if (!pid) {
+                districtSelect.innerHTML = '<option value="">{{ __('messages.select_district') }}</option>';
+                municipalitySelect.innerHTML = '<option value="">{{ __('messages.select_municipality') }}</option>';
+                return;
+            }
+            fetch(`/api/districts/${pid}`)
+                .then(response => response.json())
+                .then(data => {
+                    districtSelect.innerHTML = '<option value="">{{ __('messages.select_district') }}</option>';
+                    data.forEach(district => {
+                        const option = document.createElement('option');
+                        option.value = district.id;
+                        option.textContent = district.name;
+                        districtSelect.appendChild(option);
+                    });
+
+                    // Set district by ID or name
+                    if (districtId) {
+                        setSelectByValue(districtSelect, districtId);
+                    } else if (districtName) {
+                        setSelectByText(districtSelect, districtName);
+                    }
+
+                    // Load municipalities for the selected district
+                    if (districtSelect.value) {
+                        loadMunicipalitiesAndSelect(districtSelect.value);
+                    }
+                })
+                .catch(() => {});
+        }
+
+        // ===== 3. Load Municipalities =====
+        function loadMunicipalitiesAndSelect(did) {
+            if (!did) {
+                municipalitySelect.innerHTML = '<option value="">{{ __('messages.select_municipality') }}</option>';
+                return;
+            }
+            fetch(`/api/municipalities/${did}`)
+                .then(response => response.json())
+                .then(data => {
+                    municipalitySelect.innerHTML = '<option value="">{{ __('messages.select_municipality') }}</option>';
+                    data.forEach(municipality => {
+                        const option = document.createElement('option');
+                        option.value = municipality.id;
+                        option.textContent = municipality.name;
+                        municipalitySelect.appendChild(option);
+                    });
+
+                    // Set municipality by ID or name
+                    if (municipalityId) {
+                        setSelectByValue(municipalitySelect, municipalityId);
+                    } else if (municipalityName) {
+                        setSelectByText(municipalitySelect, municipalityName);
+                    }
+                    updateHiddenFields();
+                })
+                .catch(() => {});
+        }
+
+        // ===== 4. Event Listeners =====
         provinceSelect.addEventListener('change', function() {
-            const provinceId = this.value;
-            districtSelect.innerHTML = '<option value="">{{ __('messages.select_district') }}</option>';
-            municipalitySelect.innerHTML = '<option value="">{{ __('messages.select_municipality') }}</option>';
-            if (provinceId) {
-                fetch(`/api/districts/${provinceId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(district => {
-                            const option = document.createElement('option');
-                            option.value = district.id;
-                            option.textContent = district.name;
-                            districtSelect.appendChild(option);
-                        });
-                        // If we have old district_id, set it and trigger change
-                        const oldDistrict = "{{ old('district_id', $hostel->district_id ?? '') }}";
-                        if (oldDistrict) {
-                            districtSelect.value = oldDistrict;
-                            districtSelect.dispatchEvent(new Event('change'));
-                        } else {
-                            // update hidden after load
-                            updateHiddenFields();
-                        }
-                    })
-                    .catch(() => {});
-            } else {
-                // clear hidden
-                hiddenDistrict.value = '';
-                hiddenMunicipality.value = '';
-            }
+            const pid = this.value;
+            loadDistrictsAndSelect(pid);
         });
 
-        // District change -> load municipalities
         districtSelect.addEventListener('change', function() {
-            const districtId = this.value;
-            municipalitySelect.innerHTML = '<option value="">{{ __('messages.select_municipality') }}</option>';
-            if (districtId) {
-                fetch(`/api/municipalities/${districtId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(municipality => {
-                            const option = document.createElement('option');
-                            option.value = municipality.id;
-                            option.textContent = municipality.name;
-                            municipalitySelect.appendChild(option);
-                        });
-                        // If we have old municipality_id, set it
-                        const oldMunicipality = "{{ old('municipality_id', $hostel->municipality_id ?? '') }}";
-                        if (oldMunicipality) {
-                            municipalitySelect.value = oldMunicipality;
-                        }
-                        // Update hidden after municipality load
-                        updateHiddenFields();
-                    })
-                    .catch(() => {});
-            } else {
-                hiddenMunicipality.value = '';
-            }
+            const did = this.value;
+            loadMunicipalitiesAndSelect(did);
         });
 
-        // Also update hidden on direct change of district and municipality dropdowns
         districtSelect.addEventListener('change', updateHiddenFields);
         municipalitySelect.addEventListener('change', updateHiddenFields);
 
-        // Initial load: if province is selected, load districts and municipalities
-        const initialProvince = "{{ old('province_id', $hostel->province_id ?? '') }}";
-        if (initialProvince) {
-            provinceSelect.value = initialProvince;
-            provinceSelect.dispatchEvent(new Event('change'));
+        // ===== 5. Initial Load =====
+        // If province is selected (by ID or name), load districts and municipalities
+        if (provinceSelect.value) {
+            loadDistrictsAndSelect(provinceSelect.value);
         } else {
-            // If no province, still set initial hidden from old values (if any)
+            // If no province selected, still update hidden fields from existing data
             updateHiddenFields();
         }
 
-        // Final fallback: set hidden fields when form submits (just in case)
+        // ===== 6. Final fallback: update hidden fields on form submit =====
         document.querySelector('form').addEventListener('submit', function() {
             updateHiddenFields();
         });
