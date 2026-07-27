@@ -1372,6 +1372,12 @@ return [
 'district_placeholder' => 'Enter district name (e.g. Kathmandu)',
 'position_hint' => 'For District: use format "President (Kathmandu)". For Former/Founder: use "President (Founder)".',
 'members' => 'Members',
-
+// =============================================
+// SPECIAL LEADERSHIP LABELS
+// =============================================
+'patron' => 'Patron',
+'founder_president' => 'Founder President',
+'former_president' => 'Former President',
+'outgoing_president' => 'Outgoing President',
 
 ];

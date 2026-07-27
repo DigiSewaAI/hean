@@ -55,16 +55,16 @@
                          style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid #e2e8f0;">
                     <span style="font-weight:600; color:#475569; font-size:0.85rem;">
                         @if($leader->position == 'President (Founder)')
-                            संस्थापक अध्यक्ष
-                        @elseif($leader->position == 'President (Former 2080)')
-                            निवर्तमान अध्यक्ष
-                        @elseif($leader->position == 'President (Former 2079)')
-                            पूर्व अध्यक्ष
-                        @elseif($leader->position == 'Patron' || $leader->position == 'संरक्षक')
-                            संरक्षक
-                        @else
-                            {{ $leader->position }}
-                        @endif:
+    {{ __('messages.founder_president') }}
+@elseif($leader->position == 'President (Former 2080)')
+    {{ __('messages.outgoing_president') }}
+@elseif($leader->position == 'President (Former 2079)')
+    {{ __('messages.former_president') }}
+@elseif($leader->position == 'Patron')
+    {{ __('messages.patron') }}
+@else
+    {{ $leader->position }}
+@endif:
                     </span>
                     <span style="font-weight:700; color:#0f172a; font-size:0.95rem;">
                         {{ $leader->name }}

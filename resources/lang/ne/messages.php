@@ -1397,5 +1397,11 @@ return [
 'district_placeholder' => 'जिल्लाको नाम लेख्नुहोस् (जस्तै: काठमाडौं)',
 'position_hint' => 'जिल्लाको लागि: "President (Kathmandu)" फर्म्याट प्रयोग गर्नुहोस्। पूर्व/संस्थापकको लागि: "President (Founder)" प्रयोग गर्नुहोस्।',
 'members' => 'सदस्यहरू',
-
+// =============================================
+// SPECIAL LEADERSHIP LABELS
+// =============================================
+'patron' => 'संरक्षक',
+'founder_president' => 'संस्थापक अध्यक्ष',
+'former_president' => 'पूर्व अध्यक्ष',
+'outgoing_president' => 'निवर्तमान अध्यक्ष',
 ];
