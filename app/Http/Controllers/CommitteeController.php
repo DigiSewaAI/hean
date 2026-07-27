@@ -15,8 +15,8 @@ class CommitteeController extends Controller
 
     // Grouping logic (पहिले जस्तै)
     $central = $members->filter(function ($item) {
-        return !str_contains($item->position, '(');
-    })->values();
+    return !str_contains($item->position, '(') && $item->position != 'Patron';
+})->values();
 
     $former = $members->filter(function ($item) {
         return str_contains($item->position, '(') && 
