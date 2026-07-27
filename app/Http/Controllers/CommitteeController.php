@@ -43,12 +43,6 @@ class CommitteeController extends Controller
         ->orderBy('order')
         ->get();
 
-    // $former बाट यी specialLeadership का ID हटाउने (ताकि दोहोरो नदेखियोस्)
-    $specialIds = $specialLeadership->pluck('id')->toArray();
-    $former = $former->reject(function ($item) use ($specialIds) {
-        return in_array($item->id, $specialIds);
-    })->values();
-
     // Stats
     $totalMembers   = $members->unique('name')->count();
     $totalPositions = $members->pluck('position')->unique()->count();
