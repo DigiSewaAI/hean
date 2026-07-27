@@ -13,7 +13,7 @@ class CommitteeController extends Controller
                               ->orderBy('order')
                               ->get();
 
-    // Grouping logic
+    // Grouping logic (पहिले जस्तै)
     $central = $members->filter(function ($item) {
         return !str_contains($item->position, '(');
     })->values();
@@ -30,10 +30,29 @@ class CommitteeController extends Controller
                !str_contains($item->position, 'Former');
     })->values();
 
-    // ✅ नयाँ – Stats को लागि सही गणना
-    $totalMembers   = $members->unique('name')->count();                      // 99
-    $totalPositions = $members->pluck('position')->unique()->count();        // 63
-    $activeMembers  = $members->where('is_published', true)->unique('name')->count(); // 99
+    // ✅ नयाँ: Special Leadership (संरक्षक, संस्थापक अध्यक्ष, पूर्व अध्यक्ष, निवर्तमान अध्यक्ष)
+    $specialPositions = [
+        'Patron', 'संरक्षक',
+        'President (Founder)', 'Founder President', 'संस्थापक अध्यक्ष',
+        'President (Former 2080)', 'President (Former 2079)', 'Former President', 'पूर्व अध्यक्ष',
+        'Outgoing President', 'निवर्तमान अध्यक्ष',
+    ];
+
+    $specialLeadership = CommitteeMember::where('is_published', true)
+        ->whereIn('position', $specialPositions)
+        ->orderBy('order')
+        ->get();
+
+    // $former बाट यी specialLeadership का ID हटाउने (ताकि दोहोरो नदेखियोस्)
+    $specialIds = $specialLeadership->pluck('id')->toArray();
+    $former = $former->reject(function ($item) use ($specialIds) {
+        return in_array($item->id, $specialIds);
+    })->values();
+
+    // Stats
+    $totalMembers   = $members->unique('name')->count();
+    $totalPositions = $members->pluck('position')->unique()->count();
+    $activeMembers  = $members->where('is_published', true)->unique('name')->count();
 
     return view('public.committee.index', compact(
         'central', 
@@ -42,7 +61,8 @@ class CommitteeController extends Controller
         'members', 
         'totalMembers', 
         'totalPositions', 
-        'activeMembers'
+        'activeMembers',
+        'specialLeadership'
     ));
 }
 }

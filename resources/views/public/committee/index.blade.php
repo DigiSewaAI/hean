@@ -42,6 +42,31 @@
     </div>
 </section>
 
+{{-- ===== SPECIAL LEADERSHIP SECTION (संरक्षक, संस्थापक अध्यक्ष, पूर्व अध्यक्ष, निवर्तमान अध्यक्ष) ===== --}}
+@if($specialLeadership->count())
+<section style="padding:20px 0; background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+    <div class="container">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:20px 40px; background:#fff; padding:15px 30px; border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.04);">
+            @foreach($specialLeadership as $leader)
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-weight:600; color:#475569; font-size:0.85rem;">
+                        {{ $leader->position }}:
+                    </span>
+                    <span style="font-weight:700; color:#0f172a; font-size:0.95rem;">
+                        {{ $leader->name }}
+                    </span>
+                    @if($leader->facebook)
+                        <a href="{{ $leader->facebook }}" target="_blank" style="color:#1877F2; font-size:0.8rem; margin-left:4px;">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 {{-- ===== COMMITTEE SECTIONS ===== --}}
 <section style="padding:60px 0; background:#ffffff;">
     <div class="container">
