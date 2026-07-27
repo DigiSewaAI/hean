@@ -48,34 +48,34 @@
     <div class="container">
         <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:20px 40px; background:#fff; padding:15px 30px; border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.04);">
             @foreach($specialLeadership as $leader)
-    <div style="display:flex; align-items:center; gap:10px;">
-        {{-- फोटो (सानो, optional) --}}
-        <img src="{{ $leader->image_url }}" 
-             alt="{{ $leader->name }}" 
-             style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid #e2e8f0;">
-        <span style="font-weight:600; color:#475569; font-size:0.85rem;">
-            @if($leader->position == 'President (Founder)')
-                संस्थापक अध्यक्ष
-            @elseif($leader->position == 'President (Former 2080)')
-                निवर्तमान अध्यक्ष
-            @elseif($leader->position == 'President (Former 2079)')
-                पूर्व अध्यक्ष
-            @elseif($leader->position == 'Patron' || $leader->position == 'संरक्षक')
-                संरक्षक
-            @else
-                {{ $leader->position }}
-            @endif:
-        </span>
-        <span style="font-weight:700; color:#0f172a; font-size:0.95rem;">
-            {{ $leader->name }}
-        </span>
-        @if($leader->facebook)
-            <a href="{{ $leader->facebook }}" target="_blank" style="color:#1877F2; font-size:0.8rem; margin-left:4px;">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-        @endif
-    </div>
-@endforeach
+                <div style="display:flex; align-items:center; gap:10px;">
+                    {{-- फोटो --}}
+                    <img src="{{ $leader->image_url }}" 
+                         alt="{{ $leader->name }}" 
+                         style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid #e2e8f0;">
+                    <span style="font-weight:600; color:#475569; font-size:0.85rem;">
+                        @if($leader->position == 'President (Founder)')
+                            संस्थापक अध्यक्ष
+                        @elseif($leader->position == 'President (Former 2080)')
+                            निवर्तमान अध्यक्ष
+                        @elseif($leader->position == 'President (Former 2079)')
+                            पूर्व अध्यक्ष
+                        @elseif($leader->position == 'Patron' || $leader->position == 'संरक्षक')
+                            संरक्षक
+                        @else
+                            {{ $leader->position }}
+                        @endif:
+                    </span>
+                    <span style="font-weight:700; color:#0f172a; font-size:0.95rem;">
+                        {{ $leader->name }}
+                    </span>
+                    @if($leader->facebook)
+                        <a href="{{ $leader->facebook }}" target="_blank" style="color:#1877F2; font-size:0.8rem; margin-left:4px;">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                    @endif
+                </div>
+            @endforeach
         </div>
     </div>
 </section>
