@@ -181,7 +181,7 @@ public function index(Request $request)
         // ✅ block_name थपियो (वैकल्पिक)
         $validator = Validator::make($request->all(), [
             'hostel_name' => 'required|string|max:255',
-            'hostel_name_english' => 'nullable|string|max:255',
+            'hostel_name_english' => 'required|string|max:255',  // ✅ required
             'hostel_type' => 'required|in:boys,girls,co-ed',
             'established_year' => 'nullable|integer|min:1900|max:' . date('Y'),
             'pan' => 'nullable|string|max:50',              // ✅ 'unique' हटाइयो (पहिले नै थिएन)
@@ -306,7 +306,7 @@ public function update(Request $request, Registration $registration)
         \Log::info('Update method called for registration: ' . $registration->id);
     $data = $request->validate([
         'hostel_name' => 'required|string|max:255',
-        'hostel_name_english' => 'nullable|string|max:255',
+        'hostel_name_english' => 'required|string|max:255',  // ✅ required
         'hostel_type' => 'required|in:boys,girls,co-ed',
         'capacity' => 'required|integer|min:1',
         'established_year' => 'nullable|integer|min:1900|max:' . date('Y'),

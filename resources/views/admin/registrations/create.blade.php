@@ -32,64 +32,73 @@
             <h4 style="margin:0 0 16px 0; color:#0EA5E9;">
                 <i class="fas fa-building me-2"></i> {{ __('messages.hostel_information') }}
             </h4>
-            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                {{-- Hostel Name (Nepali) --}}
                 <div class="form-group">
-    <label for="hostel_name">{{ __('messages.hostel_name_nepali') }} <span style="color:#dc2626;">*</span></label>
-    <div style="display:flex; gap:8px; align-items:center;">
-        <input type="text" name="hostel_name" id="hostel_name" value="{{ old('hostel_name') }}"
-               placeholder="{{ __('messages.placeholder_hostel_name_nepali') }}"
-               style="flex:1; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
-               required>
-        <button type="button"
-                class="nepali-typing-trigger"
-                data-target="hostel_name"
-                data-title="🇳🇵 होस्टल नाम (नेपाली)"
-                data-placeholder="जस्तै: suryodaya boys hostel"
-                style="background:#f1f5f9; border:1.5px solid #e2e8f0; border-radius:8px; padding:10px 16px; cursor:pointer; font-size:0.9rem; white-space:nowrap; display:flex; align-items:center; gap:6px; transition:0.2s;">
-            <i class="fas fa-language"></i> नेपाली
-        </button>
-    </div>
-    @error('hostel_name')
-        <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
-    @enderror
-</div>
-
-            {{-- ✅ 8.1: Block / Building Name --}}
-            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                <div class="form-group" style="grid-column: span 2;">
-                    <label for="block_name">ब्लक / भवन नाम <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-                    <input type="text" name="block_name" id="block_name" value="{{ old('block_name') }}" placeholder="जस्तै: Block A, Main Building">
-                    @error('block_name')
+                    <label for="hostel_name">{{ __('messages.hostel_name_nepali') }} <span style="color:#dc2626;">*</span></label>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <input type="text" name="hostel_name" id="hostel_name" value="{{ old('hostel_name') }}"
+                               placeholder="{{ __('messages.placeholder_hostel_name_nepali') }}"
+                               style="flex:1; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
+                               required>
+                        <button type="button"
+                                class="nepali-typing-trigger"
+                                data-target="hostel_name"
+                                data-title="🇳🇵 होस्टल नाम (नेपाली)"
+                                data-placeholder="जस्तै: Suryodaya Boys Hostel"
+                                style="background:#f1f5f9; border:1.5px solid #e2e8f0; border-radius:8px; padding:10px 16px; cursor:pointer; font-size:0.9rem; white-space:nowrap; display:flex; align-items:center; gap:6px; transition:0.2s;">
+                            <i class="fas fa-language"></i> नेपाली
+                        </button>
+                    </div>
+                    @error('hostel_name')
                         <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
                     @enderror
-                    <small style="color:#64748b; font-size:0.75rem;">यदि एउटै ठेगानामा धेरै ब्लक छन् भने छुट्याउन प्रयोग गर्नुहोस्।</small>
+                </div>
+
+                {{-- ✅ Hostel Name (English) --}}
+                <div class="form-group">
+                    <label for="hostel_name_english">{{ __('messages.hostel_name_english') }} <span style="color:#dc2626;">*</span></label>
+                    <input type="text" name="hostel_name_english" id="hostel_name_english" value="{{ old('hostel_name_english') }}"
+                           placeholder="e.g. Suryoday Boys Hostel"
+                           style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;"
+                           required>
+                    @error('hostel_name_english')
+                        <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
-            {{-- Local Registration Number --}}
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
-    <div style="grid-column: span 2;">
-        <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">
-            {{ __('messages.local_registration_number') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
-        </label>
-        <input type="text" name="local_registration_number"
-value="{{ old('local_registration_number') }}"
-               placeholder="{{ __('messages.placeholder_local_registration_number') }}"
-               style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
-        @error('local_registration_number')
-            <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
-        @enderror
-        <small style="color:#64748b; font-size:0.75rem;">
-            <i class="fas fa-info-circle"></i>
-            {{ __('messages.help_local_registration_number') }}
-        </small>
-    </div>
-</div>
+            {{-- ✅ 8.1: Block / Building Name --}}
+            <div style="margin-top:12px;">
+                <label for="block_name">ब्लक / भवन नाम <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+                <input type="text" name="block_name" id="block_name" value="{{ old('block_name') }}" placeholder="जस्तै: Block A, Main Building" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                @error('block_name')
+                    <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
+                @enderror
+                <small style="color:#64748b; font-size:0.75rem;">यदि एउटै ठेगानामा धेरै ब्लक छन् भने छुट्याउन प्रयोग गर्नुहोस्।</small>
+            </div>
 
-            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            {{-- Local Registration Number --}}
+            <div style="margin-top:12px;">
+                <label style="font-weight:600; color:#1e293b; font-size:0.85rem; display:block; margin-bottom:4px;">
+                    {{ __('messages.local_registration_number') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span>
+                </label>
+                <input type="text" name="local_registration_number" value="{{ old('local_registration_number') }}"
+                       placeholder="{{ __('messages.placeholder_local_registration_number') }}"
+                       style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                @error('local_registration_number')
+                    <div style="color:#dc2626; font-size:0.8rem; margin-top:4px;">{{ $message }}</div>
+                @enderror
+                <small style="color:#64748b; font-size:0.75rem;">
+                    <i class="fas fa-info-circle"></i>
+                    {{ __('messages.help_local_registration_number') }}
+                </small>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
                 <div class="form-group">
                     <label for="hostel_type">{{ __('messages.type') }} <span style="color:#dc2626;">*</span></label>
-                    <select name="hostel_type" id="hostel_type" required>
+                    <select name="hostel_type" id="hostel_type" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;">
                         <option value="">{{ __('messages.select') }}</option>
                         <option value="boys" {{ old('hostel_type')=='boys'?'selected':'' }}>{{ __('messages.boys') }}</option>
                         <option value="girls" {{ old('hostel_type')=='girls'?'selected':'' }}>{{ __('messages.girls') }}</option>
@@ -98,35 +107,35 @@ value="{{ old('local_registration_number') }}"
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_select_type') }}</small>
                 </div>
                 <div class="form-group">
-    <label for="established_year">{{ __('messages.established_year') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-    <input type="number" name="established_year" id="established_year" value="{{ old('established_year') }}" min="1900" max="{{ date('Y') }}">
-    <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_established_year') }}</small>
-</div>
+                    <label for="established_year">{{ __('messages.established_year') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+                    <input type="number" name="established_year" id="established_year" value="{{ old('established_year') }}" min="1900" max="{{ date('Y') }}" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                    <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_established_year') }}</small>
+                </div>
             </div>
 
-            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
                 <div class="form-group">
-    <label for="pan">{{ __('messages.pan_number') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-    <input type="text" name="pan" id="pan" value="{{ old('pan') }}" placeholder="{{ __('messages.placeholder_pan') }}">
-    <small style="color:#64748b; font-size:0.75rem;">
-        <i class="fas fa-info-circle"></i> 
-        PAN नम्बर केवल प्रमाणीकरणको लागि हो। एउटै PAN मा धेरै होस्टल दर्ता गर्न सकिन्छ।
-    </small>
-</div>
+                    <label for="pan">{{ __('messages.pan_number') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+                    <input type="text" name="pan" id="pan" value="{{ old('pan') }}" placeholder="{{ __('messages.placeholder_pan') }}" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                    <small style="color:#64748b; font-size:0.75rem;">
+                        <i class="fas fa-info-circle"></i> 
+                        PAN नम्बर केवल प्रमाणीकरणको लागि हो। एउटै PAN मा धेरै होस्टल दर्ता गर्न सकिन्छ।
+                    </small>
+                </div>
                 <div class="form-group">
                     {{-- Registration Number will be auto-generated --}}
                 </div>
             </div>
 
-            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
                 <div class="form-group">
                     <label for="capacity">{{ __('messages.total_beds') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="number" name="capacity" id="capacity" value="{{ old('capacity', 0) }}" min="0" required>
+                    <input type="number" name="capacity" id="capacity" value="{{ old('capacity', 0) }}" min="0" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_total_beds') }}</small>
                 </div>
                 <div class="form-group">
                     <label for="rooms">{{ __('messages.total_rooms') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="number" name="rooms" id="rooms" value="{{ old('rooms', 0) }}" min="0" required>
+                    <input type="number" name="rooms" id="rooms" value="{{ old('rooms', 0) }}" min="0" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_total_rooms') }}</small>
                 </div>
             </div>
@@ -137,25 +146,24 @@ value="{{ old('local_registration_number') }}"
             <h4 style="margin:0 0 16px 0; color:#10B981;">
                 <i class="fas fa-user-tie me-2"></i> {{ __('messages.owner_applicant_information') }}
             </h4>
-            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div class="form-group">
                     <label for="operator_name">{{ __('messages.full_name') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="text" name="operator_name" id="operator_name" value="{{ old('operator_name') }}" required>
+                    <input type="text" name="operator_name" id="operator_name" value="{{ old('operator_name') }}" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
                 </div>
                 <div class="form-group">
-    <label for="email">{{ __('messages.email_address') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-    <input type="email" name="email" id="email" value="{{ old('email') }}" placeholder="{{ __('messages.placeholder_email') }}">
-    <small style="color:#64748b; font-size:0.75rem;">
-        <i class="fas fa-info-circle"></i> 
-        इमेल सञ्चार र प्रमाणीकरणको लागि हो। एउटै इमेल धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
-    </small>
-</div>
+                    <label for="email">{{ __('messages.email_address') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+                    <input type="email" name="email" id="email" value="{{ old('email') }}" placeholder="{{ __('messages.placeholder_email') }}" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                    <small style="color:#64748b; font-size:0.75rem;">
+                        <i class="fas fa-info-circle"></i> 
+                        इमेल सञ्चार र प्रमाणीकरणको लागि हो। एउटै इमेल धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
+                    </small>
+                </div>
             </div>
-            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
                 <div class="form-group">
                     <label for="contact">{{ __('messages.contact_number') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="text" name="contact" id="contact" value="{{ old('contact') }}" required>
-                    {{-- ✅ 8.2: Contact helper message --}}
+                    <input type="text" name="contact" id="contact" value="{{ old('contact') }}" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
                     <small style="color:#64748b; font-size:0.75rem;">
                         <i class="fas fa-info-circle"></i> 
                         सम्पर्क नम्बर सञ्चारको लागि हो। एउटै नम्बर धेरै होस्टलको लागि प्रयोग गर्न सकिन्छ।
@@ -163,7 +171,7 @@ value="{{ old('local_registration_number') }}"
                 </div>
                 <div class="form-group">
                     <label for="website">वेबसाइट <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-                    <input type="url" name="website" id="website" value="{{ old('website') }}" placeholder="{{ __('messages.placeholder_website') }}">
+                    <input type="url" name="website" id="website" value="{{ old('website') }}" placeholder="{{ __('messages.placeholder_website') }}" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_website') }}</small>
                 </div>
             </div>
@@ -174,10 +182,10 @@ value="{{ old('local_registration_number') }}"
             <h4 style="margin:0 0 16px 0; color:#8B5CF6;">
                 <i class="fas fa-map-marker-alt me-2"></i> {{ __('messages.address') }}
             </h4>
-            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
                 <div class="form-group">
                     <label for="province">{{ __('messages.province') }} <span style="color:#dc2626;">*</span></label>
-                    <select name="province" id="province" required>
+                    <select name="province" id="province" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;">
                         <option value="">{{ __('messages.select_province') }}</option>
                         @foreach(\App\Models\Province::orderBy('name')->get() as $prov)
                             <option value="{{ $prov->id }}" {{ old('province')==$prov->id?'selected':'' }}>{{ $prov->name }}</option>
@@ -187,38 +195,38 @@ value="{{ old('local_registration_number') }}"
                 </div>
                 <div class="form-group">
                     <label for="district">{{ __('messages.district') }} <span style="color:#dc2626;">*</span></label>
-                    <select name="district" id="district" required>
+                    <select name="district" id="district" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;">
                         <option value="">{{ __('messages.select_district') }}</option>
                     </select>
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_select_district') }}</small>
                 </div>
                 <div class="form-group">
                     <label for="municipality">{{ __('messages.municipality') }} <span style="color:#dc2626;">*</span></label>
-                    <select name="municipality" id="municipality" required>
+                    <select name="municipality" id="municipality" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;">
                         <option value="">{{ __('messages.select_municipality') }}</option>
                     </select>
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_select_municipality') }}</small>
                 </div>
             </div>
-            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:12px;">
                 <div class="form-group">
                     <label for="ward">{{ __('messages.ward_number') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="number" name="ward" id="ward" value="{{ old('ward') }}" min="1" max="32" required>
+                    <input type="number" name="ward" id="ward" value="{{ old('ward') }}" min="1" max="32" required style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_ward_number') }}</small>
                 </div>
                 <div class="form-group">
-    <label for="street">{{ __('messages.street_tole') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-    <input type="text" name="street" id="street" value="{{ old('street') }}">
-</div>
+                    <label for="street">{{ __('messages.street_tole') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+                    <input type="text" name="street" id="street" value="{{ old('street') }}" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
+                </div>
                 <div class="form-group">
                     <label for="landmark">स्थलचिन्ह <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-                    <input type="text" name="landmark" id="landmark" value="{{ old('landmark') }}" placeholder="{{ __('messages.placeholder_landmark') }}">
+                    <input type="text" name="landmark" id="landmark" value="{{ old('landmark') }}" placeholder="{{ __('messages.placeholder_landmark') }}" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_landmark') }}</small>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin-top:12px;">
                 <label for="description">विवरण / सुविधाहरू <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-                <textarea name="description" id="description" rows="3">{{ old('description') }}</textarea>
+                <textarea name="description" id="description" rows="3" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; resize:vertical;">{{ old('description') }}</textarea>
             </div>
         </div>
 
@@ -229,30 +237,29 @@ value="{{ old('local_registration_number') }}"
             </h4>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div class="form-group">
-    <label for="document_pan">{{ __('messages.pan_certificate') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-    <input type="file" name="documents[pan]" id="document_pan" accept=".jpg,.jpeg,.png,.pdf">
-</div>
-                <div class="form-group">
-                    <label for="document_citizenship">{{ __('messages.citizenship_copy') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="file" name="documents[citizenship]" id="document_citizenship" accept=".jpg,.jpeg,.png,.pdf" required>
+                    <label for="document_pan">{{ __('messages.pan_certificate') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+                    <input type="file" name="documents[pan]" id="document_pan" accept=".jpg,.jpeg,.png,.pdf" style="width:100%; padding:6px; border:1px solid #e2e8f0; border-radius:6px;">
                 </div>
                 <div class="form-group">
-    <label for="document_license">{{ __('messages.business_registration_certificate') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-    <input type="file" name="documents[license]" id="document_license" accept=".jpg,.jpeg,.png,.pdf">
-</div>
+                    <label for="document_citizenship">{{ __('messages.citizenship_copy') }} <span style="color:#dc2626;">*</span></label>
+                    <input type="file" name="documents[citizenship]" id="document_citizenship" accept=".jpg,.jpeg,.png,.pdf" required style="width:100%; padding:6px; border:1px solid #e2e8f0; border-radius:6px;">
+                </div>
                 <div class="form-group">
-    <label for="document_municipality">{{ __('messages.municipality_certificate') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-    <input type="file" name="documents[municipality]" id="document_municipality" accept=".jpg,.jpeg,.png,.pdf">
-</div>
-                
+                    <label for="document_license">{{ __('messages.business_registration_certificate') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+                    <input type="file" name="documents[license]" id="document_license" accept=".jpg,.jpeg,.png,.pdf" style="width:100%; padding:6px; border:1px solid #e2e8f0; border-radius:6px;">
+                </div>
+                <div class="form-group">
+                    <label for="document_municipality">{{ __('messages.municipality_certificate') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+                    <input type="file" name="documents[municipality]" id="document_municipality" accept=".jpg,.jpeg,.png,.pdf" style="width:100%; padding:6px; border:1px solid #e2e8f0; border-radius:6px;">
+                </div>
                 <div class="form-group" style="grid-column:2/3;">
                     <label for="document_signboard">{{ __('messages.signboard_building_image') }} <span style="color:#dc2626;">*</span></label>
-                    <input type="file" name="documents[signboard]" id="document_signboard" accept=".jpg,.jpeg,.png" required>
+                    <input type="file" name="documents[signboard]" id="document_signboard" accept=".jpg,.jpeg,.png" required style="width:100%; padding:6px; border:1px solid #e2e8f0; border-radius:6px;">
                     <small style="color:#64748b; font-size:0.75rem;">{{ __('messages.help_signboard_image') }}</small>
                 </div>
                 <div class="form-group" style="grid-column:1/3;">
                     <label for="document_additional">{{ __('messages.additional_documents_optional') }}</label>
-                    <input type="file" name="documents[additional]" id="document_additional" accept=".jpg,.jpeg,.png,.pdf" multiple>
+                    <input type="file" name="documents[additional]" id="document_additional" accept=".jpg,.jpeg,.png,.pdf" multiple style="width:100%; padding:6px; border:1px solid #e2e8f0; border-radius:6px;">
                 </div>
             </div>
             <small style="color:#64748b; display:block; margin-top:8px; font-size:0.75rem;">
@@ -266,10 +273,10 @@ value="{{ old('local_registration_number') }}"
             <h4 style="margin:0 0 16px 0; color:#EF4444;">
                 <i class="fas fa-credit-card me-2"></i> {{ __('messages.payment_status') }}
             </h4>
-            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div class="form-group">
                     <label for="payment_status">{{ __('messages.payment_status') }} <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-<select name="payment_status" id="payment_status">
+                    <select name="payment_status" id="payment_status" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;">
                         <option value="pending" selected>{{ __('messages.payment_pending') }}</option>
                         <option value="submitted">{{ __('messages.payment_submitted') }}</option>
                         <option value="verified">{{ __('messages.payment_verified') }}</option>
@@ -278,7 +285,7 @@ value="{{ old('local_registration_number') }}"
                 </div>
                 <div class="form-group">
                     <label for="payment_method">भुक्तानी विधि <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
-                    <select name="payment_method" id="payment_method">
+                    <select name="payment_method" id="payment_method" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem; background:#fff;">
                         <option value="">{{ __('messages.select') }}</option>
                         <option value="bank">{{ __('messages.payment_bank_transfer') }}</option>
                         <option value="qr">{{ __('messages.payment_qr_scan') }}</option>
@@ -286,8 +293,9 @@ value="{{ old('local_registration_number') }}"
                     </select>
                 </div>
             </div>
-            <div class="form-group">
-<label for="payment_transaction_id">कारोबार ID <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>                <input type="text" name="payment_transaction_id" id="payment_transaction_id" value="{{ old('payment_transaction_id') }}" placeholder="{{ __('messages.placeholder_transaction_id') }}">
+            <div class="form-group" style="margin-top:12px;">
+                <label for="payment_transaction_id">कारोबार ID <span style="color:#64748b; font-weight:400;">(वैकल्पिक)</span></label>
+                <input type="text" name="payment_transaction_id" id="payment_transaction_id" value="{{ old('payment_transaction_id') }}" placeholder="{{ __('messages.placeholder_transaction_id') }}" style="width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.95rem;">
             </div>
         </div>
 
