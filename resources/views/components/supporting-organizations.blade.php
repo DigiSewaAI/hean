@@ -215,8 +215,7 @@
             <div class="scroll-track" style="display:flex !important; flex-direction:row !important; flex-wrap:nowrap !important; align-items:center !important; gap:30px; width:max-content !important; animation:scroll-partners 45s linear infinite !important;">
                 {{-- First set --}}
                 @foreach ($organizations as $org)
-                    <a href="{{ $org['url'] }}" target="_blank" rel="noopener" class="partner-card" style="flex:0 0 auto !important; width:260px !important;">
-                        <div class="card-inner">
+<a href="{{ $org['name'] == 'Everest Hospital' ? 'https://www.everesthospital.org.np/' : $org['url'] }}" target="_blank" rel="noopener" class="partner-card" style="flex:0 0 auto !important; width:260px !important;">                        <div class="card-inner">
                             <div class="logo-wrapper">
                                 <img src="{{ $org['logo'] }}" alt="{{ $org['name'] }}" loading="lazy">
                             </div>
@@ -231,8 +230,7 @@
 
                 {{-- Duplicate set for seamless loop --}}
                 @foreach ($organizations as $org)
-                    <a href="{{ $org['url'] }}" target="_blank" rel="noopener" class="partner-card" style="flex:0 0 auto !important; width:260px !important;">
-                        <div class="card-inner">
+<a href="{{ $org['name'] == 'Everest Hospital' ? 'https://www.everesthospital.org.np/' : $org['url'] }}" target="_blank" rel="noopener" class="partner-card" style="flex:0 0 auto !important; width:260px !important;">                        <div class="card-inner">
                             <div class="logo-wrapper">
                                 <img src="{{ $org['logo'] }}" alt="{{ $org['name'] }}" loading="lazy">
                             </div>
