@@ -302,7 +302,12 @@
                         @php $subtotal += $item->amount; @endphp
                         <tr>
                             <td class="text-center">{{ $loop->iteration }}</td>
-                            <td>{{ $item->description }}</td>
+                            <td>
+    {{ $item->description }}
+    @if($item->remarks)
+        <div style="font-size:11px; color:#94a3b8; margin-top:1px;">{{ $item->remarks }}</div>
+    @endif
+</td>
                             <td class="text-center">{{ $item->quantity }}</td>
                             <td class="text-right">NPR {{ number_format($item->unit_price, 2) }}</td>
                             <td class="text-right">NPR {{ number_format($item->amount, 2) }}</td>

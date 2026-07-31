@@ -125,7 +125,12 @@
                             @php $subtotal += $item->amount; @endphp
                             <tr style="border-bottom:1px solid #e2e8f0;">
                                 <td style="padding:10px 12px; font-weight:500; color:#0f172a;">{{ $loop->iteration }}</td>
-                                <td style="padding:10px 12px; color:#0f172a;">{{ $item->description }}</td>
+                                <td style="padding:10px 12px; color:#0f172a;">
+    {{ $item->description }}
+    @if($item->remarks)
+        <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">{{ $item->remarks }}</div>
+    @endif
+</td>
                                 <td style="padding:10px 12px; text-align:center; color:#0f172a;">{{ $item->quantity }}</td>
                                 <td style="padding:10px 12px; text-align:right; color:#0f172a;">NPR {{ number_format($item->unit_price, 2) }}</td>
                                 <td style="padding:10px 12px; text-align:right; font-weight:600; color:#0f172a;">NPR {{ number_format($item->amount, 2) }}</td>
