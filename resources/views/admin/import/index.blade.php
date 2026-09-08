@@ -18,10 +18,36 @@
     </div>
 
     {{-- ===== FLASH MESSAGES ===== --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
+            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
+            <i class="fas fa-exclamation-triangle me-2"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     @if(session('info'))
         <div class="alert alert-info alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
             <i class="fas fa-info-circle me-2"></i> {{ session('info') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('messages.close') }}"></button>
+        </div>
+    @endif
+
+    {{-- ===== IMPORT ERRORS LIST (if any) ===== --}}
+    @if(session('errors') && count(session('errors')) > 0)
+        <div class="alert alert-warning border-0 shadow-sm" style="border-radius: 12px; background: #fffbeb; border-left: 5px solid #F59E0B;">
+            <strong class="d-block text-warning mb-2"><i class="fas fa-exclamation-circle me-1"></i> Skipped Rows:</strong>
+            <ul class="mb-0" style="color: #78350f; font-size: 0.9rem;">
+                @foreach(session('errors') as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -48,13 +74,15 @@
             <div class="alert alert-warning border-0 shadow-sm d-flex align-items-start gap-3" style="border-radius: 12px; background: #fffbeb; border-left: 5px solid #F59E0B;">
                 <i class="fas fa-lightbulb text-warning fs-4 mt-1"></i>
                 <div>
-                    <strong class="d-block" style="color: #92400e;">{{ __('messages.import_placeholder') }}</strong>
-                    <small style="color: #78350f;">कृपया सही ढाँचाको फाइल मात्र अपलोड गर्नुहोस्।</small>
+                    <strong class="d-block" style="color: #92400e;">कृपया सही ढाँचाको फाइल मात्र अपलोड गर्नुहोस्।</strong>
+                    <small style="color: #78350f;">
+                        आवश्यक क्रम: S.N., Name (EN), Name (NP), Location, Owner, Contact, PAN, Ward, (ignore x5), Capacity, Remarks, Registration Date (AD)
+                    </small>
                 </div>
             </div>
 
             {{-- Upload Form --}}
-            <form action="{{ route('admin.import.prepare') }}" method="POST" enctype="multipart/form-data" class="mt-3">
+            <form action="{{ route('admin.import.store') }}" method="POST" enctype="multipart/form-data" class="mt-3">
                 @csrf
 
                 <div class="row g-4 align-items-end">
@@ -67,7 +95,7 @@
                         </label>
                         <div class="position-relative">
                             <input type="file" class="form-control form-control-lg" id="file" name="file" accept=".csv,.xlsx,.xls"
-                                   style="padding: 14px 18px; border-radius: 14px; border: 2px dashed #d1d5db; background: #fafbfc; transition: 0.3s; cursor: pointer;">
+                                   style="padding: 14px 18px; border-radius: 14px; border: 2px dashed #d1d5db; background: #fafbfc; transition: 0.3s; cursor: pointer;" required>
                             <small class="text-muted d-block mt-2" style="font-size: 0.75rem;">
                                 <i class="fas fa-info-circle me-1"></i>
                                 समर्थित फार्म्याट: .csv, .xlsx, .xls | अधिकतम 10MB
@@ -85,7 +113,7 @@
                                        font-size: 1rem;
                                        box-shadow: 0 6px 20px rgba(14,165,233,0.35); 
                                        transition: all 0.3s ease;">
-                            <i class="fas fa-upload me-2"></i> {{ __('messages.prepare_import') }}
+                            <i class="fas fa-upload me-2"></i> Import
                         </button>
                     </div>
 

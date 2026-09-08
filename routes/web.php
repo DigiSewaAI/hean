@@ -185,6 +185,8 @@ Route::prefix('gallery/images')->name('gallery.')->group(function () {
         // Import Preparation
         Route::get('import', [ImportController::class, 'index'])->name('import.index');
         Route::post('import/prepare', [ImportController::class, 'prepare'])->name('import.prepare');
+        Route::post('import', [ImportController::class, 'store'])->name('import.store');
+
 
         
         // Certificate download (admin)
